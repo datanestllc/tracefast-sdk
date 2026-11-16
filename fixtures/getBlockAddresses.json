@@ -1,0 +1,34 @@
+{
+  "data": {
+    "blockNumber": 25920000,
+    "addressCount": 690,
+    "addresses": [
+      {
+        "address": "0x000000000004444c5dc75cb358380d2e3de08a90",
+        "balanceChanged": true,
+        "nonceChanged": false,
+        "codeChanged": false,
+        "created": false,
+        "beforeBalanceWei": "48569084287202479838225",
+        "afterBalanceWei": "48569013714722573737903"
+      },
+      {
+        "address": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+        "balanceChanged": true,
+        "nonceChanged": false,
+        "codeChanged": false,
+        "created": false,
+        "beforeBalanceWei": "50425318087644392147",
+        "afterBalanceWei": "50425286003912903137"
+      }
+    ],
+    "nextCursor": "AVsyNTkyMDAwMCwiMDAwMDAwMDA3MTcyN2RlMjJlNWU5ZDhiYWYwZWRhYzZmMzdkYTAzMiJdWb51Cw5amLVNfxx0NYQoLw"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/block-addresses",
+    "timestamp": 1790000000000
+  }
+}

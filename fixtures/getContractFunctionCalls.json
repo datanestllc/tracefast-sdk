@@ -1,0 +1,41 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "coverage": "top_level_only",
+    "functions": [
+      {
+        "kind": "function",
+        "selector": "0xa9059cbb",
+        "name": "transfer",
+        "signature": "transfer(address,uint256)",
+        "decodeStatus": "ambiguous",
+        "candidateCount": 4,
+        "topLevelCalls": 113225479,
+        "lastTopLevelCallBlock": 26428996
+      },
+      {
+        "kind": "function",
+        "selector": "0x095ea7b3",
+        "name": "approve",
+        "signature": "approve(address,uint256)",
+        "decodeStatus": "ambiguous",
+        "candidateCount": 3,
+        "topLevelCalls": 14710173,
+        "lastTopLevelCallBlock": 26428996
+      }
+    ],
+    "entryCount": 231,
+    "callSpan": {
+      "firstBlock": 6082473,
+      "lastBlock": 26428996
+    },
+    "callSpanAsOfBlock": 26428996
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-function-calls",
+    "timestamp": 1790000000000
+  }
+}

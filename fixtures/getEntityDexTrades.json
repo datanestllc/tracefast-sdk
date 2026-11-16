@@ -1,0 +1,63 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "trades": [
+      {
+        "blockNumber": 26086664,
+        "timestamp": 1790727551,
+        "txHash": "0x9923356a458f1407ebc867eacc0552c45e49a034031ff76f35c69701a4f0b26c",
+        "txIndex": 98,
+        "logIndex": 138,
+        "protocol": "uniswap",
+        "protocolVersion": "v3",
+        "poolAddress": "0x60594a405d53811d3bc4766596efd80fd545a270",
+        "role": "recipient",
+        "sender": "0x23617e59a5925b2a4bf75d73ff6711cd0b29de85",
+        "recipient": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "tokenIn": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amountInRaw": "5627456510489320",
+        "tokenInDecimals": 18,
+        "tokenInSymbol": "WETH",
+        "tokenOut": "0x6b175474e89094c44da98b954eedeac495271d0f",
+        "amountOutRaw": "15000000000000000000",
+        "tokenOutDecimals": 18,
+        "tokenOutSymbol": "DAI",
+        "valueUsd": 15,
+        "valuedLeg": "out",
+        "priceCarried": false
+      },
+      {
+        "blockNumber": 26028051,
+        "timestamp": 1790019923,
+        "txHash": "0x2ccfcdf8474b3eefcc47e0d21b926f1d2b57d7ced55f518baf4d1f77b06959ac",
+        "txIndex": 170,
+        "logIndex": 584,
+        "protocol": "uniswap",
+        "protocolVersion": "v3",
+        "poolAddress": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+        "role": "recipient",
+        "sender": "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45",
+        "recipient": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "tokenIn": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amountInRaw": "100000",
+        "tokenInDecimals": 6,
+        "tokenInSymbol": "USDC",
+        "tokenOut": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amountOutRaw": "36148829723063",
+        "tokenOutDecimals": 18,
+        "tokenOutSymbol": "WETH",
+        "valueUsd": 0.09964031160407862,
+        "valuedLeg": "out",
+        "priceCarried": false
+      }
+    ],
+    "nextCursor": "AVsyNjAyODA1MSw1ODRdy6WyVy_33FqtUF3mCMztkg"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/entity-dex-trades",
+    "timestamp": 1790000000000
+  }
+}

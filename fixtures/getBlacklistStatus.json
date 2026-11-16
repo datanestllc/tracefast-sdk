@@ -1,0 +1,46 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0x8589427373d6d84e98730d7795d8f6f8731fda16",
+    "listedBy": [
+      {
+        "issuerContract": "0x033875615441647e80146de60900bd6ca99abc4e",
+        "tokenSymbol": "TREK",
+        "authorityTier": "arbitrary_token",
+        "listed": true,
+        "firstListedBlock": 15309681,
+        "lastAction": "add",
+        "lastEventBlock": 15309681,
+        "lastEventTimestamp": 1660071532,
+        "lastEventTxHash": "0x2fd36cc812449b408c21c1b3647079e3140e3a497d51b3148bb1bc7e1da57436",
+        "lastEventName": "Blacklisted",
+        "lastEventKind": "membership",
+        "listCount": 1,
+        "unlistCount": 0
+      },
+      {
+        "issuerContract": "0x0390acd90e7f31c8ad6971baa110bb37c2d8899d",
+        "tokenSymbol": "JDDD1",
+        "authorityTier": "arbitrary_token",
+        "listed": true,
+        "firstListedBlock": 17572574,
+        "lastAction": "add",
+        "lastEventBlock": 17572574,
+        "lastEventTimestamp": 1687891823,
+        "lastEventTxHash": "0xbca310c1d4cc292434378c0f53acf4f1c118f23636b9ab5348513f8d05543fd4",
+        "lastEventName": "Blacklisted",
+        "lastEventKind": "membership",
+        "listCount": 1,
+        "unlistCount": 0
+      }
+    ],
+    "enforcement": []
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26429078,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-status",
+    "timestamp": 1790000000000
+  }
+}

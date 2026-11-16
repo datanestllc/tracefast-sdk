@@ -1,0 +1,62 @@
+{
+  "data": {
+    "chainId": 1,
+    "tokenA": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "tokenB": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+    "pools": [
+      {
+        "poolId": "0x8db8cf12e15c871479a720d2a555ceac838859f13fb2a7d4302bb698a7d6e162",
+        "protocol": "uniswap",
+        "version": "v4",
+        "creationBlockApprox": 26405456,
+        "tokens": [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "symbol": "USDC",
+            "name": "USD Coin",
+            "decimals": 6,
+            "role": "asset"
+          },
+          {
+            "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "symbol": "WETH",
+            "name": "Wrapped Ether",
+            "decimals": 18,
+            "role": "asset"
+          }
+        ],
+        "compositionStatus": "complete"
+      },
+      {
+        "poolId": "0xee1755c714005390b696bf0ce09b20867495da2b93ef97a3008358321103e8a9",
+        "protocol": "uniswap",
+        "version": "v4",
+        "creationBlockApprox": 26395731,
+        "tokens": [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "symbol": "USDC",
+            "name": "USD Coin",
+            "decimals": 6,
+            "role": "asset"
+          },
+          {
+            "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "symbol": "WETH",
+            "name": "Wrapped Ether",
+            "decimals": 18,
+            "role": "asset"
+          }
+        ],
+        "compositionStatus": "complete"
+      }
+    ],
+    "truncated": true
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/pools-by-pair",
+    "timestamp": 1790000000000
+  }
+}

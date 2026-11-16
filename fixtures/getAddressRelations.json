@@ -1,0 +1,27 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "direction": "subject",
+    "relations": [
+      {
+        "attributeId": "relation:account_observed_at_entrypoint",
+        "counterpart": "0x0000000071727de22e5e9d8baf0edac6f37da032",
+        "result": "pass",
+        "referenceBlock": 24781704
+      },
+      {
+        "attributeId": "relation:eip7702_delegates_to",
+        "counterpart": "0x5a7fc11397e9a8ad41bf10bf13f22b0a63f96f6d",
+        "result": "pass",
+        "referenceBlock": 23459292
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/address-relations",
+    "timestamp": 1790000000000
+  }
+}

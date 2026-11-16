@@ -1,0 +1,56 @@
+{
+  "data": {
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "transfers": [
+      {
+        "blockNumber": 26428714,
+        "txIndex": 230,
+        "logIndex": 809,
+        "txHash": "0x775c13156d292b53332344b264ae7665a7bb682295caffd40070a91f934f5715",
+        "timestamp": 1794845651,
+        "token": {
+          "address": "0x72e4f9f808c49a2a61de9c5896298920dc4eeea9",
+          "standard": "erc20",
+          "symbol": "BITCOIN",
+          "name": "HarryPotterObamaSonic10Inu",
+          "decimals": 8
+        },
+        "eventType": "transfer",
+        "from": "0xd152f549545093347a162dce210e7293f1452150",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "value": "69810247",
+        "role": "receiver",
+        "txSender": "0x6e6489a7c318c9d3d7b33c0ce4cf6a054c5e15dd",
+        "txTo": "0xd152f549545093347a162dce210e7293f1452150"
+      },
+      {
+        "blockNumber": 26426963,
+        "txIndex": 213,
+        "logIndex": 581,
+        "txHash": "0x4df907bf856fc9f094f611eb17492a9de285305beb61cc00431b26eeea348b82",
+        "timestamp": 1794824543,
+        "token": {
+          "address": "0xdc9c91d9451c5229b634338544dc4c0000000000",
+          "standard": "erc20",
+          "symbol": "LULU",
+          "name": "Lulu",
+          "decimals": 0
+        },
+        "eventType": "transfer",
+        "from": "0xe5783557b4a579aae3f0a18d9b1b348db986fc6d",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "value": "100000000000000000000000000000000000",
+        "role": "receiver",
+        "txSender": "0xe5783557b4a579aae3f0a18d9b1b348db986fc6d",
+        "txTo": "0xdc9c91d9451c5229b634338544dc4c0000000000"
+      }
+    ],
+    "nextCursor": "AVsyNjQyNjk2MywyMTMsNTgxLDAsMF0DV6g-dw-gHQzsyt6uaG74"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/entity-token-transfers",
+    "timestamp": 1790000000000
+  }
+}

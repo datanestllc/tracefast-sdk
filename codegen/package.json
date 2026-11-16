@@ -1,0 +1,11 @@
+{
+  "name": "tracefast-sdk-codegen",
+  "private": true,
+  "type": "module",
+  "description": "Generates the TraceFast SDKs from the catalogue snapshot in ../openapi",
+  "scripts": {
+    "sync": "node sync.mjs",
+    "generate": "node generate.mjs",
+    "check": "node generate.mjs --check && node lint.mjs"
+  }
+}

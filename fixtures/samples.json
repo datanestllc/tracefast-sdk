@@ -1,0 +1,29 @@
+{
+  "$comment": "The call each fixture was taken with. Defaults by parameter name, then per operation. Public mainnet objects only.",
+  "defaults": {
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "number": "25920000",
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "slot": "13000000",
+    "index": "1",
+    "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc"
+  },
+  "byNamespace": {
+    "contracts": { "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
+    "risk": { "address": "0x8589427373d6d84e98730d7795d8f6f8731fda16" }
+  },
+  "operations": {
+    "getBlockAtTime": { "query": { "timestamp": "1767225600" } },
+    "getContractSlotHistory": { "path": { "key": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3" } },
+    "getAddressAttributesAtBlock": { "query": { "block": "23459292" } },
+    "getAddressRelationsAtBlock": { "path": { "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" }, "query": { "block": "20000000" } },
+    "getAddressAttributeProof": { "path": { "attribute_id": "address_nature:eip7702_delegated_currently" } },
+    "getAddressRelationProof": { "path": { "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "attribute_id": "relation:proxy_uses_implementation", "object": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd" } },
+    "getPoolsForPair": { "query": { "tokenA": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "tokenB": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" } },
+    "resolveEntity": { "query": { "q": "usdc" } },
+    "getAddressTokenBalance": { "path": { "address": "0x28c6c06298d514db089934071355e5743bf21d60" } },
+    "getAddressPortfolio": { "path": { "address": "0x28c6c06298d514db089934071355e5743bf21d60" } }
+  },
+  "limit": "2"
+}

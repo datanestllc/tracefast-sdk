@@ -1,0 +1,14 @@
+{
+  "data": {
+    "chainId": 1,
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "writes": [],
+    "truncated": false
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/transaction-transient-writes",
+    "timestamp": 1790000000000
+  }
+}

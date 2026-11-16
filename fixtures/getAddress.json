@@ -1,0 +1,38 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "existenceKind": "account",
+    "accountType": "eoa",
+    "eip7702": {
+      "state": "delegated",
+      "delegate": "0x5a7fc11397e9a8ad41bf10bf13f22b0a63f96f6d",
+      "sinceBlock": 23459292,
+      "delegationCount": 1,
+      "delegateCount": 1,
+      "coveredThroughBlock": 26429078
+    },
+    "balanceWei": "5798969845714110716",
+    "nonce": 5970,
+    "firstSeenBlock": 302086,
+    "firstSeenTimestamp": 1443428683,
+    "lastActiveBlock": 26428714,
+    "lastActiveTimestamp": 1794845651,
+    "lastInteractionBlock": 26384365,
+    "lastInteractionTimestamp": 1794311939,
+    "createdAtBlock": 302086,
+    "createdAtTimestamp": 1443428683,
+    "directTxCount": 78454,
+    "sentTxCount": 5969,
+    "receivedTxCount": 72485,
+    "totalFeesPaidWei": "24622648713141360898",
+    "txStatsAsOfBlock": 26428996
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428878,
+    "docs": "https://docs.tracefast.xyz/api/address",
+    "timestamp": 1790000000000
+  }
+}

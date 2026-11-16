@@ -1,0 +1,29 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "intervals": [
+      {
+        "attributeId": "address_nature:account_state_ever_touched",
+        "startBlock": 302086
+      },
+      {
+        "attributeId": "address_nature:eoa_currently",
+        "startBlock": 302086,
+        "endBlock": 23459292
+      }
+    ],
+    "coveredFamilies": [
+      "address_nature",
+      "address_presence"
+    ],
+    "truncated": true
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428746,
+    "docs": "https://docs.tracefast.xyz/api/address-attribute-history",
+    "timestamp": 1790000000000
+  }
+}

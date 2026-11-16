@@ -1,0 +1,39 @@
+{
+  "data": {
+    "chainId": 1,
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "blockNumber": 25920000,
+    "txIndex": 168,
+    "timestamp": 1788718079,
+    "from": "0x07d65f37f0b4e10070eb683e51ebce416eb5aa3a",
+    "to": "0xb300000b72deaeb607a12d5f54773d1c19c7028d",
+    "valueWei": "200000000000000",
+    "methodId": "0x810c705b",
+    "inputSize": 1316,
+    "nonce": 205,
+    "txType": 2,
+    "gasLimit": "161763",
+    "gasUsed": "104318",
+    "maxFeePerGas": "126203752",
+    "maxPriorityFeePerGas": "10000000",
+    "effectiveGasPrice": "102963002",
+    "status": 1,
+    "logCount": 2,
+    "internalTransfersCount": 2,
+    "revertsTotal": 0,
+    "hasSelfdestruct": false,
+    "storage": {
+      "writes": 4,
+      "contracts": 2,
+      "slots": 2,
+      "hasDelegatecall": true
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/transaction",
+    "timestamp": 1790000000000
+  }
+}

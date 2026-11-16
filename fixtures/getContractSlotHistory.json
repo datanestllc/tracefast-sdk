@@ -1,0 +1,38 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "storageKey": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+    "readThroughBlock": 26429078,
+    "changes": [
+      {
+        "blockNumber": 18963716,
+        "valueBefore": "0x000000000000000000000000a2327a938febf5fec13bacfb16ae10ecbc4cbdcf",
+        "writerTxs": [
+          {
+            "txHash": "0xae3ad89e569f27d47a8a02999a6d937c12aaa6bc50e66650e7cbd3244bde9951",
+            "txIndex": 35
+          }
+        ]
+      },
+      {
+        "blockNumber": 12317814,
+        "valueBefore": "0x000000000000000000000000b7277a6e95992041568d9391d09d0122023778a2",
+        "valueAfter": "0x000000000000000000000000a2327a938febf5fec13bacfb16ae10ecbc4cbdcf",
+        "writerTxs": [
+          {
+            "txHash": "0xe2e40640ffd5f76538cd23660cf56f00bfebd5fe925ebad6b8067c4cee18a2c3",
+            "txIndex": 80
+          }
+        ]
+      }
+    ],
+    "nextCursor": "AVsxMjAwMDAwMF3BTldCRyL5QCQKL-GqaDYT"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-slot-history",
+    "timestamp": 1790000000000
+  }
+}

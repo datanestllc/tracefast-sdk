@@ -1,0 +1,86 @@
+{
+  "data": {
+    "chainId": 1,
+    "head": {
+      "slot": 15668831,
+      "observedAt": 1794849998
+    },
+    "finalized": {
+      "slot": 15668736,
+      "observedAt": 1794849622
+    },
+    "finalizationLagSlots": 95,
+    "publishedSlot": {
+      "slot": 15668736,
+      "epoch": 489648,
+      "executionBlockNumber": 26428980,
+      "slotTime": 1794848855
+    },
+    "missedSlots24h": {
+      "slots": 7101,
+      "missed": 15,
+      "missedRatio": 0.0021123785382340513
+    },
+    "reorgs24h": {
+      "count": 2,
+      "lastObservedAt": 1794845030,
+      "reorgs": [
+        {
+          "slot": 15668417,
+          "epoch": 489638,
+          "depth": 1,
+          "observedAt": 1794845030,
+          "slotTime": 1794845027,
+          "newHeadRoot": "0x3839f6114fa6af406582a1720e5c28d9153d93d91630d2d57811c2489a64a670",
+          "oldHeadRoot": "0x240a15e303a6d9639666353ed90081f72d0e2676e22cbc6dbb4663505c37d568",
+          "executionBlockNumber": 26428663
+        },
+        {
+          "slot": 15667742,
+          "epoch": 489616,
+          "depth": 1,
+          "observedAt": 1794836929,
+          "slotTime": 1794836927,
+          "newHeadRoot": "0x1ec9fcbc7fec99200c12f2109a9d0e360a8ff9f018d78325375b44e2801c7036",
+          "oldHeadRoot": "0x6e39d11afdb9b7893905ae79e8f7cd61e2b16f35ef22711a4c807e5e505e7122",
+          "executionBlockNumber": 26427992
+        }
+      ]
+    },
+    "observation24h": {
+      "windowSlots": 7200,
+      "fromSlot": 15661631,
+      "headEvents": 7187,
+      "firstObservedAt": 1794763610,
+      "lastObservedAt": 1794849998,
+      "largestGapSeconds": 26
+    },
+    "missedSlots": [
+      {
+        "slot": 15668669,
+        "epoch": 489645,
+        "slotTime": 1794848051,
+        "dutyStatus": "recorded",
+        "validatorIndex": 1012645
+      },
+      {
+        "slot": 15668427,
+        "epoch": 489638,
+        "slotTime": 1794845147,
+        "dutyStatus": "recorded",
+        "validatorIndex": 776572
+      }
+    ],
+    "ages": {
+      "headSeconds": 50,
+      "finalitySeconds": 426,
+      "publishedSlotSeconds": 1193
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-health",
+    "timestamp": 1790000000000
+  }
+}

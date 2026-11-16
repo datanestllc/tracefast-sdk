@@ -1,0 +1,42 @@
+{
+  "data": {
+    "chainId": 1,
+    "number": 25920000,
+    "hash": "0x0695a76c1e24f2a9677f3c4cc4842b9b5a3f84d45863e9b9ef276fc48fd5874f",
+    "parentHash": "0xb5c19b6d9972c3f6ab8ac760f811abac0aa93f76586b703996ff90267a469b32",
+    "timestamp": 1788718079,
+    "feeRecipient": "0x396343362be2a4da1ce0c1c210945346fb82aa49",
+    "stateRoot": "0xd510406e8bfc7d3a7f8ab58867e9ffc3b217b1672490ff2a2cb47bce87b68aee",
+    "transactionsRoot": "0xa63d26ae365594336c9746d228ce65df452a44bfd38480bcae2945b38c6fdd5a",
+    "receiptsRoot": "0x940d72c1160bbe66d5d16afab9dca41f11bf164512348b3d200ca24c10a827a6",
+    "gasLimit": "60000000",
+    "gasUsed": "28602987",
+    "baseFeePerGas": "92963002",
+    "blobGasUsed": "1179648",
+    "excessBlobGas": "182054093",
+    "blobBaseFeeWei": "5842048",
+    "txCount": 411,
+    "successfulTxCount": 411,
+    "failedTxCount": 0,
+    "contractCreationCount": 0,
+    "blobTxCount": 3,
+    "logCount": 627,
+    "withdrawalCount": 16,
+    "totalWithdrawalGwei": "282325851",
+    "totalValueWei": "3563845140607455473",
+    "burntFees": "2659019537686974",
+    "totalGasFees": "9107983437856784",
+    "totalTips": "6448963900169810",
+    "difficulty": "0",
+    "extraData": "0xe29ca82051756173617220287175617361722e77696e2920e29ca8",
+    "ommersCount": 0,
+    "uniqueAddressCount": 690
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/block",
+    "timestamp": 1790000000000
+  }
+}

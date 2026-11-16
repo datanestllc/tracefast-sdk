@@ -1,0 +1,22 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "validatorCount": 0,
+    "activeValidators": 0,
+    "withdrawnValidators": 0,
+    "slashedValidators": 0,
+    "credentialsExecution": 0,
+    "credentialsCompounding": 0,
+    "totalEffectiveBalanceGwei": "0",
+    "validators": [],
+    "truncated": false,
+    "snapshotEpoch": 489574
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/entity-validators",
+    "timestamp": 1790000000000
+  }
+}

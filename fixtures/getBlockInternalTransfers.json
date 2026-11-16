@@ -1,0 +1,38 @@
+{
+  "data": {
+    "chainId": 1,
+    "blockNumber": 25920000,
+    "total": 239,
+    "transfers": [
+      {
+        "txIndex": 2,
+        "txHash": "0xf190bebcdb02944cbebabb580f35220c21c61621e21c985f0bc4907ee4e6ecdc",
+        "txSender": "0x8b5606469e21c75edd7c74d1c7a65824675d9aff",
+        "callDepth": 7,
+        "callType": "call",
+        "from": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "to": "0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5",
+        "value": "99970164440825331",
+        "status": "success"
+      },
+      {
+        "txIndex": 2,
+        "txHash": "0xf190bebcdb02944cbebabb580f35220c21c61621e21c985f0bc4907ee4e6ecdc",
+        "txSender": "0x8b5606469e21c75edd7c74d1c7a65824675d9aff",
+        "callDepth": 6,
+        "callType": "call",
+        "from": "0x5c7bcd6e7de5423a257d81b442095a1a6ced35c5",
+        "to": "0x7bf6b08c66f0b576ed6e338896e8ff06a5674dfe",
+        "value": "99970164440825331",
+        "status": "success"
+      }
+    ],
+    "nextCursor": "AVsyNTkyMDAwMCwiMDY5NWE3NmMxZTI0ZjJhOTY3N2YzYzRjYzQ4NDJiOWI1YTNmODRkNDU4NjNlOWI5ZWYyNzZmYzQ4ZmQ1ODc0ZiIsMl1u14v45z2hBn72Vbp9mWs4"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/block-internal-transfers",
+    "timestamp": 1790000000000
+  }
+}

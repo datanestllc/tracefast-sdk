@@ -1,0 +1,25 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "codeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+    "contractCount": 12,
+    "contracts": [
+      {
+        "address": "0x121689f0f3db379493db30593bf3058b408bec9b",
+        "blockNumber": 15509115
+      },
+      {
+        "address": "0x14039994048f873dc5f86a32075669652b9f0fa7",
+        "blockNumber": 9079551
+      }
+    ],
+    "nextCursor": "AVsiMTQwMzk5OTQwNDhmODczZGM1Zjg2YTMyMDc1NjY5NjUyYjlmMGZhNyJdNuVa_fRyWFDyUkmuy4wzXw"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-clones",
+    "timestamp": 1790000000000
+  }
+}

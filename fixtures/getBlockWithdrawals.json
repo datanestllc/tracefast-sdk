@@ -1,0 +1,28 @@
+{
+  "data": {
+    "blockNumber": 25920000,
+    "withdrawalCount": 16,
+    "withdrawals": [
+      {
+        "index": 142160619,
+        "validatorIndex": 767772,
+        "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+        "amountGwei": "14399034"
+      },
+      {
+        "index": 142160620,
+        "validatorIndex": 767773,
+        "address": "0xb9d7934878b5fb9610b3fe8a5e441e8fad7e293f",
+        "amountGwei": "14389141"
+      }
+    ],
+    "nextCursor": "AVsyNTkyMDAwMCwxNDIxNjA2MjBdFM1R6t6jMUHeQTCxDEnbqQ"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/block-withdrawals",
+    "timestamp": 1790000000000
+  }
+}

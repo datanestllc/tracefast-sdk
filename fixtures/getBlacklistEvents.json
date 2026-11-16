@@ -1,0 +1,38 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0x8589427373d6d84e98730d7795d8f6f8731fda16",
+    "events": [
+      {
+        "blockNumber": 25636751,
+        "logIndex": 732,
+        "timestamp": 1785307199,
+        "txHash": "0xf1fc531ddda3be27b2d1a9696a99843d1f4ee3dee9f8b46def6065c9bd1f664d",
+        "issuerContract": "0xc08e7e23c235073c6807c2efe7021304cb7c2815",
+        "authorityTier": "recognized_issuer",
+        "action": "add",
+        "statusEffect": "membership",
+        "eventName": "Blacklisted"
+      },
+      {
+        "blockNumber": 25586471,
+        "logIndex": 601,
+        "timestamp": 1784701583,
+        "txHash": "0x848ad6b1eccdf1d7c8c2e8d5dec540b472a6b56a3572123d2c1f36c18119a340",
+        "issuerContract": "0x70e8de73ce538da2beed35d14187f6959a8eca96",
+        "authorityTier": "recognized_issuer",
+        "action": "add",
+        "statusEffect": "membership",
+        "eventName": "Blacklisted"
+      }
+    ],
+    "nextCursor": "AVsyNTU4NjQ3MSw2MDFdRsVVG3HfR89T7oUiNm6dWQ"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26429078,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-events",
+    "timestamp": 1790000000000
+  }
+}

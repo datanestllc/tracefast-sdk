@@ -1,0 +1,81 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "events": [
+      {
+        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "blockNumber": 26429079,
+        "txIndex": 364,
+        "logIndex": 595,
+        "logIndexInTx": 0,
+        "txHash": "0xdd12de77cab45365362e312011283f5bcdd18e4efbd9c928976f871632baa28f",
+        "timestamp": 1794850043,
+        "topics": [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x000000000000000000000000fb74a10df9cc42d873e398998ab20c2be206025d"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000012fd46b",
+        "decoded": {
+          "name": "Transfer",
+          "args": [
+            {
+              "name": "from",
+              "type": "address",
+              "value": "0xfb74a10df9cc42d873e398998ab20c2be206025d",
+              "indexed": true
+            },
+            {
+              "name": "to",
+              "type": "address",
+              "value": "0x64cdaa89629fe003eaa31b480d8b63372d109a53",
+              "indexed": true
+            }
+          ],
+          "candidateCount": 1
+        },
+        "decodeStatus": "verified"
+      },
+      {
+        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "blockNumber": 26429079,
+        "txIndex": 363,
+        "logIndex": 594,
+        "logIndexInTx": 0,
+        "txHash": "0xa34edd864de388ed6cc6715918e93c90afc7d07c754695f4ac86adba8d2b217c",
+        "timestamp": 1794850043,
+        "topics": [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x0000000000000000000000004dcd39720e5f4e4054c863871827147553a0aac0"
+        ],
+        "data": "0x000000000000000000000000000000000000000000000000000000003b0db0cc",
+        "decoded": {
+          "name": "Transfer",
+          "args": [
+            {
+              "name": "from",
+              "type": "address",
+              "value": "0x4dcd39720e5f4e4054c863871827147553a0aac0",
+              "indexed": true
+            },
+            {
+              "name": "to",
+              "type": "address",
+              "value": "0x6cdb7776f6a20b9ed4441b791e9541a6fc04e313",
+              "indexed": true
+            }
+          ],
+          "candidateCount": 1
+        },
+        "decodeStatus": "verified"
+      }
+    ],
+    "nextCursor": "AVsyNjQyOTA3OSw1OTRdYSUyJm-l0eWjsTl4UA92iQ"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-events",
+    "timestamp": 1790000000000
+  }
+}

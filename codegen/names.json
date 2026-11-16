@@ -1,0 +1,20 @@
+{
+  "$comment": "Method names the default rule gets wrong. The rule: operationId without `get` and without the namespace's noun, lowerCamel; empty → `get`.",
+  "namespaces": {
+    "addresses": ["Address", "Entity"],
+    "blocks": ["Block"],
+    "consensus": ["Consensus"],
+    "contracts": ["Contract"],
+    "pools": ["Pool"],
+    "risk": [],
+    "tokens": ["Token"],
+    "traces": ["TransactionTrace"],
+    "transactions": ["Transaction"]
+  },
+  "overrides": {
+    "getLatestBlock": "latest",
+    "getNewPools": "newPools",
+    "getPoolsForPair": "forPair",
+    "resolveEntity": "resolve"
+  }
+}

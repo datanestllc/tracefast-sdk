@@ -1,0 +1,46 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "codeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+    "blockNumber": 6082465,
+    "bytecodeSize": 2186,
+    "bytecodeVariant": "legacy_analyzed",
+    "isErc20": false,
+    "isErc165": false,
+    "isEip1167Proxy": false,
+    "selectorCount": 6,
+    "erc20Interface": {
+      "hasDecimals": false,
+      "hasSymbol": false,
+      "hasName": false,
+      "hasTotalSupply": false
+    },
+    "proxyFamily": "oz_v1",
+    "proxyConfidence": 3,
+    "codeFeatures": {
+      "hasDelegatecall": true,
+      "hasCallcode": false,
+      "delegatecallTargetFromStorage": true
+    },
+    "lifecycle": {
+      "deployBlock": 6082465,
+      "latestCodeBlock": 6082465,
+      "deployCodeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+      "latestCodeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+      "codeChangeCount": 1,
+      "isAlive": true,
+      "deployer": "0x95ba4cf87d6723ad9c0db21737d862be80e93911",
+      "origin": "0x95ba4cf87d6723ad9c0db21737d862be80e93911",
+      "deployTxHash": "0xe7e0fe390354509cd08c9a0168536938600ddc552b3f7cb96030ebef62e75895",
+      "deployTxIndex": 22,
+      "deployCallType": "CREATE"
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract",
+    "timestamp": 1790000000000
+  }
+}

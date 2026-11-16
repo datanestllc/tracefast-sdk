@@ -1,0 +1,34 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "codeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+    "bytecodeVariant": "legacy_analyzed",
+    "proxyFamily": "oz_v1",
+    "proxyConfidence": 3,
+    "codeFeatures": {
+      "hasDelegatecall": true,
+      "hasCallcode": false,
+      "delegatecallTargetFromStorage": true
+    },
+    "graphReached": true,
+    "architecture": [
+      {
+        "attributeId": "architecture:has_mutable_impl_slot",
+        "result": "pass",
+        "referenceBlock": 18963716
+      },
+      {
+        "attributeId": "architecture:proxy",
+        "result": "pass",
+        "referenceBlock": 18963716
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": true,
+    "docs": "https://docs.tracefast.xyz/api/contract-security",
+    "timestamp": 1790000000000
+  }
+}

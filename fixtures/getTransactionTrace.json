@@ -1,0 +1,54 @@
+{
+  "data": {
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "blockNumber": 25920000,
+    "txIndex": 168,
+    "frameCount": 2,
+    "totalFrameCount": 5,
+    "framesTruncated": true,
+    "frames": [
+      {
+        "order": 0,
+        "depth": 1,
+        "callPath": "0000",
+        "callType": "call",
+        "from": "0x07d65f37f0b4e10070eb683e51ebce416eb5aa3a",
+        "to": "0xb300000b72deaeb607a12d5f54773d1c19c7028d",
+        "valueWei": "200000000000000",
+        "gas": "132727",
+        "gasUsed": "101361",
+        "inputSelector": "0x810c705b",
+        "status": "success",
+        "revertDecodeStatus": "absent",
+        "codeAddress": "0xb300000b72deaeb607a12d5f54773d1c19c7028d"
+      },
+      {
+        "order": 1,
+        "depth": 2,
+        "callPath": "00000000",
+        "parentPath": "0000",
+        "callType": "delegatecall",
+        "from": "0x07d65f37f0b4e10070eb683e51ebce416eb5aa3a",
+        "to": "0xb300000b72deaeb607a12d5f54773d1c19c7028d",
+        "valueWei": "0",
+        "gas": "125594",
+        "gasUsed": "96191",
+        "inputSelector": "0x810c705b",
+        "status": "success",
+        "revertDecodeStatus": "absent",
+        "codeAddress": "0x7ec117ed6e17a0e8eb643d9d3864081090b41b59"
+      }
+    ],
+    "delegatedCode": {
+      "status": "resolved",
+      "resolvedThroughBlock": 26428854
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/trace",
+    "timestamp": 1790000000000
+  }
+}

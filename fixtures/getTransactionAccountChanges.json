@@ -1,0 +1,39 @@
+{
+  "data": {
+    "chainId": 1,
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "accounts": [
+      {
+        "address": "0x07d65f37f0b4e10070eb683e51ebce416eb5aa3a",
+        "existedBefore": true,
+        "existsAfter": true,
+        "balanceBefore": "16283832972300424",
+        "balanceAfter": "16073092077857788",
+        "nonceBefore": 205,
+        "nonceAfter": 206,
+        "codeHashBefore": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        "codeHashAfter": "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470",
+        "storageDestroyed": false
+      },
+      {
+        "address": "0x4cd00e387622c35bddb9b4c962c136462338bc31",
+        "existedBefore": true,
+        "existsAfter": true,
+        "balanceBefore": "14020066642164261404",
+        "balanceAfter": "14020266642164261404",
+        "nonceBefore": 1,
+        "nonceAfter": 1,
+        "codeHashBefore": "0x27fed69438cf2a1e69f053e52d5ee6f9637963c44da6035fb9241063240c799e",
+        "codeHashAfter": "0x27fed69438cf2a1e69f053e52d5ee6f9637963c44da6035fb9241063240c799e",
+        "storageDestroyed": false
+      }
+    ],
+    "truncated": false
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/transaction-account-changes",
+    "timestamp": 1790000000000
+  }
+}

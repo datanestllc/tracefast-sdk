@@ -1,0 +1,29 @@
+{
+  "data": {
+    "chainId": 1,
+    "missedSlots": [
+      {
+        "slot": 15668669,
+        "epoch": 489645,
+        "slotTime": 1794848051,
+        "dutyStatus": "recorded",
+        "validatorIndex": 1012645
+      },
+      {
+        "slot": 15668427,
+        "epoch": 489638,
+        "slotTime": 1794845147,
+        "dutyStatus": "recorded",
+        "validatorIndex": 776572
+      }
+    ],
+    "nextCursor": "AVsxNTY2ODQyN112kVLrCLnnDhmdGxIV-rad",
+    "publishedThroughSlot": 15668736
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-missed-slots",
+    "timestamp": 1790000000000
+  }
+}

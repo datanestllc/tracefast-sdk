@@ -1,0 +1,39 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "block": 26428746,
+    "target": {
+      "mode": "auto",
+      "resolvedVia": "slot",
+      "codeAddress": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
+      "codeHash": "0xcdfb7d322961af3acae7a8f7ee8b69c205b36f576cc5b077f170c7eb8ecbe3ea"
+    },
+    "codeSize": 23464,
+    "instructionCount": 10651,
+    "metadata": {
+      "fromPc": 23411,
+      "length": 53
+    },
+    "instructions": [
+      {
+        "pc": 0,
+        "op": "PUSH1",
+        "arg": "0x80"
+      },
+      {
+        "pc": 2,
+        "op": "PUSH1",
+        "arg": "0x40"
+      }
+    ],
+    "nextCursor": "AVs0LCJjZGZiN2QzMjI5NjFhZjNhY2FlN2E4ZjdlZThiNjljMjA1YjM2ZjU3NmNjNWIwNzdmMTcwYzdlYjhlY2JlM2VhIl1pz4s3NkSomZb_GT2l96Q5"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428746,
+    "docs": "https://docs.tracefast.xyz/api/contract-disassembly",
+    "timestamp": 1790000000000
+  }
+}

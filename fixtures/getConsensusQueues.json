@@ -1,0 +1,194 @@
+{
+  "data": {
+    "chainId": 1,
+    "current": {
+      "asOfEpoch": 489650,
+      "asOfTime": "2026-11-16T17:20:44Z",
+      "queues": {
+        "deposits": {
+          "count": 11202,
+          "gwei": "913032233364694",
+          "newValidators": {
+            "count": 8393,
+            "gwei": "625665064293917"
+          },
+          "topUps": {
+            "count": 2809,
+            "gwei": "287367169070777"
+          }
+        },
+        "exitQueue": {
+          "count": 3381,
+          "gwei": "113484360971199"
+        },
+        "consolidations": {
+          "count": 6266,
+          "gwei": "200562606299450"
+        },
+        "partialWithdrawals": {
+          "count": 446,
+          "gwei": "41929927865336"
+        },
+        "exitedAwaitingWithdrawal": {
+          "count": 1490,
+          "gwei": "65419910824443"
+        },
+        "activeSet": {
+          "count": 793504,
+          "gwei": "44386623711696287"
+        },
+        "churn": {
+          "activationExitGweiPerEpoch": "256000000000",
+          "consolidationGweiPerEpoch": "421000000000"
+        },
+        "waitEstimates": {
+          "entryEpochs": 3567,
+          "exitEpochs": 444,
+          "consolidationEpochs": 477,
+          "entryDays": 15.853333333333332,
+          "exitDays": 1.9733333333333336,
+          "consolidationDays": 2.12
+        }
+      },
+      "status": {
+        "activeOngoing": 787217,
+        "pendingActivation": 1859,
+        "pendingExit": 11137,
+        "netQueue": -9278,
+        "activationRate": 0.002361483555360212,
+        "exitRate": 0.014147306270062766,
+        "pendingActivationGwei": "2640500000000",
+        "pendingExitGwei": "379466878095092"
+      }
+    },
+    "granularity": "day",
+    "observedFrom": "2026-08-11T20:21:01Z",
+    "gaps": [],
+    "points": [
+      {
+        "time": "2026-11-16T17:20:44Z",
+        "source": "observed",
+        "epoch": 489650,
+        "queues": {
+          "deposits": {
+            "count": 11202,
+            "gwei": "913032233364694",
+            "newValidators": {
+              "count": 8393,
+              "gwei": "625665064293917"
+            },
+            "topUps": {
+              "count": 2809,
+              "gwei": "287367169070777"
+            }
+          },
+          "exitQueue": {
+            "count": 3381,
+            "gwei": "113484360971199"
+          },
+          "consolidations": {
+            "count": 6266,
+            "gwei": "200562606299450"
+          },
+          "partialWithdrawals": {
+            "count": 446,
+            "gwei": "41929927865336"
+          },
+          "exitedAwaitingWithdrawal": {
+            "count": 1490,
+            "gwei": "65419910824443"
+          },
+          "activeSet": {
+            "count": 793504,
+            "gwei": "44386623711696287"
+          },
+          "churn": {
+            "activationExitGweiPerEpoch": "256000000000",
+            "consolidationGweiPerEpoch": "421000000000"
+          },
+          "waitEstimates": {
+            "entryEpochs": 3567,
+            "exitEpochs": 444,
+            "consolidationEpochs": 477
+          }
+        },
+        "status": {
+          "activeOngoing": 787217,
+          "pendingActivation": 1859,
+          "pendingExit": 11137,
+          "netQueue": -9278,
+          "activationRate": 0.002361483555360212,
+          "exitRate": 0.014147306270062766,
+          "pendingActivationGwei": "2640500000000",
+          "pendingExitGwei": "379466878095092"
+        },
+        "totalActiveBalanceGwei": "44180120400355134"
+      },
+      {
+        "time": "2026-11-15T23:57:48Z",
+        "source": "observed",
+        "epoch": 489487,
+        "queues": {
+          "deposits": {
+            "count": 10884,
+            "gwei": "926859688554563",
+            "newValidators": {
+              "count": 8072,
+              "gwei": "638462995009030"
+            },
+            "topUps": {
+              "count": 2812,
+              "gwei": "288396693545533"
+            }
+          },
+          "exitQueue": {
+            "count": 4116,
+            "gwei": "147256855242395"
+          },
+          "consolidations": {
+            "count": 5891,
+            "gwei": "188570726467185"
+          },
+          "partialWithdrawals": {
+            "count": 91,
+            "gwei": "35047279165090"
+          },
+          "exitedAwaitingWithdrawal": {
+            "count": 567,
+            "gwei": "65951152645641"
+          },
+          "activeSet": {
+            "count": 796505,
+            "gwei": "44384853395066152"
+          },
+          "churn": {
+            "activationExitGweiPerEpoch": "256000000000",
+            "consolidationGweiPerEpoch": "421000000000"
+          },
+          "waitEstimates": {
+            "entryEpochs": 3621,
+            "exitEpochs": 576,
+            "consolidationEpochs": 448
+          }
+        },
+        "status": {
+          "activeOngoing": 789858,
+          "pendingActivation": 1852,
+          "pendingExit": 10574,
+          "netQueue": -8722,
+          "activationRate": 0.0023447252544128187,
+          "exitRate": 0.013387216436372107,
+          "pendingActivationGwei": "3851000000000",
+          "pendingExitGwei": "401778734355221"
+        },
+        "totalActiveBalanceGwei": "44156580399411215"
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-queues",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "data": {
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "events": [
+      {
+        "address": "0x4cd00e387622c35bddb9b4c962c136462338bc31",
+        "blockNumber": 25920000,
+        "txIndex": 168,
+        "logIndex": 497,
+        "logIndexInTx": 0,
+        "txHash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+        "timestamp": 1788718079,
+        "topics": [
+          "0x8032066556caf3967d8fec4ad22a2d9e1e9576556b2903a0fcd5b1fd201e3477"
+        ],
+        "data": "0x00000000000000000000000007d65f37f0b4e10070eb683e51ebce416eb5aa3a0000000000000000000000000000000000000000000000000000b5e620f48000f15bf2357626ca31ec762cf7294fbcaaa9822fc8181ab782af7e0bee88cc442a",
+        "decoded": {
+          "name": "RelayNativeDeposit",
+          "args": [
+            {
+              "name": "from",
+              "type": "address",
+              "value": "0x07d65f37f0b4e10070eb683e51ebce416eb5aa3a",
+              "indexed": false
+            },
+            {
+              "name": "amount",
+              "type": "uint256",
+              "value": "200000000000000",
+              "indexed": false
+            }
+          ],
+          "candidateCount": 1
+        },
+        "decodeStatus": "verified"
+      },
+      {
+        "address": "0x69460570c93f9de5e2edbc3052bf10125f0ca22d",
+        "blockNumber": 25920000,
+        "txIndex": 168,
+        "logIndex": 498,
+        "logIndexInTx": 1,
+        "txHash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+        "timestamp": 1788718079,
+        "topics": [
+          "0x012c155f3836c4edb9222305b909a109f9efa46288efffe40a0e66da3a9a9800",
+          "0x0000000000000000000000000000000053fc9230e9444c29b879a4521d59140a"
+        ],
+        "data": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000b5e620f4800000000000000000000000000007d65f37f0b4e10070eb683e51ebce416eb5aa3a00000000000000000000000000000000000000000000000000000000000012370000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000001142696e616e63655765623357616c6c6574000000000000000000000000000000",
+        "decoded": {
+          "name": "RangoBridgeInitiated",
+          "args": [
+            {
+              "name": "requestId",
+              "type": "address",
+              "value": "0x0000000053fc9230e9444c29b879a4521d59140a",
+              "indexed": true
+            },
+            {
+              "name": "bridgeToken",
+              "type": "address",
+              "value": "0x0000000000000000000000000000000000000000",
+              "indexed": false
+            }
+          ],
+          "candidateCount": 1
+        },
+        "decodeStatus": "verified"
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/transaction-events",
+    "timestamp": 1790000000000
+  }
+}

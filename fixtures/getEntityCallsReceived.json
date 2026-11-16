@@ -1,0 +1,46 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "calls": [
+      {
+        "blockNumber": 26402642,
+        "txIndex": 176,
+        "txHash": "0x2e1e07c2fb824cec7abec3f754c4ae727071803aae16945c5e7b0d3323b73dea",
+        "timestamp": 1794531995,
+        "txSender": "0x6d11e1a6bdcc974ebe1ca73cc2c1ea3fde624370",
+        "transactionTarget": false,
+        "txSucceeded": true,
+        "frames": 1,
+        "failedFrames": 0,
+        "callTypes": [
+          "call"
+        ],
+        "carriedValue": false
+      },
+      {
+        "blockNumber": 26399548,
+        "txIndex": 161,
+        "txHash": "0x366c4f7ee1cb8d8e859f394e2f615b48eec7cb4911e152f22345be9fa8c4727e",
+        "timestamp": 1794494759,
+        "txSender": "0x4337447cf61594fdd791a09ae93ef230f0654e0f",
+        "transactionTarget": false,
+        "txSucceeded": true,
+        "frames": 2,
+        "failedFrames": 0,
+        "callTypes": [
+          "call"
+        ],
+        "carriedValue": true
+      }
+    ],
+    "nextCursor": "AVsyNjM5OTU0OCwxNjFdaWi74lPQk4TfBLWyreCTOg"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428996,
+    "docs": "https://docs.tracefast.xyz/api/entity-calls-received",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "data": {
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "transfers": [
+      {
+        "blockNumber": 26399548,
+        "txIndex": 161,
+        "timestamp": 1794494759,
+        "txHash": "0x366c4f7ee1cb8d8e859f394e2f615b48eec7cb4911e152f22345be9fa8c4727e",
+        "callPath": "00000002000000000000",
+        "callDepth": 5,
+        "callType": "call",
+        "from": "0xe06cb96c57d2442f8f60f5017354bc08f7e91308",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "valueWei": "3394899666657170",
+        "status": "success",
+        "role": "receiver",
+        "counterparty": "0xe06cb96c57d2442f8f60f5017354bc08f7e91308"
+      },
+      {
+        "blockNumber": 26399548,
+        "txIndex": 161,
+        "timestamp": 1794494759,
+        "txHash": "0x366c4f7ee1cb8d8e859f394e2f615b48eec7cb4911e152f22345be9fa8c4727e",
+        "callPath": "0000000100010004",
+        "callDepth": 4,
+        "callType": "call",
+        "from": "0x521f578ac6e894939364dc27c7e6978ecf7b7926",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "valueWei": "957958567040000",
+        "status": "success",
+        "role": "receiver",
+        "counterparty": "0x521f578ac6e894939364dc27c7e6978ecf7b7926"
+      }
+    ],
+    "nextCursor": "AVsyNjM5OTU0OCwxNjEsIjAwMDAwMDAxMDAwMTAwMDQiXaiNYnGji51qopc73yhm4u0"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/entity-internal-transfers",
+    "timestamp": 1790000000000
+  }
+}

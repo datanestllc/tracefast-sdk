@@ -1,0 +1,38 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "deployments": [
+      {
+        "address": "0x3ec7829f9c875894d9e693b9b422eab0e917e38c",
+        "blockNumber": 341505,
+        "timestamp": 1444118215,
+        "txHash": "0x8c9c05447b9aa3c8dfa8995ca04ce2cc96643c975e7c8f068f2bf516441447f7",
+        "callType": "CREATE",
+        "outcome": "committed",
+        "originAddress": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "codeHash": "0x52898d881165a2230a15ea5849758f74fc7c3facdf25ec697ce09d2daabe7a0c",
+        "isEip1167Proxy": false
+      },
+      {
+        "address": "0xafc8e369f15a92a438537de3b4a8b2afba75dda9",
+        "blockNumber": 381795,
+        "timestamp": 1444812113,
+        "txHash": "0xdb8d92812b1f7e668bf3fe1e94ae2e6278d9920f25a99a1be12b8fbadb5f7ebb",
+        "callType": "CREATE",
+        "outcome": "committed",
+        "originAddress": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "codeHash": "0xdf8cf47599d152fd3097b459faeb6a48788ce31f6535d2e260cb53794165556c",
+        "isEip1167Proxy": false
+      }
+    ],
+    "nextCursor": "AVszODE3OTUsImFmYzhlMzY5ZjE1YTkyYTQzODUzN2RlM2I0YThiMmFmYmE3NWRkYTkiLDM0NjIxNywiMDAwMCJdSPxqu2Q-krBO_jYwGnnLsg"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428768,
+    "docs": "https://docs.tracefast.xyz/api/entity-deployments",
+    "timestamp": 1790000000000
+  }
+}

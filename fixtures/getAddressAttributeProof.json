@@ -1,0 +1,50 @@
+{
+  "data": {
+    "chainId": 1,
+    "subject": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "attributeId": "address_nature:eip7702_delegated_currently",
+    "result": "pass",
+    "definitionVersion": "1.0.0",
+    "graphRevision": "rev:e7ea6ccecae0",
+    "referenceBlock": 23459292,
+    "referenceBlockHash": "0x4c3b8cba0a93ee5311fb836caabc426cdb289b2efe204117bd01fd32b0cceb37",
+    "snapshotId": "eth-mainnet@23459292",
+    "selectedFamilyId": "designator_code",
+    "factResults": [
+      {
+        "expected": true,
+        "fact_id": "code_is_7702_designator",
+        "observed": true,
+        "operator": "eq",
+        "via": "ev:e883a985feff"
+      }
+    ],
+    "negativeControlResults": [
+      {
+        "control_id": "not_plain_runtime_code",
+        "evaluation": "must_be_false",
+        "observed": false
+      }
+    ],
+    "dependencyProofRefs": [],
+    "bindingVersions": {
+      "ev:68f90586498a": "ev:6b3b228a29e5"
+    },
+    "sourceEvidenceRefs": [
+      {
+        "sourceId": "ev:353c5d7285c9"
+      }
+    ],
+    "evaluatorVersion": "1.0.0",
+    "evaluatedAt": 1793009569,
+    "failureReasonCodes": [],
+    "proofHash": "sha256:a8410025f8d8f8dad16cf42bd07fd4e1c540a56a5a83a5ebc14b64e570ce9727"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428852,
+    "docs": "https://docs.tracefast.xyz/api/address-attribute-proof",
+    "timestamp": 1790000000000
+  }
+}

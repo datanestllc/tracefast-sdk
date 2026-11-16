@@ -1,0 +1,32 @@
+{
+  "data": {
+    "chainId": 1,
+    "period": "7d",
+    "windowDays": 7,
+    "groupBy": "validator",
+    "asOfSlot": 15668736,
+    "asOfTime": "2026-11-16T17:07:35Z",
+    "totalBlocks": 50156,
+    "distinctProposers": 37911,
+    "validators": [
+      {
+        "validatorIndex": 2195932,
+        "blocksProposed": 9,
+        "withdrawalAddress": "0x8e609ac80f4324e499a6efd24f221a2caa868224",
+        "credentialType": 2
+      },
+      {
+        "validatorIndex": 563246,
+        "blocksProposed": 8,
+        "withdrawalAddress": "0xc83251987b19427abb7b072b606adde167700527",
+        "credentialType": 2
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-proposers",
+    "timestamp": 1790000000000
+  }
+}

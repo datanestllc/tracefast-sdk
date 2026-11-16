@@ -1,0 +1,27 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "direction": "subject",
+    "intervals": [
+      {
+        "attributeId": "relation:eip7702_delegates_to",
+        "counterpart": "0x5a7fc11397e9a8ad41bf10bf13f22b0a63f96f6d",
+        "startBlock": 23459292
+      }
+    ],
+    "coveredFamilies": [
+      "relation:was_implementation_of",
+      "relation:eip7702_delegates_to"
+    ],
+    "truncated": false,
+    "total": 1
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428746,
+    "docs": "https://docs.tracefast.xyz/api/address-relation-history",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "data": {
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "transactions": [
+      {
+        "hash": "0xabcd0c3ba3c9befdab0c15189c752fede82819f1c9d5e6cad8e835594579e9a8",
+        "blockNumber": 26384365,
+        "txIndex": 7,
+        "timestamp": 1794311939,
+        "from": "0xb18d53f1d83fa9ce61a4175f67b315152c642368",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "valueWei": "200611100000000",
+        "feeWei": "3400145656320",
+        "methodId": "0x48657920",
+        "nonce": 0,
+        "txType": 2,
+        "inputSize": 147,
+        "gasUsed": "26880",
+        "status": 1,
+        "role": "receiver",
+        "counterparty": "0xb18d53f1d83fa9ce61a4175f67b315152c642368"
+      },
+      {
+        "hash": "0x550d9cbbc35cc7a453c8b2396520842d09252fedf1fcbab3586c319fc1d84e4f",
+        "blockNumber": 26383677,
+        "txIndex": 45,
+        "timestamp": 1794303659,
+        "from": "0x5fe456c09d038e5e654354ee7deeb43f40866420",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "valueWei": "9540000000000",
+        "feeWei": "3563600423136",
+        "nonce": 13,
+        "txType": 2,
+        "inputSize": 0,
+        "gasUsed": "21062",
+        "status": 1,
+        "role": "receiver",
+        "counterparty": "0x5fe456c09d038e5e654354ee7deeb43f40866420"
+      }
+    ],
+    "nextCursor": "AVsyNjM4MzY3Nyw0NSwwXSRYplVTnpG2Zxx89lIa17Q"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/entity-transactions",
+    "timestamp": 1790000000000
+  }
+}

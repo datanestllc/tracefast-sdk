@@ -1,0 +1,31 @@
+{
+  "data": {
+    "chainId": 1,
+    "entity": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "attributes": [
+      "address_nature:account_state_ever_touched",
+      "address_nature:eip7702_delegated_currently"
+    ],
+    "attributeDetails": [
+      {
+        "attributeId": "address_nature:account_state_ever_touched",
+        "result": "pass",
+        "referenceBlock": 302086
+      },
+      {
+        "attributeId": "address_nature:eip7702_delegated_currently",
+        "result": "pass",
+        "referenceBlock": 23459292
+      }
+    ],
+    "typeHints": {
+      "source": "graph"
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/address-attributes",
+    "timestamp": 1790000000000
+  }
+}

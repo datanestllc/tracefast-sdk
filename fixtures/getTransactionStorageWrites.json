@@ -1,0 +1,50 @@
+{
+  "data": {
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "blockNumber": 25920000,
+    "txIndex": 168,
+    "writes": [
+      {
+        "writeIndex": 0,
+        "writeIndexStatus": "present",
+        "storageAddress": "0xb300000b72deaeb607a12d5f54773d1c19c7028d",
+        "executionAddress": "0x7ec117ed6e17a0e8eb643d9d3864081090b41b59",
+        "callerAddress": "0x07d65f37f0b4e10070eb683e51ebce416eb5aa3a",
+        "storageKey": "0x89d01902a77e9ad7f7103ded15feb0071b100f807050f8feeaeeed16a845d921",
+        "newValue": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "valueBefore": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "valueBeforeStatus": "resolved",
+        "callPath": "00000000",
+        "callDepth": 2,
+        "callType": "delegatecall"
+      },
+      {
+        "writeIndex": 1,
+        "writeIndexStatus": "present",
+        "storageAddress": "0x69460570c93f9de5e2edbc3052bf10125f0ca22d",
+        "executionAddress": "0x30bb630f1b94f5b2435fb06d405aa7712e3bbf75",
+        "callerAddress": "0xb300000b72deaeb607a12d5f54773d1c19c7028d",
+        "storageKey": "0x4fe94118b1030ac5f570795d403ee5116fd91b8f0b5d11f2487377c2b0ab2559",
+        "newValue": "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "valueBefore": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "valueBeforeStatus": "resolved",
+        "callPath": "0000000000000000",
+        "callDepth": 4,
+        "callType": "delegatecall"
+      }
+    ],
+    "writesTruncated": false,
+    "nextCursor": "AVsyNTkyMDAwMCwxNjgsMiwxXVBMolCAT4K3rKEYsIR_GU4"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/transaction-storage-writes",
+    "coverage": {
+      "storageWritesFromBlock": 49018,
+      "storageWritesThroughBlock": 26428966
+    },
+    "timestamp": 1790000000000
+  }
+}

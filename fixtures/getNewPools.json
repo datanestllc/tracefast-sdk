@@ -1,0 +1,44 @@
+{
+  "data": {
+    "chainId": 1,
+    "pools": [
+      {
+        "poolId": "0x5f8345a03f00052609e69ebe4f290ffa304e25f0b74545470e36f1a8a4bc1070",
+        "protocol": "uniswap",
+        "version": "v4",
+        "firstSwap": {
+          "blockNumber": 26424558,
+          "timestamp": 1794795671,
+          "txHash": "0x889bdca5d6aa5fadd71ac8ed7acf786b04895f1bae1d8b1f6578fc3eadd19449",
+          "logIndex": 169,
+          "tokenIn": "0x0000000000000000000000000000000000000000",
+          "tokenOut": "0x9ec648af13b1d179857cabecc26f2ed8a2877e40",
+          "amountIn": 0.11197,
+          "amountOut": 0.4039851457236508
+        }
+      },
+      {
+        "poolId": "0x634e2cce9ff0aebd8e005aa9176e0ecfdd454f61b8420608fb2b6df1255517e8",
+        "protocol": "uniswap",
+        "version": "v4",
+        "firstSwap": {
+          "blockNumber": 26424557,
+          "timestamp": 1794795659,
+          "txHash": "0xf45d7a74a6ad7d225466a79518e4e61603bbf79c1515c96d4499d25be403e0a3",
+          "logIndex": 359,
+          "tokenIn": "0x0000000000000000000000000000000000000000",
+          "tokenOut": "0xc229d7f4cb06686f15c350c8d5be8e73d281ed65",
+          "amountIn": 0.03668346238938472,
+          "amountOut": 0.28317850663520133
+        }
+      }
+    ],
+    "nextCursor": "AVsyNjQyNDU1NywiN2M4YzNlMTJkNDY4ZjYwYTc4NGY0NTE2MTc0ZTdiNDYwNGE4OGU3YjQ0NmUwMTNmMDUwZWY4OGQ0ZmViMWU3MyJdfnpcD1PLre4SCgbPeKPnFw"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/pools-new",
+    "timestamp": 1790000000000
+  }
+}

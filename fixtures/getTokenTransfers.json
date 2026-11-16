@@ -1,0 +1,43 @@
+{
+  "data": {
+    "chainId": 1,
+    "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "transfers": [
+      {
+        "blockNumber": 26429080,
+        "txIndex": 317,
+        "logIndex": 991,
+        "batchIndex": 0,
+        "txHash": "0x612eea89c389e8d53a6f7acd43e2058ac465a19be2a5a96e4c9325312b53414e",
+        "timestamp": 1794850055,
+        "eventType": "transfer",
+        "from": "0xf70da97812cb96acdf810712aa562db8dfa3dbef",
+        "to": "0x25f30de8f5a3dede8a048e7fce29a5fd2cc1c26e",
+        "value": "4872905",
+        "txSender": "0xa67d7eb4dc68fa6ce8e34ef8cadaf075b9893fbb",
+        "txTo": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      {
+        "blockNumber": 26429080,
+        "txIndex": 305,
+        "logIndex": 984,
+        "batchIndex": 0,
+        "txHash": "0x92fcc3a141c28cbfd7e5b4949f4703ed795ce7bb82dde5c880177c2a3e9d71d6",
+        "timestamp": 1794850055,
+        "eventType": "transfer",
+        "from": "0xd152f549545093347a162dce210e7293f1452150",
+        "to": "0x34ae9c32a621eab6efae4d46e274727c26deedb9",
+        "value": "138000000",
+        "txSender": "0xba988315c63d11f8f32240bf3ac8f830c120ade9",
+        "txTo": "0xd152f549545093347a162dce210e7293f1452150"
+      }
+    ],
+    "nextCursor": "AVsyNjQyOTA4MCwzMDUsOSwwXQKiAnTAc7V-kzUmxo0F0SM"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/token-transfers",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "data": {
+    "chainId": 1,
+    "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "rankedPools": 10000,
+    "pools": [
+      {
+        "pool": "0xb1bf29cdc8779a9a80d931f228d0a5e3841eca89",
+        "protocol": "uniswap",
+        "version": "v2",
+        "creationBlockApprox": 26424228,
+        "tokens": [
+          {
+            "address": "0x5ce62802ae4fca5bfebb7dd5876df8c97538e8ec",
+            "symbol": "DRL",
+            "name": "DROL",
+            "decimals": 18,
+            "role": "asset"
+          },
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "symbol": "USDC",
+            "name": "USD Coin",
+            "decimals": 6,
+            "role": "asset"
+          }
+        ],
+        "compositionStatus": "complete"
+      },
+      {
+        "poolId": "0x33d2995588db87c7791c71fad054c1c348a862c72d16351fb15972188332990b",
+        "protocol": "uniswap",
+        "version": "v4",
+        "creationBlockApprox": 26424109,
+        "tokens": [
+          {
+            "address": "0x7efd78b1540a281ecc3f03da98f25d5fac46ffff",
+            "symbol": "PHIGHT",
+            "name": "Phight Company",
+            "decimals": 18,
+            "role": "asset"
+          },
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "symbol": "USDC",
+            "name": "USD Coin",
+            "decimals": 6,
+            "role": "asset"
+          }
+        ],
+        "compositionStatus": "complete"
+      }
+    ],
+    "nextCursor": "AVsyNjQyNDEwOSwiMzE5ODliNzc4OWMxZTYyYzBmOWI4YTYyOGI0M2Y0YjM1ODNhNWViYmIxMGQ2NzdmNDY1ZTQ1MWYwZjQ4MWVmOCJdEOqgnDh9FjfmKmvEB6ZsDg"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/token-pools",
+    "timestamp": 1790000000000
+  }
+}

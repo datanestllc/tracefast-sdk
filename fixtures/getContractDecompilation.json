@@ -1,0 +1,68 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "block": 26428746,
+    "target": {
+      "mode": "auto",
+      "resolvedVia": "slot",
+      "codeAddress": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
+      "codeHash": "0xcdfb7d322961af3acae7a8f7ee8b69c205b36f576cc5b077f170c7eb8ecbe3ea"
+    },
+    "analysis": {
+      "codeHash": "0xcdfb7d322961af3acae7a8f7ee8b69c205b36f576cc5b077f170c7eb8ecbe3ea",
+      "release": "rev:44a0daa70ae5",
+      "computedAt": "2026-10-29T15:26:18Z"
+    },
+    "releaseIsCurrent": true,
+    "disclaimer": "Best-effort reconstruction from public bytecode. Names are inferred from signature databases and may be wrong. Confirm any behaviour against on-chain state before relying on it.",
+    "status": "done",
+    "language": "solidity",
+    "lowConfidence": false,
+    "functionsDone": 55,
+    "functionsTotal": 55,
+    "functionCount": 55,
+    "functions": [
+      {
+        "kind": "public",
+        "selector": "0x06fdde03",
+        "name": "name",
+        "signature": "name()",
+        "decodeStatus": "ambiguous",
+        "candidateCount": 2,
+        "status": "done",
+        "mutability": "view",
+        "arguments": [],
+        "lowConfidence": false,
+        "hasBody": true
+      },
+      {
+        "kind": "public",
+        "selector": "0x095ea7b3",
+        "name": "approve",
+        "signature": "approve(address,uint256)",
+        "decodeStatus": "ambiguous",
+        "candidateCount": 3,
+        "status": "done",
+        "mutability": "nonpayable",
+        "arguments": [
+          {
+            "type": "address"
+          },
+          {
+            "type": "uint256"
+          }
+        ],
+        "lowConfidence": false,
+        "hasBody": true
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428746,
+    "docs": "https://docs.tracefast.xyz/api/contract-decompilation",
+    "timestamp": 1790000000000
+  }
+}

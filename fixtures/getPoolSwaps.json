@@ -1,0 +1,57 @@
+{
+  "data": {
+    "chainId": 1,
+    "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+    "protocol": "uniswap",
+    "protocolVersion": "v2",
+    "swaps": [
+      {
+        "blockNumber": 26428930,
+        "timestamp": 1794848255,
+        "txHash": "0xd8a42f455631d11ba313700f7a01fe49f529c0ae940b474ba135135dbf6211a6",
+        "txIndex": 91,
+        "logIndex": 489,
+        "sender": "0x23617e59a5925b2a4bf75d73ff6711cd0b29de85",
+        "recipient": "0x25647e01bd0967c1b9599fa3521939871d1d0888",
+        "tokenIn": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amountInRaw": "269528827",
+        "tokenInDecimals": 6,
+        "tokenInSymbol": "USDC",
+        "tokenOut": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amountOutRaw": "147207939118546197",
+        "tokenOutDecimals": 18,
+        "tokenOutSymbol": "WETH",
+        "valueUsd": 268.17880335174954,
+        "valuedLeg": "out",
+        "priceCarried": false
+      },
+      {
+        "blockNumber": 26428902,
+        "timestamp": 1794847907,
+        "txHash": "0x5917d2c701925f9e017fbcfa45574c4353ade699a28f4ce895f4379ccfc73c55",
+        "txIndex": 69,
+        "logIndex": 105,
+        "sender": "0x23617e59a5925b2a4bf75d73ff6711cd0b29de85",
+        "recipient": "0xdf0daba68f2a3e788d55f35568d92b31f1897bfe",
+        "tokenIn": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "amountInRaw": "476661328832028",
+        "tokenInDecimals": 18,
+        "tokenInSymbol": "WETH",
+        "tokenOut": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "amountOutRaw": "867482",
+        "tokenOutDecimals": 6,
+        "tokenOutSymbol": "USDC",
+        "valueUsd": 0.867482,
+        "valuedLeg": "out",
+        "priceCarried": false
+      }
+    ],
+    "nextCursor": "AVsyNjQyODkwMiwxMDVd-8cVaMo-jEIWGIEfKW4jOQ"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/pool-swaps",
+    "timestamp": 1790000000000
+  }
+}

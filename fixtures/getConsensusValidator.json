@@ -1,0 +1,23 @@
+{
+  "data": {
+    "chainId": 1,
+    "validatorIndex": 1,
+    "status": "active_ongoing",
+    "slashed": false,
+    "activationEligibilityEpoch": 0,
+    "activationEpoch": 0,
+    "isActive": true,
+    "effectiveBalanceGwei": "32000000000",
+    "pubkey": "0xa1d1ad0714035353258038e964ae9675dc0252ee22cea896825c01458e1807bfad2f9969338798548d9858a571f7425c",
+    "credentialType": 2,
+    "withdrawalCredentials": "0x02000000000000000000000015f4b914a0ccd14333d850ff311d6dafbfbaa32b",
+    "withdrawalAddress": "0x15f4b914a0ccd14333d850ff311d6dafbfbaa32b",
+    "snapshotEpoch": 489574
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-validator",
+    "timestamp": 1790000000000
+  }
+}

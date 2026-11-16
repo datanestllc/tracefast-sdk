@@ -1,0 +1,32 @@
+{
+  "data": {
+    "chainId": 1,
+    "validatorIndex": 1,
+    "slots": [
+      {
+        "slot": 13991922,
+        "epoch": 437247,
+        "slotTime": 1774727087,
+        "outcome": "proposed",
+        "executionBlockNumber": 24758246,
+        "dutyStatus": "not_recorded"
+      },
+      {
+        "slot": 13690347,
+        "epoch": 427823,
+        "slotTime": 1771108187,
+        "outcome": "proposed",
+        "executionBlockNumber": 24458025,
+        "dutyStatus": "not_recorded"
+      }
+    ],
+    "truncated": true,
+    "publishedThroughSlot": 15668736
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-validator-slots",
+    "timestamp": 1790000000000
+  }
+}

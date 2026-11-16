@@ -1,0 +1,25 @@
+{
+  "data": {
+    "chainId": 1,
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "blockNumber": 25920000,
+    "txIndex": 168,
+    "sloadTotal": 10,
+    "sstoreTotal": 4,
+    "tloadTotal": 0,
+    "tstoreTotal": 0,
+    "keccakTotal": 7,
+    "precompileCalls": 0,
+    "distinctStorageAddresses": 2,
+    "delegatecallExecuted": true,
+    "createCount": 0,
+    "selfdestructCount": 0,
+    "gasInRevertedFrames": "0"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/transaction-execution-profile",
+    "timestamp": 1790000000000
+  }
+}

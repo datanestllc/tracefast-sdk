@@ -1,0 +1,34 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "block": 23459292,
+    "coverageBlock": 26428746,
+    "addressKnown": true,
+    "intervals": [
+      {
+        "attributeId": "address_nature:account_state_ever_touched",
+        "startBlock": 302086
+      },
+      {
+        "attributeId": "address_nature:eip7702_delegated_currently",
+        "startBlock": 23459292
+      }
+    ],
+    "coveredFamilies": [
+      "address_nature",
+      "address_presence"
+    ],
+    "coveredAttributeIds": [
+      "role:erc4337_entrypoint",
+      "standard:erc4337_account_observed"
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428746,
+    "docs": "https://docs.tracefast.xyz/api/address-attributes-at-block",
+    "timestamp": 1790000000000
+  }
+}

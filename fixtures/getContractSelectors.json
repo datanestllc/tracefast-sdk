@@ -1,0 +1,30 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "codeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+    "selectorCount": 6,
+    "selectors": [
+      {
+        "selector": "0x8f283970",
+        "signature": "changeAdmin(address)",
+        "name": "changeAdmin",
+        "candidateCount": 2,
+        "decodeStatus": "ambiguous"
+      },
+      {
+        "selector": "0xf851a440",
+        "signature": "admin()",
+        "name": "admin",
+        "candidateCount": 1,
+        "decodeStatus": "partial"
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-selectors",
+    "timestamp": 1790000000000
+  }
+}

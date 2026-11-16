@@ -1,0 +1,67 @@
+{
+  "data": {
+    "chainId": 1,
+    "subject": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "attributeId": "relation:proxy_uses_implementation",
+    "object": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
+    "result": "pass",
+    "definitionVersion": "1.0.0",
+    "graphRevision": "rev:e7ea6ccecae0",
+    "referenceBlock": 18963716,
+    "referenceBlockHash": "0xc483608123b3773b2c32ea3f3ca07ac1d6340a2ea36810fb20db8536b0e9a3a7",
+    "snapshotId": "eth-mainnet@18963716",
+    "selectedFamilyId": "current_impl_slot",
+    "factResults": [
+      {
+        "fact_id": "subject_is_proxy",
+        "observed": true,
+        "operator": "exists",
+        "threshold": 1
+      },
+      {
+        "expected": "0x0000000000000000000000000000000000000000",
+        "fact_id": "current_implementation_nonzero",
+        "observed": true,
+        "operator": "neq"
+      }
+    ],
+    "negativeControlResults": [
+      {
+        "control_id": "impl_not_equal_proxy",
+        "evaluation": "must_be_false",
+        "observed": false
+      },
+      {
+        "control_id": "impl_not_equal_admin",
+        "evaluation": "must_be_false",
+        "observed": false
+      }
+    ],
+    "dependencyProofRefs": [],
+    "bindingVersions": {
+      "ev:22b5ea06b80f": "ev:b3b5cd326177",
+      "ev:635ced63233b": "ev:837ee9e797c6",
+      "ev:6acc44d8c777": "ev:c440e5422048",
+      "ev:cf835b186e5e": "ev:cbe9848fb2a3"
+    },
+    "sourceEvidenceRefs": [
+      {
+        "sourceId": "ev:392b2d3bf123"
+      },
+      {
+        "sourceId": "ev:5176ccbabe05"
+      }
+    ],
+    "evaluatorVersion": "1.0.0",
+    "evaluatedAt": 1794848771,
+    "failureReasonCodes": [],
+    "proofHash": "sha256:d3d70ce9453f978304b83aedd4e15867257ba461e158c5dce398f843351a8388"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428852,
+    "docs": "https://docs.tracefast.xyz/api/address-relation-proof",
+    "timestamp": 1790000000000
+  }
+}

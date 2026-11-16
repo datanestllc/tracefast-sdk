@@ -1,0 +1,38 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "changes": [
+      {
+        "blockNumber": 18963716,
+        "txIndex": 35,
+        "txHash": "0xae3ad89e569f27d47a8a02999a6d937c12aaa6bc50e66650e7cbd3244bde9951",
+        "slot": "oz_v1",
+        "kind": "upgrade",
+        "oldValue": "0x000000000000000000000000a2327a938febf5fec13bacfb16ae10ecbc4cbdcf",
+        "newValue": "0x00000000000000000000000043506849d7c04f9138d1a2050bbf3a0c054402dd",
+        "callerAddress": "0x9999fa87f5a1d1c64e7c709838b92006ab0cc1ad",
+        "executionAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      },
+      {
+        "blockNumber": 12317814,
+        "txIndex": 80,
+        "txHash": "0xe2e40640ffd5f76538cd23660cf56f00bfebd5fe925ebad6b8067c4cee18a2c3",
+        "slot": "oz_v1",
+        "kind": "upgrade",
+        "oldValue": "0x000000000000000000000000b7277a6e95992041568d9391d09d0122023778a2",
+        "newValue": "0x000000000000000000000000a2327a938febf5fec13bacfb16ae10ecbc4cbdcf",
+        "callerAddress": "0xd13689e8da0ed95b55100e27b7dbc95c03b5259b",
+        "executionAddress": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+      }
+    ],
+    "nextCursor": "AVsxMjMxNzgxNCw4MCwiNzA1MGM5ZTBmNGNhNzY5YzY5YmQzYThlZjc0MGJjMzc5MzRmOGUyYzAzNmU1YTcyM2ZkOGVlMDQ4ZWQzZjhjMyIsIjAwMDAwMDBhIiwiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwYTIzMjdhOTM4ZmViZjVmZWMxM2JhY2ZiMTZhZTEwZWNiYzRjYmRjZiJdYfvzg6bDaqM2Y1bMhocKnA"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428753,
+    "docs": "https://docs.tracefast.xyz/api/contract-control-history",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "data": {
+    "chainId": 1,
+    "timestamp": 1767225600,
+    "block": {
+      "number": 24136052,
+      "timestamp": 1767225599
+    },
+    "nextBlock": {
+      "number": 24136053,
+      "timestamp": 1767225611
+    },
+    "final": true
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/block-at-time",
+    "timestamp": 1790000000000
+  }
+}

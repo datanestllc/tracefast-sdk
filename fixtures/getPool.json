@@ -1,0 +1,39 @@
+{
+  "data": {
+    "chainId": 1,
+    "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
+    "protocol": "uniswap",
+    "version": "v2",
+    "registered": true,
+    "tokens": [
+      {
+        "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+        "symbol": "USDC",
+        "name": "USD Coin",
+        "decimals": 6,
+        "role": "asset"
+      },
+      {
+        "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        "symbol": "WETH",
+        "name": "Wrapped Ether",
+        "decimals": 18,
+        "role": "asset"
+      }
+    ],
+    "compositionStatus": "complete",
+    "factory": "0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f",
+    "creationBlock": 10008355,
+    "creationTxHash": "0xd07cbde817318492092cc7a27b3064a69bd893c01cb593d6029683ffd290ab3a",
+    "volumeUsd2d": 1975944.2047770582,
+    "swaps2d": 1163,
+    "volumeUsd8d": 8756700.249614427,
+    "swaps8d": 7331
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/pool",
+    "timestamp": 1790000000000
+  }
+}

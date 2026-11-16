@@ -1,0 +1,33 @@
+{
+  "data": {
+    "chainId": 1,
+    "slot": 13000000,
+    "epoch": 406250,
+    "slotTime": 1762824023,
+    "proposed": true,
+    "proposerIndex": 1831858,
+    "duty": {
+      "status": "not_recorded"
+    },
+    "execution": {
+      "blockNumber": 23772685,
+      "blockHash": "0x7be4f138def5b831ee1252fa6fda93d540ee59c70dbe67469c4d022e05209499",
+      "feeRecipient": "0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97",
+      "feeRecipientIsProposerWithdrawalAddress": false,
+      "gasUsed": "37956820",
+      "txCount": 137
+    },
+    "blobCommitmentCount": 6,
+    "syncParticipants": 490,
+    "blockRoot": "0x3f33d5eb391a147ed393d4cdfb2b78bf0e86c7764e8f581cfdf1b54ce2ed19d1",
+    "graffitiHex": "0x4745646431654c48636662310000000000000000000000000000000000000000",
+    "graffiti": "GEdd1eLHcfb1",
+    "publishedThroughSlot": 15668736
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-slot",
+    "timestamp": 1790000000000
+  }
+}

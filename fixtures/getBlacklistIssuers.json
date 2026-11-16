@@ -1,0 +1,33 @@
+{
+  "data": {
+    "chainId": 1,
+    "issuerCount": 690,
+    "listedPairs": 78012,
+    "listedAddresses": 60819,
+    "issuers": [
+      {
+        "issuerContract": "0x75231f58b43240c9718dd58b4967c5114342a86c",
+        "tokenSymbol": "OKB",
+        "authorityTier": "arbitrary_token",
+        "currentlyListed": 35798,
+        "everListed": 60284,
+        "enforced": 3
+      },
+      {
+        "issuerContract": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "tokenSymbol": "cbBTC",
+        "authorityTier": "arbitrary_token",
+        "currentlyListed": 5684,
+        "everListed": 5777,
+        "enforced": 0
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": true,
+    "asOfBlock": 26428996,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-issuers",
+    "timestamp": 1790000000000
+  }
+}

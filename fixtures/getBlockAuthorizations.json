@@ -1,0 +1,46 @@
+{
+  "data": {
+    "blockNumber": 25920000,
+    "authorizations": [
+      {
+        "txNumber": 3721214992,
+        "txHash": "0x06a76a25fe1d46381d5b69de2eba52b24005b2dc41db59d176bd4c037e6b959a",
+        "txIndex": 59,
+        "authority": "0x0e67bdb45fb3ca75941f04601368c55c7d0f37a9",
+        "authorityStatus": "recovered",
+        "index": 0,
+        "chainId": 1,
+        "address": "0xe6cae83bde06e4c305530e199d7217f42808555b",
+        "nonce": 0,
+        "yParity": 1,
+        "r": "0x446f6577577715ecf3791b3f561f2683d9fd6c37e6a5f413ed6593ade6101d62",
+        "s": "0x0fe67299e0066ba4c3f006c159d9cf82893e418261cfacbc696a0022fb2760b1"
+      },
+      {
+        "txNumber": 3721215092,
+        "txHash": "0x5955d414b0ab0738f4405194eb82c6f6f886bebc192dab32f05967030c38cdf5",
+        "txIndex": 159,
+        "authority": "0x4de23f3f0fb3318287378adbde030cf61714b2f3",
+        "authorityStatus": "recovered",
+        "index": 0,
+        "chainId": 1,
+        "address": "0x89383882fc2d0cd4d7952a3267a3b6dae967e704",
+        "nonce": 441712,
+        "yParity": 0,
+        "r": "0xdf290332d36ccf0d05a1f935f33f10aa7797a2e87ec36538081e8e1c50f89e31",
+        "s": "0x455ee958fb982d989f5e3cd70537c925f8510b3b603bf36edb7f9e62b457027a"
+      }
+    ],
+    "nextCursor": "AVsyNTkyMDAwMCwzNzIxMjE1MDkyLDBduvw4SHtzfwSP2hpVjZJhgQ"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/block-authorizations",
+    "coverage": {
+      "authorizationsThroughBlock": 26428996
+    },
+    "timestamp": 1790000000000
+  }
+}

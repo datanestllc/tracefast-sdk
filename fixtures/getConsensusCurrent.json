@@ -1,0 +1,98 @@
+{
+  "data": {
+    "chainId": 1,
+    "asOfEpoch": 489650,
+    "asOfTime": "2026-11-16T17:20:44Z",
+    "queues": {
+      "deposits": {
+        "count": 11202,
+        "gwei": "913032233364694",
+        "newValidators": {
+          "count": 8393,
+          "gwei": "625665064293917"
+        },
+        "topUps": {
+          "count": 2809,
+          "gwei": "287367169070777"
+        }
+      },
+      "exitQueue": {
+        "count": 3381,
+        "gwei": "113484360971199"
+      },
+      "consolidations": {
+        "count": 6266,
+        "gwei": "200562606299450"
+      },
+      "partialWithdrawals": {
+        "count": 446,
+        "gwei": "41929927865336"
+      },
+      "exitedAwaitingWithdrawal": {
+        "count": 1490,
+        "gwei": "65419910824443"
+      },
+      "activeSet": {
+        "count": 793504,
+        "gwei": "44386623711696287"
+      },
+      "churn": {
+        "activationExitGweiPerEpoch": "256000000000",
+        "consolidationGweiPerEpoch": "421000000000"
+      },
+      "waitEstimates": {
+        "entryEpochs": 3567,
+        "exitEpochs": 444,
+        "consolidationEpochs": 477,
+        "entryDays": 15.853333333333333,
+        "exitDays": 1.9733333333333334,
+        "consolidationDays": 2.12
+      }
+    },
+    "totalActiveBalanceGwei": "44180120400355134",
+    "flow": {
+      "exits24h": 1045,
+      "exits7d": 11946,
+      "exits30d": 24762,
+      "deposits30d": 16562
+    },
+    "status": {
+      "activeOngoing": 787217,
+      "pendingActivation": 1859,
+      "pendingExit": 11137,
+      "netQueue": -9278,
+      "activationRate": 0.002361483555360212,
+      "exitRate": 0.014147306270062766,
+      "pendingActivationGwei": "2640500000000",
+      "pendingExitGwei": "379466878095092",
+      "averages": {
+        "pendingExit7d": 8953.385396825397,
+        "pendingActivation7d": 635.5130158730159,
+        "pendingExit30d": 5692.436603047788,
+        "pendingActivation30d": 239.7974552448587
+      },
+      "weighted": {
+        "snapshotEpoch": 489574,
+        "snapshotAgeEpochs": 76,
+        "activation": {
+          "validators": 1852,
+          "effectiveGwei": "3841000000000",
+          "actualGwei": "3851000000000"
+        },
+        "exit": {
+          "validators": 10667,
+          "effectiveGwei": "383644000000000",
+          "actualGwei": "383758695673294"
+        }
+      }
+    },
+    "seriesStartTime": "2026-08-11T20:21:01Z",
+    "seriesSpanHours": 2325.1072222222224
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-current",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "data": {
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "window": {
+      "kind": "all",
+      "asOfBlock": 26424796
+    },
+    "corpus": 216959,
+    "corpusBasis": "precomputed",
+    "boundaryTieCount": 0,
+    "counterparties": [
+      {
+        "counterparty": "0xff37b4ee7981af82669b2fd0e998f0b5649dcedd",
+        "succeededTxCount": 47507,
+        "interactionTxCount": 47507,
+        "sentTxCount": 1,
+        "receivedTxCount": 47506,
+        "firstBlock": 20957407,
+        "lastBlock": 24994907,
+        "surfaces": [
+          "external",
+          "internal"
+        ],
+        "surfaceCounts": {
+          "external": 1,
+          "internal": 47506
+        }
+      },
+      {
+        "counterparty": "0x7b0d132c6bf845d5a072b6cc9201546f0af8a044",
+        "succeededTxCount": 3704,
+        "interactionTxCount": 3704,
+        "sentTxCount": 0,
+        "receivedTxCount": 3704,
+        "firstBlock": 24972561,
+        "lastBlock": 26386313,
+        "surfaces": [
+          "token"
+        ],
+        "tokenClasses": [
+          "fungible"
+        ],
+        "surfaceCounts": {
+          "token": 3704
+        }
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26424796,
+    "docs": "https://docs.tracefast.xyz/api/address-counterparties",
+    "timestamp": 1790000000000
+  }
+}

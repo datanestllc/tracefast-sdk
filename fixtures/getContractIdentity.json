@@ -1,0 +1,30 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "codeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+    "runtimeSha256": "0xc1bcd4dc4f30c4dcf6c9fe462abeaf2efefc065dcb4dec74996e471f1ce219b4",
+    "fingerprint": "0x0fc2a90437868cc2ba704ed82eb0392fcc6cd6b1e2c27d945b3f139fd7f10b4c",
+    "bytecodeSize": 2186,
+    "bytecodeVariant": "legacy_analyzed",
+    "lifecycle": {
+      "deployBlock": 6082465,
+      "latestCodeBlock": 6082465,
+      "deployCodeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+      "latestCodeHash": "0xd80d4b7c890cb9d6a4893e6b52bc34b56b25335cb13716e0d1d31383e6b41505",
+      "codeChangeCount": 1,
+      "isAlive": true,
+      "deployer": "0x95ba4cf87d6723ad9c0db21737d862be80e93911",
+      "origin": "0x95ba4cf87d6723ad9c0db21737d862be80e93911",
+      "deployTxHash": "0xe7e0fe390354509cd08c9a0168536938600ddc552b3f7cb96030ebef62e75895",
+      "deployTxIndex": 22,
+      "deployCallType": "CREATE"
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-identity",
+    "timestamp": 1790000000000
+  }
+}

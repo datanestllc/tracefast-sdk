@@ -1,0 +1,25 @@
+{
+  "name": "@tracefast/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The official TypeScript SDK for the TraceFast API — Ethereum blocks, transactions, traces, tokens, contracts and what TraceFast proves about an address.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=20.3" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "keywords": ["tracefast", "ethereum", "api", "sdk", "blockchain", "traces", "evm"],
+  "homepage": "https://docs.tracefast.xyz/api",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --experimental-strip-types test/*.test.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "@types/node": "^24.0.0"
+  }
+}

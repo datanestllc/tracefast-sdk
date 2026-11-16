@@ -1,0 +1,47 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "implementations": [
+      {
+        "implementation": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
+        "source": "storage_oz_v1",
+        "proxyFamily": "unknown",
+        "confidence": 1,
+        "firstSeenBlock": 18963716,
+        "lastSeenBlock": 18963716,
+        "slot": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+        "isSelfDelegation": false,
+        "supersededBy": null,
+        "slotLastEvent": {
+          "kind": "upgrade",
+          "blockNumber": 18963716,
+          "txHash": "0xae3ad89e569f27d47a8a02999a6d937c12aaa6bc50e66650e7cbd3244bde9951"
+        }
+      },
+      {
+        "implementation": "0xa2327a938febf5fec13bacfb16ae10ecbc4cbdcf",
+        "source": "storage_oz_v1",
+        "proxyFamily": "unknown",
+        "confidence": 1,
+        "firstSeenBlock": 12317814,
+        "lastSeenBlock": 12317814,
+        "slot": "0x7050c9e0f4ca769c69bd3a8ef740bc37934f8e2c036e5a723fd8ee048ed3f8c3",
+        "isSelfDelegation": false,
+        "supersededBy": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
+        "supersededByBlock": 18963716,
+        "slotLastEvent": {
+          "kind": "upgrade",
+          "blockNumber": 18963716,
+          "txHash": "0xae3ad89e569f27d47a8a02999a6d937c12aaa6bc50e66650e7cbd3244bde9951"
+        }
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-proxy",
+    "timestamp": 1790000000000
+  }
+}

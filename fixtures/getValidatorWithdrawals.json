@@ -1,0 +1,18 @@
+{
+  "data": {
+    "chainId": 1,
+    "validatorIndex": 1,
+    "window": {
+      "fromBlock": 26212997,
+      "toBlock": 26428996
+    },
+    "withdrawals": []
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428996,
+    "docs": "https://docs.tracefast.xyz/api/validator-withdrawals",
+    "timestamp": 1790000000000
+  }
+}

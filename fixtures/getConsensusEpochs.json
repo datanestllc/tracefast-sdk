@@ -1,0 +1,61 @@
+{
+  "data": {
+    "chainId": 1,
+    "epochs": [
+      {
+        "epoch": 489647,
+        "firstSlot": 15668704,
+        "lastSlot": 15668735,
+        "startTime": 1794848471,
+        "slots": 32,
+        "slotsProposed": 32,
+        "slotsMissed": 0,
+        "missedRatio": 0,
+        "avgSyncParticipants": 507.4375,
+        "attestations": 98,
+        "blobCommitments": 198,
+        "deposits": 0,
+        "voluntaryExits": 1,
+        "slashings": 0,
+        "blsChanges": 0,
+        "executionDepositRequests": 0,
+        "executionWithdrawalRequests": 0,
+        "executionConsolidationRequests": 0,
+        "executionGasUsed": "969054176",
+        "executionTxs": 11014,
+        "distinctProposers": 32
+      },
+      {
+        "epoch": 489646,
+        "firstSlot": 15668672,
+        "lastSlot": 15668703,
+        "startTime": 1794848087,
+        "slots": 32,
+        "slotsProposed": 32,
+        "slotsMissed": 0,
+        "missedRatio": 0,
+        "avgSyncParticipants": 503.40625,
+        "attestations": 99,
+        "blobCommitments": 224,
+        "deposits": 0,
+        "voluntaryExits": 0,
+        "slashings": 0,
+        "blsChanges": 0,
+        "executionDepositRequests": 15,
+        "executionWithdrawalRequests": 0,
+        "executionConsolidationRequests": 0,
+        "executionGasUsed": "930504372",
+        "executionTxs": 10053,
+        "distinctProposers": 32
+      }
+    ],
+    "nextCursor": "AVs0ODk2NDZdnnhvGMc0R-1ABwy7j78vqA",
+    "publishedThroughEpoch": 489647
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/consensus-epochs",
+    "timestamp": 1790000000000
+  }
+}

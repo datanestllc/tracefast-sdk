@@ -1,0 +1,41 @@
+{
+  "data": {
+    "chainId": 1,
+    "pairs": [
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "issuerContract": "0x36c211c099eb2ce0fa245bc3babf63f8367145fb",
+        "authorityTier": "arbitrary_token",
+        "firstListedBlock": 22291360,
+        "lastEventBlock": 22291361,
+        "lastEventTimestamp": 1744924787,
+        "lastEventTxHash": "0xa33a33bf0513664a43008697ef3e77c0b01a893748f2f195dd85cc934c4123a6",
+        "lastEventLogIndex": 344,
+        "lastEventName": "Blacklisted",
+        "lastEventKind": "membership",
+        "enforcementCount": 0
+      },
+      {
+        "address": "0x0000000000000000000000000000000000000000",
+        "issuerContract": "0x394d14d78850e516fa5eb88f843ef43196e136b0",
+        "authorityTier": "arbitrary_token",
+        "firstListedBlock": 13625050,
+        "lastEventBlock": 25719634,
+        "lastEventTimestamp": 1786305119,
+        "lastEventTxHash": "0x1a120eb405868efc107c3df096b21a987d39cf4247e1830801c61dc19b4c69bd",
+        "lastEventLogIndex": 429,
+        "lastEventName": "AddressFrozen",
+        "lastEventKind": "membership",
+        "enforcementCount": 0
+      }
+    ],
+    "nextCursor": "AVsiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsIjM5NGQxNGQ3ODg1MGU1MTZmYTVlYjg4Zjg0M2VmNDMxOTZlMTM2YjAiXV8THotglXJcInEvXjusS8s"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428996,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklisted",
+    "timestamp": 1790000000000
+  }
+}

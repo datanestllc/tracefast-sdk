@@ -1,0 +1,29 @@
+{
+  "data": {
+    "chainId": 1,
+    "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "days": 30,
+    "totalVolumeUsd": 9735040553.462807,
+    "totalSwaps": 2858579,
+    "points": [
+      {
+        "day": "2026-10-18",
+        "volumeUsd": 136032203.68245396,
+        "swapsIn": 57626,
+        "swapsOut": 37510
+      },
+      {
+        "day": "2026-10-19",
+        "volumeUsd": 223333572.67636895,
+        "swapsIn": 58932,
+        "swapsOut": 37447
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/token-dex-volume",
+    "timestamp": 1790000000000
+  }
+}

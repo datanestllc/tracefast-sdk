@@ -1,0 +1,21 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "totalWrites": 979366234,
+    "uniqueSlots": 64338696,
+    "uniqueCallers": 35757985,
+    "uniqueExecutors": 5,
+    "firstWriteBlock": 6082465,
+    "lastWriteBlock": 26428759,
+    "delegatecallWrites": 979366221,
+    "delegatecallShare": 99.99999867261097,
+    "maxCallDepth": 188
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/contract-storage-profile",
+    "timestamp": 1790000000000
+  }
+}

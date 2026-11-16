@@ -1,0 +1,48 @@
+{
+  "data": {
+    "chainId": 1,
+    "blockNumber": 25920000,
+    "total": 335,
+    "transfers": [
+      {
+        "token": "0x1223334444a7466fbf985b14e1f4edaf3883bca6",
+        "tokenStandard": "erc20",
+        "blockNumber": 25920000,
+        "txIndex": 1,
+        "logIndex": 2,
+        "batchIndex": 0,
+        "txHash": "0x9c0bce2399468e1ceeaa3f780237db2550a65804a84524017ea950f1d6a61b94",
+        "timestamp": 1788718079,
+        "eventType": "transfer",
+        "from": "0xf874e3f8fa13dd2fde9b7d0c9f4a7b9352afbc1e",
+        "to": "0x000000000004444c5dc75cb358380d2e3de08a90",
+        "value": "2424704398339999880334",
+        "txSender": "0xf874e3f8fa13dd2fde9b7d0c9f4a7b9352afbc1e",
+        "txTo": "0x66a9893cc07d91d95644aedd05d03f95e1dba8af"
+      },
+      {
+        "token": "0x600d601d8b9eb5de5ac90fefc68d0d08801bfd3f",
+        "tokenStandard": "erc20",
+        "blockNumber": 25920000,
+        "txIndex": 1,
+        "logIndex": 3,
+        "batchIndex": 0,
+        "txHash": "0x9c0bce2399468e1ceeaa3f780237db2550a65804a84524017ea950f1d6a61b94",
+        "timestamp": 1788718079,
+        "eventType": "transfer",
+        "from": "0x000000000004444c5dc75cb358380d2e3de08a90",
+        "to": "0xf874e3f8fa13dd2fde9b7d0c9f4a7b9352afbc1e",
+        "value": "404637828292",
+        "txSender": "0xf874e3f8fa13dd2fde9b7d0c9f4a7b9352afbc1e",
+        "txTo": "0x66a9893cc07d91d95644aedd05d03f95e1dba8af"
+      }
+    ],
+    "nextCursor": "AVsyNTkyMDAwMCwiMDY5NWE3NmMxZTI0ZjJhOTY3N2YzYzRjYzQ4NDJiOWI1YTNmODRkNDU4NjNlOWI5ZWYyNzZmYzQ4ZmQ1ODc0ZiIsMl2FChULJ8ibMji-U64a8DbK"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/block-token-transfers",
+    "timestamp": 1790000000000
+  }
+}

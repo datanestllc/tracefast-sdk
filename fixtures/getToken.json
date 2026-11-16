@@ -1,0 +1,19 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "standard": "erc20",
+    "symbol": "USDC",
+    "name": "USD Coin",
+    "decimals": 6,
+    "transferCount": 414589048,
+    "holderCount": 9196379,
+    "holderCountAllTime": 44030253
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/token",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "data": {
+    "blockNumber": 25920000,
+    "txCount": 411,
+    "transactions": [
+      {
+        "chainId": 1,
+        "hash": "0xbde113f9fa6fc2b0355ba9067a56b58e9c1fc6621b908a3efe809ad7c2185059",
+        "blockNumber": 25920000,
+        "txIndex": 0,
+        "timestamp": 1788718079,
+        "from": "0xc917c3fa468f2c4b9c84c72caa46420eb9825249",
+        "to": "0x0000000aa232009084bd71a5797d089aa4edfad4",
+        "valueWei": "0",
+        "methodId": "0x1828e0e7",
+        "inputSize": 196,
+        "nonce": 108848,
+        "txType": 2,
+        "gasLimit": "100000",
+        "gasUsed": "34681",
+        "maxFeePerGas": "190356350",
+        "maxPriorityFeePerGas": "0",
+        "effectiveGasPrice": "92963002",
+        "status": 1,
+        "logCount": 0,
+        "internalTransfersCount": 0,
+        "revertsTotal": 0,
+        "hasSelfdestruct": false,
+        "storage": {
+          "writes": 1,
+          "contracts": 1,
+          "slots": 1,
+          "hasDelegatecall": false
+        }
+      },
+      {
+        "chainId": 1,
+        "hash": "0x9c0bce2399468e1ceeaa3f780237db2550a65804a84524017ea950f1d6a61b94",
+        "blockNumber": 25920000,
+        "txIndex": 1,
+        "timestamp": 1788718079,
+        "from": "0xf874e3f8fa13dd2fde9b7d0c9f4a7b9352afbc1e",
+        "to": "0x66a9893cc07d91d95644aedd05d03f95e1dba8af",
+        "valueWei": "0",
+        "methodId": "0x3593564c",
+        "inputSize": 1669,
+        "nonce": 2344,
+        "txType": 2,
+        "gasLimit": "500000",
+        "gasUsed": "222383",
+        "maxFeePerGas": "318718136",
+        "maxPriorityFeePerGas": "100000000",
+        "effectiveGasPrice": "192963002",
+        "status": 1,
+        "logCount": 4,
+        "methodName": "execute",
+        "internalTransfersCount": 0,
+        "revertsTotal": 0,
+        "hasSelfdestruct": false,
+        "storage": {
+          "writes": 11,
+          "contracts": 5,
+          "slots": 8,
+          "hasDelegatecall": true
+        }
+      }
+    ],
+    "nextCursor": "AVsyNTkyMDAwMCwxXdYbYDmDIx058H5sxG39VoA"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/block-transactions",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "data": {
+    "address": "0x28c6c06298d514db089934071355e5743bf21d60",
+    "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "balance": "52363119552",
+    "decimals": 6,
+    "symbol": "USDC",
+    "window": {
+      "kind": "current",
+      "asOfBlock": 26428439
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428439,
+    "docs": "https://docs.tracefast.xyz/api/address-token-balance",
+    "timestamp": 1790000000000
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "firstSeenBlock": 302086,
+    "firstSeenTimestamp": 1443428683,
+    "lastStateChangeBlock": 26399548,
+    "lastStateChangeTimestamp": 1794494759,
+    "stateChangeCount": 15323,
+    "lastInteractionBlock": 26384365,
+    "lastInteractionTimestamp": 1794311939,
+    "lastActivity": {
+      "block": 26428714,
+      "timestamp": 1794845651,
+      "sources": [
+        "events",
+        "tokenTransfers"
+      ],
+      "bySource": {
+        "events": null,
+        "tokenTransfers": 26428714,
+        "internalTransfers": 26399548,
+        "directTx": 26384365,
+        "calls": 26402642
+      }
+    }
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428878,
+    "docs": "https://docs.tracefast.xyz/api/address-activity",
+    "timestamp": 1790000000000
+  }
+}

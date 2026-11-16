@@ -1,0 +1,44 @@
+{
+  "data": {
+    "chainId": 1,
+    "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "changes": [
+      {
+        "blockNumber": 26399548,
+        "timestamp": 1794494759,
+        "balanceChanged": true,
+        "nonceChanged": false,
+        "codeChanged": false,
+        "created": false,
+        "balanceBefore": "5794616987480413546",
+        "balanceAfter": "5798969845714110716",
+        "nonceBefore": 5970,
+        "nonceAfter": 5970,
+        "codeHashBefore": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d",
+        "codeHashAfter": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d"
+      },
+      {
+        "blockNumber": 26384365,
+        "timestamp": 1794311939,
+        "balanceChanged": true,
+        "nonceChanged": false,
+        "codeChanged": false,
+        "created": false,
+        "balanceBefore": "5794416376380413546",
+        "balanceAfter": "5794616987480413546",
+        "nonceBefore": 5970,
+        "nonceAfter": 5970,
+        "codeHashBefore": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d",
+        "codeHashAfter": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d"
+      }
+    ],
+    "nextCursor": "AVsyNjM4NDM2NV0OXFGD0f5REmNbQYHdU65D"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "cached": false,
+    "asOfBlock": 26428878,
+    "docs": "https://docs.tracefast.xyz/api/entity-state-changes",
+    "timestamp": 1790000000000
+  }
+}

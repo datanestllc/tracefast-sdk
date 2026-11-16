@@ -124,6 +124,14 @@ live answer strictly against the catalogue: a field the catalogue does not
 describe, a missing required field, or a `null` where none is allowed fails the
 build. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Links
+
+- [TraceFast](https://tracefast.xyz) — the Ethereum analytics and forensics app
+- [API documentation](https://docs.tracefast.xyz/api) and [every method on one page](https://docs.tracefast.xyz/api/methods)
+- [Using TraceFast with AI](https://docs.tracefast.xyz/api/using-ai)
+- [Pricing](https://tracefast.xyz/pricing)
+- [Blog](https://blog.tracefast.xyz) — investigations and release notes
+
 ## Support and security
 
 Questions and bugs: [issues](https://github.com/datanestllc/tracefast-sdk/issues);

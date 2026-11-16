@@ -14,7 +14,7 @@ dependencies = [
   "httpx>=0.27,<1",
   "typing-extensions>=4.7",
 ]
-keywords = ["tracefast", "ethereum", "api", "sdk", "blockchain", "traces", "evm"]
+keywords = ["tracefast", "ethereum", "evm", "blockchain", "web3", "sdk", "api", "api-client", "onchain", "blockchain-analytics", "transaction-trace", "smart-contracts", "defi", "dex", "forensics", "compliance"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -32,8 +32,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://docs.tracefast.xyz/api"
+Homepage = "https://tracefast.xyz"
 Documentation = "https://docs.tracefast.xyz/api"
+Blog = "https://blog.tracefast.xyz"
 Repository = "https://github.com/datanestllc/tracefast-sdk"
 Issues = "https://github.com/datanestllc/tracefast-sdk/issues"
 Changelog = "https://github.com/datanestllc/tracefast-sdk/blob/main/CHANGELOG.md"

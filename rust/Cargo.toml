@@ -4,11 +4,11 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
-description = "The official Rust SDK for the TraceFast API: Ethereum blocks, transactions, traces, tokens, contracts and what TraceFast states about an address."
-homepage = "https://docs.tracefast.xyz/api"
+description = "The official Rust SDK for the TraceFast API: Ethereum blocks, transactions, call traces, tokens, smart contracts, DEX pools, the consensus layer and what TraceFast states about an address."
+homepage = "https://tracefast.xyz"
 repository = "https://github.com/datanestllc/tracefast-sdk"
-keywords = ["tracefast", "ethereum", "api", "sdk", "evm"]
-categories = ["api-bindings", "cryptography::cryptocurrencies"]
+keywords = ["ethereum", "evm", "blockchain", "onchain", "sdk"]
+categories = ["api-bindings", "cryptography::cryptocurrencies", "web-programming::http-client"]
 readme = "README.md"
 # Private preview: not published to crates.io yet.
 publish = false

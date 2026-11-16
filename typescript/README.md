@@ -1,9 +1,20 @@
 # @tracefast/sdk
 
-The official TypeScript SDK for the [TraceFast API](https://docs.tracefast.xyz/api) —
-Ethereum blocks, transactions, traces, tokens, contracts, DEX pools, the
-consensus layer, and what TraceFast states about an address, now and at any
-past block.
+**[TraceFast](https://tracefast.xyz) shows what happened on Ethereum, down to
+execution: who took part, what moved, and which code ran.** It reads every block
+from its own archive node and states a fact only when it is proven — always with
+the block it holds for. Behind one API: blocks, transactions and full call
+traces; tokens, DEX pools and the consensus layer; and the TraceFast knowledge
+graph — what an address is now and what it was at past blocks, how its contract
+is built, what its owner can do and has already done, and how it links to other
+addresses — with ecosystem labels that name the protocol and role of each new
+pool, market or vault from the block its factory created it. Built for
+compliance teams, exchanges, auditors and investigators — and open to explore in
+the app at [tracefast.xyz](https://tracefast.xyz).
+
+`@tracefast/sdk` is the official TypeScript and JavaScript SDK for the
+[TraceFast API](https://docs.tracefast.xyz/api): every method, typed, for Node.js,
+Bun, Deno and edge runtimes.
 
 > **Private preview.** Not on npm yet, and installable only by people with
 > access to the private repository. The API may change before 1.0.

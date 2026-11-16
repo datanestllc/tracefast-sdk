@@ -13,15 +13,27 @@
   "bugs": {
     "url": "https://github.com/datanestllc/tracefast-sdk/issues"
   },
-  "homepage": "https://docs.tracefast.xyz/api",
+  "homepage": "https://tracefast.xyz",
   "keywords": [
     "tracefast",
     "ethereum",
-    "api",
-    "sdk",
+    "evm",
     "blockchain",
-    "traces",
-    "evm"
+    "web3",
+    "sdk",
+    "api",
+    "api-client",
+    "onchain",
+    "blockchain-analytics",
+    "transaction-trace",
+    "smart-contracts",
+    "defi",
+    "dex",
+    "token",
+    "eip-7702",
+    "forensics",
+    "compliance",
+    "typescript"
   ],
   "type": "module",
   "engines": {

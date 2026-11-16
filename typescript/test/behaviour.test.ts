@@ -225,7 +225,14 @@ test('a timeout is APITimeoutError and is not retried', async () => {
     return new Response(body, { status: 200 })
   }) as typeof globalThis.fetch
   const tf = new TraceFast({ apiKey: KEY, fetch, timeout: 50 })
-  await assert.rejects(tf.blocks.latest(), (e: TraceFastError) => e instanceof APITimeoutError)
+  // AbortSignal.timeout does not keep the event loop alive, and this mock holds no
+  // socket that would; keep the loop running until the timeout fires.
+  const keepAlive = setInterval(() => {}, 1_000)
+  try {
+    await assert.rejects(tf.blocks.latest(), (e: TraceFastError) => e instanceof APITimeoutError)
+  } finally {
+    clearInterval(keepAlive)
+  }
   assert.equal(calls, 1)
 })
 

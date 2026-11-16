@@ -6,6 +6,9 @@ const KEYWORDS = new Set(
     'static struct super trait true type unsafe use where while async await dyn abstract become box do final macro ' +
     'override priv typeof unsized virtual yield try gen').split(' '),
 )
+// Names a params struct already uses for its own functions: a query parameter
+// with one of these names gets a trailing underscore.
+const PARAMS_RESERVED = new Set(['new', 'clone', 'default', 'eq', 'fmt'])
 
 const pascal = (s) => s[0].toUpperCase() + s.slice(1)
 const snake = (s) =>
@@ -14,12 +17,30 @@ const snake = (s) =>
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
     .replace(/[^A-Za-z0-9_]/g, '_')
     .toLowerCase()
+// A Rust identifier for a catalogue name: snake_case, never a keyword, never
+// starting with a digit.
 const ident = (s) => {
-  const n = snake(s)
+  let n = snake(s)
+  if (!n) throw new Error(`cannot make an identifier of ${JSON.stringify(s)}`)
+  if (/^\d/.test(n)) n = `_${n}`
   if (n === 'self' || n === 'super' || n === 'crate') return `${n}_`
   return KEYWORDS.has(n) ? `r#${n}` : n
 }
+const paramIdent = (name) => {
+  const n = ident(name)
+  return PARAMS_RESERVED.has(n) ? `${n}_` : n
+}
+// A bare identifier for building other names (`<name>_pages`, test names).
+const bare = (s) => ident(s).replace(/^r#/, '')
 const str = (s) => JSON.stringify(s)
+const cap = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s)
+const unique = (names, where) => {
+  const seen = new Set()
+  for (const n of names) {
+    if (seen.has(n)) throw new Error(`${where}: two names become the Rust identifier ${n}; rename one in the generator`)
+    seen.add(n)
+  }
+}
 
 // Markdown-safe text for rustdoc: brackets and angle brackets outside code spans
 // are escaped, so they never become intra-doc links or HTML tags.
@@ -75,7 +96,8 @@ function emitTypes(ir) {
     '//! A field that may be absent is an `Option`; a field that may be `null` is an\n' +
     '//! `Option`; a field that may be either is an `Option<Option<_>>` — `None` is\n' +
     '//! absent, `Some(None)` is `null`. Unknown fields are ignored. An enum is a\n' +
-    '//! `String`: the API may add values.\n' +
+    '//! `String`: the API may add values. Every struct is `#[non_exhaustive]`: a\n' +
+    '//! field the catalogue adds is not a breaking change.\n' +
     '\n' +
     'use std::collections::BTreeMap;\n\n' +
     'use serde::{Deserialize, Serialize};\n'
@@ -86,8 +108,9 @@ function emitTypes(ir) {
       out += `pub type ${name} = ${rs(t.type)};\n`
       continue
     }
+    unique(t.fields.map((f) => ident(f.name)), name)
     out += doc([esc(t.description)])
-    out += '#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]\n'
+    out += '#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]\n#[non_exhaustive]\n'
     out += `pub struct ${name} {\n`
     for (const f of t.fields) {
       out += doc([esc(f.description), '', known(f.type)], '    ')
@@ -111,31 +134,36 @@ function emitTypes(ir) {
   return out
 }
 
+const SCALARS = new Set(['string', 'enum', 'integer', 'number', 'boolean'])
 const paramsName = (op) => `${op.namespace ? pascal(op.namespace) : ''}${pascal(op.name)}Params`
 const handleName = (ns) => `${pascal(ns)}Api`
-const queryValue = (q, expr) => (q.type.kind === 'string' || q.type.kind === 'enum' ? `${expr}.clone()` : `${expr}.to_string()`)
-const setterArg = (q) => (q.type.kind === 'string' || q.type.kind === 'enum' ? 'impl Into<String>' : rs(q.type))
-const setterVal = (q) => (q.type.kind === 'string' || q.type.kind === 'enum' ? 'value.into()' : 'value')
+const isText = (q) => q.type.kind === 'string' || q.type.kind === 'enum'
+const queryValue = (q, expr) => (isText(q) ? `${expr}.clone()` : `${expr}.to_string()`)
+const setterArg = (q) => (isText(q) ? 'impl Into<String>' : rs(q.type))
+const methodRef = (op) => `${op.namespace ? handleName(op.namespace) : 'Client'}::${ident(op.name)}`
 
 function emitParams(op) {
+  for (const q of op.queryParams)
+    if (!SCALARS.has(q.type.kind))
+      throw new Error(`${op.id}: query parameter ${q.name} is a ${q.type.kind}; the Rust emitter sends only scalars — teach it this kind first`)
+  unique(op.queryParams.map((q) => paramIdent(q.name)), `${op.id} query parameters`)
   const name = paramsName(op)
   const req = op.queryParams.filter((q) => q.required)
-  const where = `${op.namespace ? `${op.namespace}().` : ''}${snake(op.name)}`
-  let out = '\n' + doc([`Query parameters of [\`${where}\`](${op.namespace ? handleName(op.namespace) : 'Client'}::${snake(op.name)}). A parameter left \`None\` is not sent.`])
+  const where = `${op.namespace ? `${op.namespace}().` : ''}${bare(op.name)}`
+  let out = '\n' + doc([`Query parameters of [\`${where}\`](${methodRef(op)}). A parameter left \`None\` is not sent.`])
   out += `#[derive(Debug, Clone, PartialEq${req.length ? '' : ', Default'})]\n#[non_exhaustive]\npub struct ${name} {\n`
   for (const q of op.queryParams) {
-    out += doc([esc(q.description), '', known(q.type)], '    ')
-    out += `    pub ${ident(q.name)}: ${q.required ? rs(q.type) : `Option<${rs(q.type)}>`},\n`
+    out += doc([paramIdent(q.name) !== bare(q.name) ? `\`${q.name}\`.` : undefined, '', esc(q.description), '', known(q.type)], '    ')
+    out += `    pub ${paramIdent(q.name)}: ${q.required ? rs(q.type) : `Option<${rs(q.type)}>`},\n`
   }
   out += '}\n\n'
   out += `impl ${name} {\n`
   if (req.length) {
     out += doc([`Parameters with the required ${req.map((q) => `\`${q.name}\``).join(' and ')} set and nothing else.`], '    ')
-    out += `    pub fn new(${req.map((q) => `${ident(q.name)}: ${setterArg(q)}`).join(', ')}) -> Self {\n        Self {\n`
+    out += `    pub fn new(${req.map((q) => `${paramIdent(q.name)}: ${setterArg(q)}`).join(', ')}) -> Self {\n        Self {\n`
     for (const q of op.queryParams) {
-      out += q.required
-        ? `            ${ident(q.name)}${setterVal(q) === 'value' ? '' : `: ${ident(q.name)}.into()`},\n`
-        : `            ${ident(q.name)}: None,\n`
+      const id = paramIdent(q.name)
+      out += q.required ? `            ${id}${isText(q) ? `: ${id}.into()` : ''},\n` : `            ${id}: None,\n`
     }
     out += '        }\n    }\n'
   } else {
@@ -144,73 +172,128 @@ function emitParams(op) {
   }
   for (const q of op.queryParams) {
     const first = (q.description.split(/(?<=\.)\s/)[0] ?? '').replace(/\s+/g, ' ').trim()
+    const value = isText(q) ? 'value.into()' : 'value'
     out += '\n' + doc([`Sets \`${q.name}\`${first ? `: ${esc(first)}` : '.'}`], '    ')
-    out += `    pub fn ${ident(q.name)}(mut self, value: ${setterArg(q)}) -> Self {\n`
-    out += `        self.${ident(q.name)} = ${q.required ? setterVal(q) : `Some(${setterVal(q)})`};\n        self\n    }\n`
+    out += `    pub fn ${paramIdent(q.name)}(mut self, value: ${setterArg(q)}) -> Self {\n`
+    out += `        self.${paramIdent(q.name)} = ${q.required ? value : `Some(${value})`};\n        self\n    }\n`
   }
-  out += '\n    pub(crate) fn query(&self) -> Vec<(&\'static str, String)> {\n'
-  const reqPairs = op.queryParams.filter((q) => q.required).map((q) => `(${str(q.name)}, ${queryValue(q, `self.${ident(q.name)}`)})`)
+  out += '}\n\n'
+  out += `impl QueryParams for ${name} {\n    fn pairs(&self) -> Vec<(&'static str, String)> {\n`
+  const reqPairs = req.map((q) => `(${str(q.name)}, ${queryValue(q, `self.${paramIdent(q.name)}`)})`)
   const optional = op.queryParams.filter((q) => !q.required)
   if (!optional.length) out += `        vec![${reqPairs.join(', ')}]\n    }\n}\n`
   else {
     out += reqPairs.length ? `        let mut q = vec![${reqPairs.join(', ')}];\n` : '        let mut q = Vec::new();\n'
     for (const q of optional)
-      out += `        if let Some(v) = &self.${ident(q.name)} {\n            q.push((${str(q.name)}, ${queryValue(q, 'v')}));\n        }\n`
+      out += `        if let Some(v) = &self.${paramIdent(q.name)} {\n            q.push((${str(q.name)}, ${queryValue(q, 'v')}));\n        }\n`
     out += '        q\n    }\n}\n'
   }
   return out
 }
 
-function emitMethod(op, client) {
+function emitMethod(op, root) {
+  const self = root ? '&self' : 'self'
+  const client = root ? 'self' : 'self.client'
+  const life = root ? "'_" : "'a"
   const hasQuery = op.queryParams.length > 0
-  const pathArgs = op.pathParams.map((p) => `${ident(p.name)}: ${p.type.kind === 'integer' ? 'impl std::fmt::Display' : 'impl AsRef<str>'}`)
-  const args = ['&self', ...pathArgs, ...(hasQuery ? [`params: &${paramsName(op)}`] : [])]
-  const fmtArgs = []
-  const fmt = op.path.replace(/\{(\w+)\}/g, (_, n) => {
-    if (n === 'chainId') fmtArgs.push(`${client}.chain_id()`)
-    else {
+  for (const p of op.pathParams)
+    if (p.type.kind !== 'integer' && p.type.kind !== 'string')
+      throw new Error(`${op.id}: path parameter ${p.name} is a ${p.type.kind}; the Rust emitter takes integers and strings only`)
+  unique(op.pathParams.map((p) => ident(p.name)), `${op.id} path parameters`)
+  const pathArgs = op.pathParams.map((p) => `${ident(p.name)}: ${p.type.kind === 'integer' ? 'u64' : 'impl AsRef<str>'}`)
+  const args = [self, ...pathArgs, ...(hasQuery ? [`params: &${paramsName(op)}`] : [])]
+  const forward = [...op.pathParams.map((p) => ident(p.name)), ...(hasQuery ? ['params'] : [])]
+  // Values for the template's placeholders, in their order; chainId comes from the client.
+  const values = [...op.path.matchAll(/\{(\w+)\}/g)]
+    .map((m) => m[1])
+    .filter((n) => n !== 'chainId')
+    .map((n) => {
       const p = op.pathParams.find((x) => x.name === n)
-      fmtArgs.push(`encode_path(${p.type.kind === 'integer' ? `&${ident(n)}.to_string()` : `${ident(n)}.as_ref()`})`)
-    }
-    return '{}'
-  })
-  const pathExpr = fmtArgs.length ? `format!(${str(fmt)}, ${fmtArgs.join(', ')})` : `${str(fmt)}.to_string()`
-  const query = hasQuery ? 'params.query()' : 'Vec::new()'
-  const queryRef = hasQuery ? '&params.query()' : '&[]'
+      if (!p) throw new Error(`${op.id}: placeholder {${n}} has no path parameter`)
+      return p.type.kind === 'integer' ? `&${ident(n)}.to_string()` : `${ident(n)}.as_ref()`
+    })
+  const pathExpr = `${client}.path(${str(op.path)}, &[${values.join(', ')}])`
+  const query = hasQuery ? 'QueryParams::pairs(params)' : 'Vec::new()'
   const res = rs(op.response)
-  const fname = snake(op.name)
+  const fname = ident(op.name)
   const comment = doc(
     [
       esc(op.summary),
       '',
-      esc(op.description),
+      esc(cap(op.description)),
       '',
-      `Plan: ${PLAN[op.plan] ?? op.plan} or higher.${op.stability === 'beta' ? ' **Beta** — the shape may still change.' : ''}`,
+      `Plan: ${PLAN[op.plan] ?? op.plan} or higher.${op.stability === 'beta' ? ' **Beta**: the shape may still change.' : ''}`,
       ...(op.pathParams.length
-        ? ['', '# Arguments', '', ...op.pathParams.map((p) => `- \`${ident(p.name)}\` — ${esc(p.description.replace(/\s+/g, ' ').trim())}`)]
+        ? ['', '# Arguments', '', ...op.pathParams.map((p) => `- \`${bare(p.name)}\`: ${esc(p.description.replace(/\s+/g, ' ').trim())}`)]
         : []),
       '',
       `Documentation: <${op.docsUrl}>`,
     ],
     '    ',
   )
-  let m = `\n${comment}    pub async fn ${fname}(${args.join(', ')}) -> Result<${res}, Error> {\n`
-  m += `        ${client}.get(&${pathExpr}, ${queryRef}).await\n    }\n`
+  let m = `\n${comment}    pub fn ${fname}(${args.join(', ')}) -> ResponseFuture<${life}, ${res}> {\n`
+  m += `        ${client}.fetch(${pathExpr}, ${query})\n    }\n`
   if (op.paged) {
+    const name = bare(op.name)
     m +=
       '\n' +
       doc(
         [
-          `Every page of [\`${fname}\`](Self::${fname}), following \`data.nextCursor\` until it is absent. The other parameters are sent unchanged with each page.`,
+          `Every page of [\`${name}\`](Self::${fname}), following \`data.nextCursor\` until it is absent. The other parameters are sent unchanged with each page.`,
           '',
           `Documentation: <${op.docsUrl}>`,
         ],
         '    ',
       )
-    m += `    pub fn ${fname}_pages(${args.join(', ')}) -> Pager<${res}> {\n`
+    m += `    pub fn ${name}_pages(${args.join(', ')}) -> Pager<${res}> {\n`
     m += `        Pager::new(${client}.clone(), ${pathExpr}, ${query})\n    }\n`
+    m +=
+      '\n' +
+      doc(
+        [
+          `Every row of \`data.${op.itemsField}\` over all pages of [\`${name}\`](Self::${fname}), one by one; see [\`${name}_pages\`](Self::${name}_pages).`,
+          '',
+          `Documentation: <${op.docsUrl}>`,
+        ],
+        '    ',
+      )
+    m += `    pub fn ${name}_items(${args.join(', ')}) -> Items<${res}> {\n`
+    m += `        self.${name}_pages(${forward.join(', ')}).into_items()\n    }\n`
   }
   return m
+}
+
+function emitPaged(ir, op) {
+  const name = op.response.name
+  const data = ir.types.get(ir.types.get(name).fields.find((f) => f.name === 'data').type.name)
+  const nc = data.fields.find((f) => f.name === 'nextCursor')
+  if (!nc) throw new Error(`${op.id}: paged without data.nextCursor`)
+  const cursor =
+    nc.required && !nc.nullable
+      ? 'Some(self.data.next_cursor.as_str())'
+      : !nc.required && nc.nullable
+        ? 'self.data.next_cursor.as_ref().and_then(|c| c.as_deref())'
+        : 'self.data.next_cursor.as_deref()'
+  const rows = data.fields.find((f) => f.name === op.itemsField)
+  const field = `self.data.${ident(rows.name)}`
+  let borrow, own
+  if (rows.required && !rows.nullable) {
+    borrow = `&${field}`
+    own = field
+  } else if (rows.required || !rows.nullable) {
+    borrow = `${field}.as_deref().unwrap_or(&[])`
+    own = `${field}.unwrap_or_default()`
+  } else {
+    borrow = `${field}.as_ref().and_then(|r| r.as_deref()).unwrap_or(&[])`
+    own = `${field}.flatten().unwrap_or_default()`
+  }
+  const item = rs(op.itemType)
+  return (
+    `\nimpl Sealed for ${name} {}\n\nimpl Paged for ${name} {\n    type Item = ${item};\n\n` +
+    `    fn next_cursor(&self) -> Option<&str> {\n        ${cursor}\n    }\n\n` +
+    `    fn items(&self) -> &[${item}] {\n        ${borrow}\n    }\n\n` +
+    `    fn into_items(self) -> Vec<${item}> {\n        ${own}\n    }\n}\n`
+  )
 }
 
 function emitApi(ir) {
@@ -222,47 +305,55 @@ function emitApi(ir) {
   }
   let out =
     HEADER(ir) +
-    '//! The client\'s methods, grouped by namespace, and their query parameters.\n\n' +
+    "//! The client's methods, grouped by namespace, and their query parameters.\n\n" +
     'use super::types::*;\n' +
-    'use crate::client::{encode_path, Client};\n' +
-    'use crate::error::Error;\n' +
-    'use crate::pager::{Paged, Pager};\n'
+    'use crate::client::{Client, ResponseFuture};\n' +
+    'use crate::pager::sealed::Sealed;\n' +
+    'use crate::pager::{Items, Paged, Pager};\n\n' +
+    '/// The query pairs a params struct sends: only the parameters that are set.\n' +
+    'pub(crate) trait QueryParams {\n' +
+    "    fn pairs(&self) -> Vec<(&'static str, String)>;\n" +
+    '}\n'
   for (const op of ir.operations) if (op.queryParams.length) out += emitParams(op)
 
   out += '\nimpl Client {\n'
   const nss = [...groups.keys()].filter((n) => n)
+  unique([...nss.map(ident), ...(groups.get('') ?? []).map((op) => ident(op.name))], 'Client methods')
   for (const ns of nss) {
     out += doc([`The ${ns} methods: \`client.${ns}().…\`.`], '    ')
-    out += `    pub fn ${ns}(&self) -> ${handleName(ns)}<'_> {\n        ${handleName(ns)} { client: self }\n    }\n\n`
+    out += `    pub fn ${ident(ns)}(&self) -> ${handleName(ns)}<'_> {\n        ${handleName(ns)} { client: self }\n    }\n\n`
   }
   out = out.replace(/\n\n$/, '\n')
-  for (const op of groups.get('') ?? []) out += emitMethod(op, 'self')
+  for (const op of groups.get('') ?? []) out += emitMethod(op, true)
   out += '}\n'
 
   for (const ns of nss) {
-    out += '\n' + doc([`\`client.${ns}()\` — the ${ns} methods of the TraceFast API.`])
-    out += `#[derive(Debug, Clone, Copy)]\npub struct ${handleName(ns)}<'a> {\n    client: &'a Client,\n}\n\nimpl ${handleName(ns)}<'_> {`
-    out += groups.get(ns).map((op) => emitMethod(op, 'self.client')).join('')
+    const ops = groups.get(ns)
+    unique(ops.flatMap((op) => [ident(op.name), ...(op.paged ? [`${bare(op.name)}_pages`, `${bare(op.name)}_items`] : [])]), `namespace ${ns}`)
+    out +=
+      '\n' +
+      doc([
+        `\`client.${ns}()\`: the ${ns} methods of the TraceFast API.`,
+        '',
+        "A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client." +
+          `${ns}().method(…)` +
+          '` can be built in a loop and the futures awaited together.',
+      ])
+    out += `#[derive(Debug, Clone, Copy)]\npub struct ${handleName(ns)}<'a> {\n    client: &'a Client,\n}\n\nimpl<'a> ${handleName(ns)}<'a> {`
+    out += ops.map((op) => emitMethod(op, false)).join('')
     out += '}\n'
   }
 
-  // Paged responses expose their cursor to the pager.
-  const done = new Set()
+  // Paged responses give the walkers their cursor and rows.
+  const done = new Map()
   for (const op of ir.operations.filter((o) => o.paged)) {
     const name = op.response.name
-    if (done.has(name)) continue
-    done.add(name)
-    const data = ir.types.get(name).fields.find((f) => f.name === 'data')
-    const dataType = ir.types.get(data.type.name)
-    const nc = dataType.fields.find((f) => f.name === 'nextCursor')
-    if (!nc) throw new Error(`${op.id}: paged without data.nextCursor`)
-    const expr =
-      !nc.required && nc.nullable
-        ? 'self.data.next_cursor.as_ref().and_then(|c| c.as_deref())'
-        : nc.required && !nc.nullable
-          ? 'Some(self.data.next_cursor.as_str())'
-          : 'self.data.next_cursor.as_deref()'
-    out += `\nimpl Paged for ${name} {\n    fn next_cursor(&self) -> Option<&str> {\n        ${expr}\n    }\n}\n`
+    if (done.has(name)) {
+      if (done.get(name) !== op.itemsField) throw new Error(`${op.id}: ${name} is walked by two row arrays`)
+      continue
+    }
+    done.set(name, op.itemsField)
+    out += emitPaged(ir, op)
   }
   return out
 }
@@ -271,27 +362,41 @@ function emitTests(ir) {
   let out =
     HEADER(ir) +
     '// One test per operation: the fixture is served by a mock server and requested\n' +
-    '// through the generated method with the sample arguments.\n\n' +
+    '// through the generated method with the sample arguments. A paged operation\n' +
+    '// also walks the rows of one page.\n\n' +
     'use tracefast::*;\n\n' +
     'use crate::common::{parse, Case};\n'
+  const parsed = (q, v) => (isText(q) ? v : `parse::<${rs(q.type)}>(&${v})`)
   for (const op of ir.operations) {
-    const fname = snake(op.name)
-    const testName = `${op.namespace ?? 'client'}_${fname}`
-    out += `\n#[tokio::test]\nasync fn ${testName}() {\n`
-    out += `    let case = Case::start(${str(op.id)}, ${op.namespace ? `Some(${str(op.namespace)})` : 'None'}, &[${op.queryParams.map((q) => str(q.name)).join(', ')}]).await;\n`
-    out += '    let client = case.client();\n'
-    const parsed = (q, v) => (q.type.kind === 'string' || q.type.kind === 'enum' ? v : `parse::<${rs(q.type)}>(&${v})`)
-    if (op.queryParams.length) {
-      const req = op.queryParams.filter((q) => q.required)
-      const reqArgs = req.map((q) => parsed(q, `case.query(${str(q.name)}).expect("a sample for ${q.name}")`))
-      const opt = op.queryParams.filter((q) => !q.required)
-      out += `    let ${opt.length ? 'mut ' : ''}params = ${paramsName(op)}::new(${reqArgs.join(', ')});\n`
-      for (const q of opt) out += `    if let Some(v) = case.query(${str(q.name)}) {\n        params = params.${ident(q.name)}(${parsed(q, 'v')});\n    }\n`
+    const fname = ident(op.name)
+    const testName = `${op.namespace ?? 'client'}_${bare(op.name)}`
+    const setup = () => {
+      let s = `    let case = Case::start(${str(op.id)}, ${op.namespace ? `Some(${str(op.namespace)})` : 'None'}, &[${op.queryParams.map((q) => str(q.name)).join(', ')}]).await;\n`
+      s += '    let client = case.client();\n'
+      if (op.queryParams.length) {
+        const req = op.queryParams.filter((q) => q.required)
+        const reqArgs = req.map((q) => parsed(q, `case.query(${str(q.name)}).expect("a sample for ${q.name}")`))
+        const opt = op.queryParams.filter((q) => !q.required)
+        s += `    let ${opt.length ? 'mut ' : ''}params = ${paramsName(op)}::new(${reqArgs.join(', ')});\n`
+        for (const q of opt) s += `    if let Some(v) = case.query(${str(q.name)}) {\n        params = params.${paramIdent(q.name)}(${parsed(q, 'v')});\n    }\n`
+      }
+      return s
     }
-    const target = op.namespace ? `client.${op.namespace}()` : 'client'
-    const args = [...op.pathParams.map((p) => `case.path(${str(p.name)})`), ...(op.queryParams.length ? ['&params'] : [])]
+    const target = op.namespace ? `client.${ident(op.namespace)}()` : 'client'
+    const args = [
+      ...op.pathParams.map((p) => (p.type.kind === 'integer' ? `parse::<u64>(&case.path(${str(p.name)}))` : `case.path(${str(p.name)})`)),
+      ...(op.queryParams.length ? ['&params'] : []),
+    ]
+    out += `\n#[tokio::test]\nasync fn ${testName}() {\n${setup()}`
     out += `    let res = ${target}.${fname}(${args.join(', ')}).await.expect(${str(`${op.id} succeeds`)});\n`
     out += `    case.check(${str(op.path)}, &res).await;\n}\n`
+    if (op.paged) {
+      out += `\n#[tokio::test]\nasync fn ${testName}_items() {\n${setup()}`
+      out += `    let mut items = ${target}.${bare(op.name)}_items(${args.join(', ')}).max_pages(1);\n`
+      out += '    let mut n = 0;\n'
+      out += `    while items.next_item().await.expect(${str(`${op.id} succeeds`)}).is_some() {\n        n += 1;\n    }\n`
+      out += `    assert_eq!(n, case.rows(${str(op.itemsField)}), "every row of data.${op.itemsField}");\n}\n`
+    }
   }
   return out
 }
@@ -299,8 +404,7 @@ function emitTests(ir) {
 export default function emitRust(ir) {
   return {
     'rust/src/generated/mod.rs':
-      HEADER(ir) +
-      '\n#[rustfmt::skip]\npub mod api;\n#[rustfmt::skip]\n#[allow(missing_docs)]\npub mod types;\n',
+      HEADER(ir) + '\n#[rustfmt::skip]\npub mod api;\n#[rustfmt::skip]\n#[allow(missing_docs)]\npub mod types;\n',
     'rust/src/generated/types.rs': emitTypes(ir),
     'rust/src/generated/api.rs': emitApi(ir),
     'rust/tests/generated/operations.rs': emitTests(ir),

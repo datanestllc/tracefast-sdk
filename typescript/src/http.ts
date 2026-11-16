@@ -1,12 +1,26 @@
-import { TraceFastError } from './errors.ts'
+import { makeError, type TraceFastError } from './errors.ts'
 import { VERSION } from './version.ts'
 
-/** Per-call options. */
+/** Per-call options — the last argument of every method. */
 export interface RequestOptions {
-  /** Cancels the call. */
+  /** Cancels the call; it then rejects with `RequestAbortedError`. */
   signal?: AbortSignal
-  /** Overrides the client's timeout for this call, in milliseconds. */
+  /** Overrides the client's timeout for this call, in milliseconds per attempt. */
   timeout?: number
+  /** Overrides the client's `maxRetries` for this call. */
+  maxRetries?: number
+}
+
+/** Options of a `…Pages()` walker. */
+export interface PagesOptions extends RequestOptions {
+  /** Stop after this many pages. */
+  maxPages?: number
+}
+
+/** Options of an `…Items()` walker. */
+export interface ItemsOptions extends RequestOptions {
+  /** Stop after this many rows. */
+  maxItems?: number
 }
 
 export interface HttpConfig {
@@ -15,50 +29,64 @@ export interface HttpConfig {
   chainId: number
   timeout: number
   maxRetries: number
+  maxRetryWait: number
   userAgent?: string
-  fetch: typeof globalThis.fetch
+  fetch?: typeof globalThis.fetch
 }
 
 type Query = object | undefined
 
-const MAX_RETRY_AFTER_S = 60
+const MAX_BACKOFF_MS = 8_000
+
+/** A path value, percent-encoded. Empty, `.` and `..` would send the call elsewhere and are refused. */
+export function seg(value: string | number): string {
+  const s = String(value)
+  if (s === '' || s === '.' || s === '..') throw new TypeError(`TraceFast: ${JSON.stringify(s)} is not a valid path value`)
+  return encodeURIComponent(s)
+}
 
 /** The transport every method goes through. Not part of the public API. */
 export class Http {
   readonly chainId: number
-  #config: HttpConfig
+  readonly config: Readonly<HttpConfig>
+  #headers: Record<string, string>
 
   constructor(config: HttpConfig) {
-    this.#config = config
+    this.config = config
     this.chainId = config.chainId
+    this.#headers = {
+      accept: 'application/json',
+      'x-api-key': config.apiKey,
+      'user-agent': `tracefast-typescript/${VERSION}${config.userAgent ? ` ${config.userAgent}` : ''}`,
+    }
   }
 
   async get<T>(path: string, query: Query, options?: RequestOptions): Promise<T> {
     const url = this.#url(path, query)
+    const maxRetries = options?.maxRetries ?? this.config.maxRetries
     for (let attempt = 0; ; attempt++) {
       let res: Response
+      let text: string
       try {
-        res = await this.#fetch(url, options)
+        ;({ res, text } = await this.#attempt(url, options))
       } catch (e) {
-        if (e instanceof TraceFastError && e.code === 'timeout') throw e
-        if (options?.signal?.aborted) throw e
-        if (attempt < this.#config.maxRetries) {
+        if (e instanceof Error && 'code' in e && (e as TraceFastError).code === 'connection_error' && attempt < maxRetries) {
           await sleep(backoff(attempt), options?.signal)
           continue
         }
-        throw new TraceFastError({ status: 0, code: 'connection_error', message: `could not reach ${this.#config.baseUrl}`, cause: e })
+        throw e
       }
+      const requestId = res.headers.get('x-request-id') ?? undefined
       if (res.status >= 200 && res.status < 300) {
-        const text = await res.text()
         try {
           return JSON.parse(text) as T
-        } catch (e) {
-          throw new TraceFastError({ status: res.status, code: 'unexpected_response', message: `HTTP ${res.status} with a body that is not JSON`, requestId: res.headers.get('x-request-id') ?? undefined, cause: e })
+        } catch (cause) {
+          throw makeError({ status: res.status, code: 'unexpected_response', message: 'the body is not JSON', requestId, cause })
         }
       }
-      const error = await toError(res)
-      const wait = retryDelay(res.status, error.retryAfter, attempt)
-      if (wait !== undefined && attempt < this.#config.maxRetries) {
+      const error = toError(res, text, requestId)
+      const wait = retryDelay(error, attempt, this.config.maxRetryWait)
+      if (wait !== undefined && attempt < maxRetries) {
         await sleep(wait, options?.signal)
         continue
       }
@@ -66,19 +94,36 @@ export class Http {
     }
   }
 
-  async *pages<T>(path: string, query: Query, options?: RequestOptions): AsyncGenerator<T, void, undefined> {
+  async *pages<T>(path: string, query: Query, options?: PagesOptions): AsyncGenerator<T, void, undefined> {
     let params: Record<string, unknown> = { ...(query ?? {}) }
-    for (;;) {
+    const seen = new Set<string>()
+    for (let n = 0; options?.maxPages === undefined || n < options.maxPages; n++) {
       const page = await this.get<T>(path, params, options)
       yield page
       const next = (page as { data?: { nextCursor?: unknown } }).data?.nextCursor
-      if (typeof next !== 'string' || next === '') return
+      if (next === undefined || next === null) return
+      if (typeof next !== 'string' || next === '' || seen.has(next))
+        throw makeError({ status: 200, code: 'unexpected_response', message: 'the answer repeated a cursor or gave an empty one' })
+      seen.add(next)
       params = { ...params, cursor: next }
     }
   }
 
+  async *items<R>(path: string, query: Query, field: string, options?: ItemsOptions): AsyncGenerator<R, void, undefined> {
+    if (options?.maxItems !== undefined && options.maxItems <= 0) return
+    let n = 0
+    for await (const page of this.pages<{ data?: Record<string, unknown> }>(path, query, options)) {
+      const rows = page.data?.[field]
+      if (!Array.isArray(rows)) continue
+      for (const row of rows as R[]) {
+        yield row
+        if (options?.maxItems !== undefined && ++n >= options.maxItems) return
+      }
+    }
+  }
+
   #url(path: string, query: Query): string {
-    const url = new URL(this.#config.baseUrl.replace(/\/+$/, '') + path)
+    const url = new URL(this.config.baseUrl.replace(/\/+$/, '') + path)
     for (const [k, v] of Object.entries(query ?? {})) {
       if (v === undefined || v === null) continue
       url.searchParams.set(k, String(v))
@@ -86,33 +131,29 @@ export class Http {
     return url.toString()
   }
 
-  async #fetch(url: string, options?: RequestOptions): Promise<Response> {
-    const timeout = options?.timeout ?? this.#config.timeout
+  /** One attempt: the request and its whole body, under one timer. */
+  async #attempt(url: string, options?: RequestOptions): Promise<{ res: Response; text: string }> {
+    const timeout = options?.timeout ?? this.config.timeout
     const timer = AbortSignal.timeout(timeout)
     const signal = options?.signal ? AbortSignal.any([options.signal, timer]) : timer
+    const fetch = this.config.fetch ?? globalThis.fetch
     try {
-      return await this.#config.fetch(url, {
-        method: 'GET',
-        // A redirect is never followed: the key must not travel to another host (SPEC §1).
-        redirect: 'manual',
-        headers: {
-          accept: 'application/json',
-          'x-api-key': this.#config.apiKey,
-          'user-agent': `tracefast-typescript/${VERSION}${this.#config.userAgent ? ` ${this.#config.userAgent}` : ''}`,
-        },
-        signal,
-      })
-    } catch (e) {
-      if (timer.aborted && !options?.signal?.aborted)
-        throw new TraceFastError({ status: 0, code: 'timeout', message: `no answer within ${timeout} ms`, cause: e })
-      throw e
+      // A redirect is never followed: the key must not travel to another host (SPEC §1).
+      const res = await fetch(url, { method: 'GET', headers: this.#headers, redirect: 'manual', signal })
+      const text = await res.text()
+      return { res, text }
+    } catch (cause) {
+      if (options?.signal?.aborted) throw makeError({ status: 0, code: 'aborted', message: 'the call was aborted', cause: options.signal.reason })
+      if (timer.aborted) throw makeError({ status: 0, code: 'timeout', message: `no complete answer within ${timeout} ms`, cause })
+      throw makeError({ status: 0, code: 'connection_error', message: `the connection to ${new URL(url).host} failed`, cause })
     }
   }
 }
 
-async function toError(res: Response): Promise<TraceFastError> {
+function toError(res: Response, text: string, headerRequestId: string | undefined): TraceFastError {
   const retryAfter = parseRetryAfter(res.headers.get('retry-after'))
-  const text = await res.text().catch(() => '')
+  if (res.status >= 300 && res.status < 400)
+    return makeError({ status: res.status, code: 'unexpected_response', message: 'a redirect, which is never followed', requestId: headerRequestId, retryAfter })
   let body: unknown
   try {
     body = JSON.parse(text)
@@ -120,47 +161,53 @@ async function toError(res: Response): Promise<TraceFastError> {
     body = undefined
   }
   const e = (body as { error?: Record<string, unknown> } | undefined)?.error
-  if (e && typeof e.code === 'string') {
-    return new TraceFastError({
+  if (e && typeof e === 'object' && typeof e.code === 'string') {
+    const details = e.details && typeof e.details === 'object' ? (e.details as Record<string, unknown>) : undefined
+    const reason = typeof e.reason === 'string' ? e.reason : typeof details?.reason === 'string' ? details.reason : undefined
+    return makeError({
       status: res.status,
       code: e.code,
       message: typeof e.message === 'string' ? e.message : e.code,
-      details: e.details && typeof e.details === 'object' ? (e.details as Record<string, unknown>) : undefined,
-      requestId: typeof e.requestId === 'string' ? e.requestId : (res.headers.get('x-request-id') ?? undefined),
+      reason,
+      bucket: typeof e.bucket === 'string' ? e.bucket : undefined,
+      details,
+      requestId: typeof e.requestId === 'string' ? e.requestId : headerRequestId,
       retryAfter,
+      body: e,
     })
   }
-  return new TraceFastError({
-    status: res.status,
-    code: 'unexpected_response',
-    message: `HTTP ${res.status} without the API's error body`,
-    requestId: res.headers.get('x-request-id') ?? undefined,
-    retryAfter,
-  })
+  return makeError({ status: res.status, code: 'unexpected_response', message: "an answer without the API's error body", requestId: headerRequestId, retryAfter })
 }
 
-/** How long to wait before retrying this answer, or undefined if it is not retried (SPEC §5). */
-function retryDelay(status: number, retryAfter: number | undefined, attempt: number): number | undefined {
-  if (status === 429) return retryAfter === undefined ? undefined : retryAfter * 1000
-  if (status === 503) return retryAfter === undefined ? backoff(attempt) : retryAfter * 1000
+/** How long to wait before retrying this error, or undefined when it is not retried (SPEC §5). */
+function retryDelay(e: TraceFastError, attempt: number, maxRetryWaitS: number): number | undefined {
+  if (e.status === 429) {
+    if (e.code === 'quota_exceeded' || e.retryAfter === undefined || e.retryAfter > maxRetryWaitS) return undefined
+    return e.retryAfter * 1000
+  }
+  if (e.status === 503) {
+    if (e.retryAfter === undefined) return backoff(attempt)
+    return e.retryAfter > maxRetryWaitS ? undefined : e.retryAfter * 1000
+  }
   return undefined
 }
 
 function parseRetryAfter(h: string | null): number | undefined {
   if (!h) return undefined
   const s = Number(h)
-  if (Number.isFinite(s) && s >= 0) return Math.min(s, MAX_RETRY_AFTER_S)
+  if (Number.isFinite(s) && s >= 0) return s
   const at = Date.parse(h)
   if (Number.isNaN(at)) return undefined
-  return Math.min(Math.max(0, Math.ceil((at - Date.now()) / 1000)), MAX_RETRY_AFTER_S)
+  return Math.max(0, Math.ceil((at - Date.now()) / 1000))
 }
 
-const backoff = (attempt: number) => 500 * 2 ** attempt * (0.5 + Math.random() / 2)
+const backoff = (attempt: number) => Math.min(MAX_BACKOFF_MS, 500 * 2 ** attempt) * (0.5 + Math.random() / 2)
 
 function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (signal?.aborted) return reject(signal.reason)
+    const abort = () => reject(makeError({ status: 0, code: 'aborted', message: 'the call was aborted', cause: signal?.reason }))
+    if (signal?.aborted) return abort()
     const t = setTimeout(resolve, ms)
-    signal?.addEventListener('abort', () => (clearTimeout(t), reject(signal.reason)), { once: true })
+    signal?.addEventListener('abort', () => (clearTimeout(t), abort()), { once: true })
   })
 }

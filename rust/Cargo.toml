@@ -6,19 +6,45 @@ rust-version = "1.85"
 license = "MIT"
 description = "The official Rust SDK for the TraceFast API: Ethereum blocks, transactions, traces, tokens, contracts and what TraceFast states about an address."
 homepage = "https://docs.tracefast.xyz/api"
-documentation = "https://docs.tracefast.xyz/api"
+repository = "https://github.com/datanestllc/tracefast-sdk"
 keywords = ["tracefast", "ethereum", "api", "sdk", "evm"]
 categories = ["api-bindings", "cryptography::cryptocurrencies"]
-publish = false
 readme = "README.md"
+# Private preview: not published to crates.io yet.
+publish = false
+# The tests read ../fixtures and ../codegen, so they cannot run from the packaged crate.
+include = ["src/**", "Cargo.toml", "README.md", "LICENSE"]
+
+[features]
+default = ["rustls-tls"]
+# TLS with rustls and the Mozilla root certificates bundled in the binary.
+rustls-tls = ["reqwest/rustls-tls"]
+# TLS with rustls and the operating system's root certificates.
+rustls-tls-native-roots = ["reqwest/rustls-tls-native-roots"]
+# TLS with the platform's library (OpenSSL, Secure Transport, SChannel).
+native-tls = ["reqwest/native-tls"]
+# Accept gzip-compressed answers.
+gzip = ["reqwest/gzip"]
+# Accept brotli-compressed answers.
+brotli = ["reqwest/brotli"]
+# `futures_core::Stream` for the page and item walkers.
+stream = ["dep:futures-core"]
 
 [dependencies]
-reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+futures-core = { version = "0.3", default-features = false, optional = true }
+reqwest = { version = "0.12", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["time"] }
-url = "2"
 
 [dev-dependencies]
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+futures = "0.3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "io-util"] }
 wiremock = "0.6"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(docsrs)"] }

@@ -4,14 +4,16 @@
 //! A field that may be absent is an `Option`; a field that may be `null` is an
 //! `Option`; a field that may be either is an `Option<Option<_>>` — `None` is
 //! absent, `Some(None)` is `null`. Unknown fields are ignored. An enum is a
-//! `String`: the API may add values.
+//! `String`: the API may add values. Every struct is `#[non_exhaustive]`: a
+//! field the catalogue adds is not a breaking change.
 
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 
 /// One account a transaction changed: its state before and after.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AccountChange {
     /// The account, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -48,7 +50,8 @@ pub struct AccountChange {
 
 /// What one block changed in the account: the net change over the whole block, not per
 /// transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AccountStateChange {
     #[serde(rename = "balanceAfter")]
     pub balance_after: String,
@@ -86,7 +89,8 @@ pub struct AccountStateChange {
 
 /// The newest block each activity source saw the address at. A key is never omitted:
 /// `null` means the source was consulted and holds nothing for this address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ActivityBySource {
     /// Calls the address RECEIVED: it was the target of a call inside a transaction —
     /// with or without value, reverted or not. What says a contract is in use when it is
@@ -108,7 +112,8 @@ pub struct ActivityBySource {
 }
 
 /// Evaluation detail of one attribute.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AttributeDetail {
     /// Attribute id, `family:name`.
     #[serde(rename = "attributeId")]
@@ -123,7 +128,8 @@ pub struct AttributeDetail {
 }
 
 /// Every attribute interval an address has held, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AttributeHistory {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -148,7 +154,8 @@ pub struct AttributeHistory {
 }
 
 /// Response of the address-attribute-history method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AttributeHistoryResponse {
     #[serde(rename = "data")]
     pub data: AttributeHistory,
@@ -157,7 +164,8 @@ pub struct AttributeHistoryResponse {
 }
 
 /// One attribute and the block window it held for.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AttributeInterval {
     /// Attribute id, `family:name` — the same vocabulary as the current attributes, which
     /// is what makes "was it true then" comparable with "is it true now".
@@ -180,7 +188,8 @@ pub struct AttributeInterval {
 /// Answered from the interval history, which covers the families listed in
 /// `coveredFamilies` only. An attribute of another family is never listed here, whether or
 /// not it held — compare with the current attributes method for those.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AttributesAtBlock {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -218,7 +227,8 @@ pub struct AttributesAtBlock {
 }
 
 /// Response of the address-attributes-at-block method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct AttributesAtBlockResponse {
     #[serde(rename = "data")]
     pub data: AttributesAtBlock,
@@ -233,7 +243,8 @@ pub type AuthorityStatus = String;
 
 /// One entry of an EIP-7702 authorization list: an account's signed permission for its
 /// code to be delegated to a contract.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Authorization {
     /// The contract the account delegates its code to, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -279,7 +290,8 @@ pub struct Authorization {
 }
 
 /// Daily history of an address's native balance.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BalanceHistory {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -299,7 +311,8 @@ pub struct BalanceHistory {
 }
 
 /// Response of the address-balance-history method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BalanceHistoryResponse {
     #[serde(rename = "data")]
     pub data: BalanceHistory,
@@ -308,7 +321,8 @@ pub struct BalanceHistoryResponse {
 }
 
 /// The native balance of an address at the end of one day.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BalancePoint {
     /// Balance at the end of the day, in wei, decimal string.
     #[serde(rename = "balanceWei")]
@@ -334,7 +348,8 @@ pub struct BalancePoint {
 }
 
 /// USD value of a balance point at the day's close.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BalancePointUsd {
     /// `true` when no price was observed in that hour and the latest earlier price is used.
     #[serde(rename = "priceCarried")]
@@ -351,7 +366,8 @@ pub struct BalancePointUsd {
 }
 
 /// Totals over the returned window.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BalanceSummary {
     /// Balance of the last point.
     #[serde(rename = "endBalanceWei")]
@@ -386,7 +402,8 @@ pub struct BalanceSummary {
 }
 
 /// The block a balance answer is true at.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BalanceWindow {
     /// The block the answer is true at — the state at the END of that block. With
     /// `kind: block`, the requested block itself. With `kind: current`, the block the
@@ -408,7 +425,8 @@ pub struct BalanceWindow {
 pub type BalanceWindowKind = String;
 
 /// What a beacon handed to its proxies over time.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BeaconImplementations {
     /// The history is complete AT LEAST through this block — a lower bound shared by every
     /// beacon; a change after it may not be listed yet. Absent when `not_proven` or not
@@ -431,7 +449,8 @@ pub struct BeaconImplementations {
 }
 
 /// One period of a beacon's implementation.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BeaconPeriod {
     /// Last block it did, INCLUSIVE — the next period starts one block later. Absent for the
     /// current one. Same names and convention as `endBlock` in the attribute and relation
@@ -447,7 +466,8 @@ pub struct BeaconPeriod {
 }
 
 /// One address an issuer contract lists now.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistedPair {
     /// The listed address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -488,7 +508,8 @@ pub struct BlacklistedPair {
 }
 
 /// One page of the (address, issuer) pairs listed now, in address order.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistedPairs {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -502,7 +523,8 @@ pub struct BlacklistedPairs {
 }
 
 /// Response of the listed-pairs method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistedPairsResponse {
     #[serde(rename = "data")]
     pub data: BlacklistedPairs,
@@ -512,7 +534,8 @@ pub struct BlacklistedPairsResponse {
 
 /// Enforcements one issuer recorded against the address: funds destroyed or frozen. A
 /// separate fact from membership — an enforcement neither lists nor unlists.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistEnforcement {
     /// The issuer's weight, as on `listedBy`.
     #[serde(rename = "authorityTier")]
@@ -534,7 +557,8 @@ pub struct BlacklistEnforcement {
 }
 
 /// The last enforcement an issuer recorded against the address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistEnforcementEvent {
     /// Block height.
     #[serde(rename = "blockNumber")]
@@ -552,7 +576,8 @@ pub struct BlacklistEnforcementEvent {
 }
 
 /// One blacklist event an issuer contract recorded about the address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistEvent {
     /// `add` (listed), `remove` (unlisted) or `enforce` (funds destroyed or frozen).
     #[serde(rename = "action")]
@@ -589,7 +614,8 @@ pub struct BlacklistEvent {
 ///
 /// Facts recorded on-chain by the issuer contracts themselves (blacklist / unblacklist /
 /// enforcement events); no external sanctions lists.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistEvents {
     /// The address asked about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -607,7 +633,8 @@ pub struct BlacklistEvents {
 }
 
 /// Response of the blacklist-events method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistEventsResponse {
     #[serde(rename = "data")]
     pub data: BlacklistEvents,
@@ -616,7 +643,8 @@ pub struct BlacklistEventsResponse {
 }
 
 /// One page of every blacklist event on the chain, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistFeed {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -631,7 +659,8 @@ pub struct BlacklistFeed {
 
 /// One event of the chain-wide blacklist feed: an issuer contract listed, unlisted or enforced
 /// against an address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistFeedEvent {
     /// `add` (listed), `remove` (unlisted) or `enforce` (funds destroyed or frozen).
     #[serde(rename = "action")]
@@ -667,7 +696,8 @@ pub struct BlacklistFeedEvent {
 }
 
 /// Response of the chain-wide blacklist feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistFeedResponse {
     #[serde(rename = "data")]
     pub data: BlacklistFeed,
@@ -676,7 +706,8 @@ pub struct BlacklistFeedResponse {
 }
 
 /// One issuer contract and how many addresses its list holds.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistIssuer {
     /// The issuer's weight: `recognized_issuer`, `arbitrary_token` or `unknown`. Absent when
     /// the issuer's records do not state one value.
@@ -700,7 +731,8 @@ pub struct BlacklistIssuer {
 }
 
 /// The issuer contracts that keep blacklists, most addresses listed first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistIssuers {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -720,7 +752,8 @@ pub struct BlacklistIssuers {
 }
 
 /// Response of the blacklist issuers method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistIssuersResponse {
     #[serde(rename = "data")]
     pub data: BlacklistIssuers,
@@ -732,7 +765,8 @@ pub struct BlacklistIssuersResponse {
 ///
 /// Facts recorded on-chain by the issuer contracts themselves (blacklist / unblacklist /
 /// enforcement events); no external sanctions lists.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistListing {
     /// How much weight the issuer carries: `recognized_issuer` (a curated stablecoin or
     /// asset issuer), `arbitrary_token` (any other token contract that emits blacklist
@@ -791,7 +825,8 @@ pub struct BlacklistListing {
 /// enforcement events); no external sanctions lists. There is deliberately no single
 /// "blacklisted" verdict: a listing is one issuer's decision, weighted by its
 /// `authorityTier`, and the reader decides what it means.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistStatus {
     /// The address asked about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -809,7 +844,8 @@ pub struct BlacklistStatus {
 }
 
 /// Response of the blacklist-status method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlacklistStatusResponse {
     #[serde(rename = "data")]
     pub data: BlacklistStatus,
@@ -818,7 +854,8 @@ pub struct BlacklistStatusResponse {
 }
 
 /// One Ethereum block: its header and the totals of what it contains.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Block {
     /// Base fee per gas in wei, decimal string. Absent before EIP-1559.
     #[serde(rename = "baseFeePerGas", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -918,7 +955,8 @@ pub struct Block {
 }
 
 /// One account whose own state changed in a block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAddress {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -943,7 +981,8 @@ pub struct BlockAddress {
 }
 
 /// A page of the accounts whose own state changed in one block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAddresses {
     /// How many accounts the block touched in total.
     #[serde(rename = "addressCount")]
@@ -961,7 +1000,8 @@ pub struct BlockAddresses {
 }
 
 /// Response of the block-addresses method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAddressesResponse {
     #[serde(rename = "data")]
     pub data: BlockAddresses,
@@ -970,7 +1010,8 @@ pub struct BlockAddressesResponse {
 }
 
 /// The bracket of blocks around a moment.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAtTime {
     /// The last block whose time is at or before `timestamp`.
     #[serde(rename = "block")]
@@ -990,7 +1031,8 @@ pub struct BlockAtTime {
 }
 
 /// Response of the block-at-time method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAtTimeResponse {
     #[serde(rename = "data")]
     pub data: BlockAtTime,
@@ -999,7 +1041,8 @@ pub struct BlockAtTimeResponse {
 }
 
 /// A page of one block's EIP-7702 authorizations.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAuthorizations {
     /// This page, in transaction order and then list order. Empty when the block carries no
     /// type-4 transaction.
@@ -1015,7 +1058,8 @@ pub struct BlockAuthorizations {
 }
 
 /// Response of the block-authorizations method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockAuthorizationsResponse {
     #[serde(rename = "data")]
     pub data: BlockAuthorizations,
@@ -1024,7 +1068,8 @@ pub struct BlockAuthorizationsResponse {
 }
 
 /// One call frame that moved ETH.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockInternalTransferRow {
     /// Depth in the call tree: 2 = called by the transaction's target.
     #[serde(rename = "callDepth")]
@@ -1055,7 +1100,8 @@ pub struct BlockInternalTransferRow {
 }
 
 /// The internal ETH transfers of one block, in transaction order.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockInternalTransfers {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -1073,7 +1119,8 @@ pub struct BlockInternalTransfers {
 }
 
 /// Response of the block internal-transfers method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockInternalTransfersResponse {
     #[serde(rename = "data")]
     pub data: BlockInternalTransfers,
@@ -1082,7 +1129,8 @@ pub struct BlockInternalTransfersResponse {
 }
 
 /// One address's part in a block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockParticipantRow {
     /// Its own account changed in the block.
     #[serde(rename = "accountChanged")]
@@ -1128,7 +1176,8 @@ pub struct BlockParticipantRow {
 }
 
 /// Every address one block touched, in the block's order, with the block's counts.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockParticipants {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -1160,7 +1209,8 @@ pub struct BlockParticipants {
 }
 
 /// Response of the block participants method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockParticipantsResponse {
     #[serde(rename = "data")]
     pub data: BlockParticipants,
@@ -1169,7 +1219,8 @@ pub struct BlockParticipantsResponse {
 }
 
 /// A block's number and its time.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockRef {
     #[serde(rename = "number")]
     pub number: i64,
@@ -1179,7 +1230,8 @@ pub struct BlockRef {
 }
 
 /// Response of the block methods (`blocks/latest`, `blocks/{number}`).
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockResponse {
     #[serde(rename = "data")]
     pub data: Block,
@@ -1188,7 +1240,8 @@ pub struct BlockResponse {
 }
 
 /// One token transfer event of a block: which token, and the transfer.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockTokenTransfer {
     /// Position inside an ERC-1155 `TransferBatch`; `0` for every other event.
     #[serde(rename = "batchIndex")]
@@ -1246,7 +1299,8 @@ pub struct BlockTokenTransfer {
 }
 
 /// The token transfers of one block, in transaction and log order.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockTokenTransfers {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -1264,7 +1318,8 @@ pub struct BlockTokenTransfers {
 }
 
 /// Response of the block token-transfers method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockTokenTransfersResponse {
     #[serde(rename = "data")]
     pub data: BlockTokenTransfers,
@@ -1273,7 +1328,8 @@ pub struct BlockTokenTransfersResponse {
 }
 
 /// A page of one block's transactions.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockTransactions {
     /// The block these transactions belong to.
     #[serde(rename = "blockNumber")]
@@ -1291,7 +1347,8 @@ pub struct BlockTransactions {
 }
 
 /// Response of the block-transactions method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockTransactionsResponse {
     #[serde(rename = "data")]
     pub data: BlockTransactions,
@@ -1300,7 +1357,8 @@ pub struct BlockTransactionsResponse {
 }
 
 /// One validator withdrawal paid out in a block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockWithdrawal {
     /// The recipient address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -1318,7 +1376,8 @@ pub struct BlockWithdrawal {
 }
 
 /// A page of one block's validator withdrawals.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockWithdrawals {
     /// The block these withdrawals belong to.
     #[serde(rename = "blockNumber")]
@@ -1338,7 +1397,8 @@ pub struct BlockWithdrawals {
 }
 
 /// Response of the block-withdrawals method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct BlockWithdrawalsResponse {
     #[serde(rename = "data")]
     pub data: BlockWithdrawals,
@@ -1347,7 +1407,8 @@ pub struct BlockWithdrawalsResponse {
 }
 
 /// The first and the last block in which an address received a call.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CallSpan {
     #[serde(rename = "firstBlock")]
     pub first_block: i64,
@@ -1356,7 +1417,8 @@ pub struct CallSpan {
 }
 
 /// One fact as the knowledge graph states it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CapabilityFact {
     /// The attribute id, `<family>:<name>`.
     #[serde(rename = "attributeId")]
@@ -1375,7 +1437,8 @@ pub struct CapabilityFact {
 }
 
 /// One contract running the shared code.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CodeClone {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -1386,7 +1449,8 @@ pub struct CodeClone {
 }
 
 /// The compiler's metadata at the end of a contract's code: data, not instructions.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CodeMetadataRange {
     /// Offset (pc) of its first byte.
     #[serde(rename = "fromPc")]
@@ -1397,7 +1461,8 @@ pub struct CodeMetadataRange {
 }
 
 /// Which code a code-analysis answer is about, and how it was reached from the address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CodeTarget {
     /// The address whose code this is, lowercase and `0x`-prefixed.
     #[serde(rename = "codeAddress", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -1421,7 +1486,8 @@ pub struct CodeTarget {
 }
 
 /// One validator whose withdrawals go to an address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusAddressValidator {
     /// `1` execution address, `2` compounding.
     #[serde(rename = "credentialType")]
@@ -1443,7 +1509,8 @@ pub struct ConsensusAddressValidator {
 
 /// The validators that direct their withdrawals to an address, as of the validator snapshot.
 /// The address is where the payouts GO — not the owner or the operator.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusAddressValidators {
     #[serde(rename = "activeValidators")]
     pub active_validators: i64,
@@ -1480,7 +1547,8 @@ pub struct ConsensusAddressValidators {
 }
 
 /// Response of the address-validators method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusAddressValidatorsResponse {
     #[serde(rename = "data")]
     pub data: ConsensusAddressValidators,
@@ -1489,7 +1557,8 @@ pub struct ConsensusAddressValidatorsResponse {
 }
 
 /// Seconds since each of the card's moments, computed for this request.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusAges {
     /// Since finality was last seen (normally about 13 minutes behind the head).
     #[serde(rename = "finalitySeconds")]
@@ -1507,7 +1576,8 @@ pub struct ConsensusAges {
 ///
 /// Observed facts and mechanical derivations only — no score or verdict: the data cannot
 /// tell staying for yield from staying out of inertia, and no field here pretends to.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusCurrent {
     /// The epoch the counters were sampled at.
     #[serde(rename = "asOfEpoch")]
@@ -1541,7 +1611,8 @@ pub struct ConsensusCurrent {
 }
 
 /// Response of the consensus-current method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusCurrentResponse {
     #[serde(rename = "data")]
     pub data: ConsensusCurrent,
@@ -1553,7 +1624,8 @@ pub struct ConsensusCurrentResponse {
 /// `ConsensusStatusCounts`, plus their trailing averages and the capital weight of the two
 /// status sets at the registry snapshot. A type of its own so that the series, which states
 /// neither, does not declare them.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusCurrentStatus {
     /// `pendingActivation` as a fraction of `activeOngoing`.
     #[serde(rename = "activationRate", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -1593,7 +1665,8 @@ pub struct ConsensusCurrentStatus {
 
 /// The deposit queue: every pending deposit, split into the ENTRY queue of new validators
 /// (a public key not yet in the validator registry) and top-ups of existing validators.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusDepositQueue {
     /// Pending deposits of both kinds.
     #[serde(rename = "count")]
@@ -1611,7 +1684,8 @@ pub struct ConsensusDepositQueue {
 
 /// Health of one complete epoch (32 slots). A field that the epoch's fork had not
 /// introduced yet is absent.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusEpoch {
     /// Attestations included in the epoch's blocks.
     #[serde(rename = "attestations", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -1673,7 +1747,8 @@ pub struct ConsensusEpoch {
 }
 
 /// One page of complete epochs, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusEpochs {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -1694,7 +1769,8 @@ pub struct ConsensusEpochs {
 }
 
 /// Response of the epochs method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusEpochsResponse {
     #[serde(rename = "data")]
     pub data: ConsensusEpochs,
@@ -1704,7 +1780,8 @@ pub struct ConsensusEpochsResponse {
 
 /// Consensus liveness: the head and finality, the last 24 hours of missed slots and
 /// reorgs, and how completely they were seen.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusHealth {
     /// Ages of the card's moments, computed for this request.
     #[serde(rename = "ages")]
@@ -1738,7 +1815,8 @@ pub struct ConsensusHealth {
 }
 
 /// Response of the consensus health method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusHealthResponse {
     #[serde(rename = "data")]
     pub data: ConsensusHealth,
@@ -1747,7 +1825,8 @@ pub struct ConsensusHealthResponse {
 }
 
 /// A slot in which no block was proposed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusMissedSlot {
     /// `recorded` (the assigned validator is known) or `not_recorded` (below slot
     /// 14 971 296, permanently).
@@ -1768,7 +1847,8 @@ pub struct ConsensusMissedSlot {
 }
 
 /// One page of missed slots, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusMissedSlots {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -1790,7 +1870,8 @@ pub struct ConsensusMissedSlots {
 }
 
 /// Response of the missed-slots method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusMissedSlotsResponse {
     #[serde(rename = "data")]
     pub data: ConsensusMissedSlots,
@@ -1799,7 +1880,8 @@ pub struct ConsensusMissedSlotsResponse {
 }
 
 /// Missed slots over the last 24 hours of published slots.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusMissedWindow {
     #[serde(rename = "missed")]
     pub missed: i64,
@@ -1812,7 +1894,8 @@ pub struct ConsensusMissedWindow {
 
 /// How completely TraceFast saw the chain head over the window. Reorgs and head events
 /// cannot be recovered later, so a gap here is a gap in every count beside it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusObservation {
     /// First and last head event seen in the window, unix seconds.
     #[serde(rename = "firstObservedAt", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -1837,7 +1920,8 @@ pub struct ConsensusObservation {
 }
 
 /// A slot and when it was seen, unix seconds.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusObservedSlot {
     /// When TraceFast saw it, unix seconds.
     #[serde(rename = "observedAt")]
@@ -1847,7 +1931,8 @@ pub struct ConsensusObservedSlot {
 }
 
 /// One validator in the block-proposal leaderboard.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusProposer {
     /// Blocks this validator proposed in the window.
     #[serde(rename = "blocksProposed")]
@@ -1872,7 +1957,8 @@ pub struct ConsensusProposer {
 /// A withdrawal address is the destination of payouts, not evidence of ownership or
 /// operation: the largest on mainnet is a staking pool's vault funded by unrelated
 /// depositors. Nothing here claims an operator.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusProposerAddress {
     /// Blocks proposed in the window by validators paying here.
     #[serde(rename = "blocksProposed")]
@@ -1891,7 +1977,8 @@ pub struct ConsensusProposerAddress {
 /// proposes a handful of blocks per week, while the leading withdrawal address sums
 /// thousands over thousands of validators. Collapsing the per-validator list by address
 /// would not produce the address ranking; ask for it instead.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusProposers {
     /// The ranking, when grouped by address. Absent otherwise.
     #[serde(rename = "addresses", default, skip_serializing_if = "Option::is_none")]
@@ -1931,7 +2018,8 @@ pub struct ConsensusProposers {
 }
 
 /// Response of the consensus-proposers method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusProposersResponse {
     #[serde(rename = "data")]
     pub data: ConsensusProposers,
@@ -1940,7 +2028,8 @@ pub struct ConsensusProposersResponse {
 }
 
 /// The newest published slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusPublishedSlot {
     #[serde(rename = "epoch")]
     pub epoch: i64,
@@ -1956,7 +2045,8 @@ pub struct ConsensusPublishedSlot {
 
 /// Trailing averages of the two queue depths. Each is absent (`null`) until the observed
 /// series spans its window; a value here is a mean over the epochs of the window.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueAverages {
     /// Mean activation-queue depth over the last 30 days, in validators.
     #[serde(rename = "pendingActivation30d", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -1974,7 +2064,8 @@ pub struct ConsensusQueueAverages {
 
 /// The per-epoch churn limits of the Electra rules, gwei, decimal strings: the balance the
 /// chain lets through each epoch on each side.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueChurn {
     /// The budget deposits and exits each get per epoch.
     #[serde(rename = "activationExitGweiPerEpoch", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -1987,7 +2078,8 @@ pub struct ConsensusQueueChurn {
 /// Validator flow that landed in blocks over trailing windows — exits (voluntary and
 /// execution-layer requested, summed) and deposits. Flow, not queue depth. A value is
 /// `null` while the window has not been computed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueFlow {
     /// Deposits that landed in the last 30 days.
     #[serde(rename = "deposits30d", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2005,7 +2097,8 @@ pub struct ConsensusQueueFlow {
 
 /// The span between the end of the reconstruction and the start of sampling, which no
 /// series covers. Draw a break, not a line: a missing span is not an empty queue.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueGap {
     /// Start of the uncovered span, RFC 3339 UTC.
     #[serde(rename = "from", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2027,7 +2120,8 @@ pub struct ConsensusQueueGap {
 /// 1.14-day resolution, derived from validator activations and exits — a queue that
 /// drained faster than that reads as 0 there; the reconstruction ends at the Electra fork
 /// (2025-05-07), and what it cannot know is `null`, never estimated.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueuePoint {
     /// The sampled epoch (`observed`) or the estimate's boundary epoch (`reconstructed`).
     #[serde(rename = "epoch")]
@@ -2059,7 +2153,8 @@ pub struct ConsensusQueuePoint {
 /// `ConsensusQueuePoint.source`); on the day sampling began the observed close stands for
 /// the day. The span between the reconstruction and sampling is listed in `gaps`. The full sampled series, at epoch
 /// grain and over longer windows, is not published here.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueues {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -2089,7 +2184,8 @@ pub struct ConsensusQueues {
 /// wait as balances rather than as pending validators, and the exiting set also holds
 /// consolidation sources. These are the queues; `status` beside them keeps the status-set
 /// counts.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueSet {
     /// The whole active set — active, exiting and slashed — and its actual balance.
     #[serde(rename = "activeSet", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2117,7 +2213,8 @@ pub struct ConsensusQueueSet {
 }
 
 /// One side of the queue state: how many entries, and the ACTUAL balance they carry.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueSide {
     /// Entries on this side (deposits, requests or validators — named by the field holding
     /// it).
@@ -2129,7 +2226,8 @@ pub struct ConsensusQueueSide {
 }
 
 /// Response of the consensus-queues method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueuesResponse {
     #[serde(rename = "data")]
     pub data: ConsensusQueues,
@@ -2139,7 +2237,8 @@ pub struct ConsensusQueuesResponse {
 
 /// The queue state the series is headed by — the same facts as the current method, cut
 /// down to what a chart needs beside its newest point.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueState {
     /// The epoch the counters were sampled at.
     #[serde(rename = "asOfEpoch")]
@@ -2158,7 +2257,8 @@ pub struct ConsensusQueueState {
 
 /// The capital weight of one validator status set at the registry snapshot. Two sums over
 /// the same validators: effective balances and actual balances.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueWeight {
     /// Sum of their actual balances, gwei, decimal string.
     #[serde(rename = "actualGwei")]
@@ -2176,7 +2276,8 @@ pub struct ConsensusQueueWeight {
 /// since Electra — for the queues and their wait estimates read `queues`. The registry is
 /// sampled daily while the counters beside it move every epoch, so the snapshot age is
 /// part of the fact.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusQueueWeights {
     /// Validators pending activation. Absent when the snapshot holds none.
     #[serde(rename = "activation", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2193,7 +2294,8 @@ pub struct ConsensusQueueWeights {
 }
 
 /// One observed chain reorg.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusReorg {
     /// Slots rolled back. Absent when the event did not carry it.
     #[serde(rename = "depth", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2221,7 +2323,8 @@ pub struct ConsensusReorg {
 }
 
 /// Reorgs over the last 24 hours.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusReorgWindow {
     #[serde(rename = "count")]
     pub count: i64,
@@ -2234,7 +2337,8 @@ pub struct ConsensusReorgWindow {
 }
 
 /// One beacon slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusSlot {
     /// Blob commitments in the block.
     #[serde(rename = "blobCommitmentCount", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2288,7 +2392,8 @@ pub struct ConsensusSlot {
 /// The assignment is known only where it was captured (`status: recorded`): from slot
 /// 14 971 296 on. Below that it is `not_recorded`, and that is permanent: assignments cannot be
 /// reconstructed later.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusSlotDuty {
     /// Whether the slot was proposed, stated only where an assignment is recorded. It says
     /// the slot has a block. It does not compare the proposer with the assigned validator.
@@ -2306,7 +2411,8 @@ pub struct ConsensusSlotDuty {
 }
 
 /// The execution block of a proposed slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusSlotExecution {
     /// The execution block hash, lowercase and `0x`-prefixed.
     #[serde(rename = "blockHash", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2331,7 +2437,8 @@ pub struct ConsensusSlotExecution {
 }
 
 /// Response of the consensus slot method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusSlotResponse {
     #[serde(rename = "data")]
     pub data: ConsensusSlot,
@@ -2343,7 +2450,8 @@ pub struct ConsensusSlotResponse {
 /// not (`pendingActivation` holds a few hundred validators while the deposit queue holds
 /// over a million ETH, and `pendingExit` includes consolidation sources). Served under this
 /// name so that no reader mistakes them for the queues in `queues`.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusStatusCounts {
     /// `pendingActivation` as a fraction of `activeOngoing`. `null` on `reconstructed`.
     #[serde(rename = "activationRate", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2375,7 +2483,8 @@ pub struct ConsensusStatusCounts {
 }
 
 /// One validator as of the validator snapshot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusValidator {
     /// Lifecycle epochs. An absent epoch is not scheduled.
     #[serde(rename = "activationEligibilityEpoch", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2431,7 +2540,8 @@ pub struct ConsensusValidator {
 }
 
 /// Response of the validator method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusValidatorResponse {
     #[serde(rename = "data")]
     pub data: ConsensusValidator,
@@ -2440,7 +2550,8 @@ pub struct ConsensusValidatorResponse {
 }
 
 /// One slot of a validator's proposal history.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusValidatorSlot {
     /// `recorded` or `not_recorded`: whether the slot's assignment was captured.
     #[serde(rename = "dutyStatus")]
@@ -2462,7 +2573,8 @@ pub struct ConsensusValidatorSlot {
 }
 
 /// A validator's proposal history over every published slot, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusValidatorSlots {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -2483,7 +2595,8 @@ pub struct ConsensusValidatorSlots {
 }
 
 /// Response of the validator-slots method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusValidatorSlotsResponse {
     #[serde(rename = "data")]
     pub data: ConsensusValidatorSlots,
@@ -2494,7 +2607,8 @@ pub struct ConsensusValidatorSlotsResponse {
 /// How long each queue takes to drain at the current churn: queue balance divided by the
 /// per-epoch limit (the entry queue is also bounded by 16 deposits an epoch). ESTIMATES of the queue as a whole, not a promise to any one
 /// validator: they ignore finality and deposit-inclusion delays and move with the queue.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ConsensusWaitEstimates {
     /// The consolidation estimate in days. Stated on the current state only.
     #[serde(rename = "consolidationDays", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2518,7 +2632,8 @@ pub struct ConsensusWaitEstimates {
 }
 
 /// One deployed contract: what its code is, what it looks like, and how it came to be.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Contract {
     /// The contract address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2581,7 +2696,8 @@ pub struct Contract {
 }
 
 /// The runtime bytecode of a contract.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractBytecode {
     /// The contract address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2606,7 +2722,8 @@ pub struct ContractBytecode {
 }
 
 /// Response of the contract-bytecode method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractBytecodeResponse {
     #[serde(rename = "data")]
     pub data: ContractBytecode,
@@ -2615,7 +2732,8 @@ pub struct ContractBytecodeResponse {
 }
 
 /// What a contract can do, by power, as the knowledge graph proves it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractCapabilities {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2641,7 +2759,8 @@ pub struct ContractCapabilities {
 }
 
 /// Response of the capabilities method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractCapabilitiesResponse {
     #[serde(rename = "data")]
     pub data: ContractCapabilities,
@@ -2651,7 +2770,8 @@ pub struct ContractCapabilitiesResponse {
 
 /// Three questions about one power. An answer is present only when it is proven; an absent
 /// answer is "not proven", never "no".
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractCapability {
     /// The power can be used right now.
     #[serde(rename = "availableNow", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -2668,7 +2788,8 @@ pub struct ContractCapability {
 }
 
 /// The contracts that run exactly the same runtime code as one contract.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractClones {
     /// The contract asked about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2692,7 +2813,8 @@ pub struct ContractClones {
 }
 
 /// Response of the clones method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractClonesResponse {
     #[serde(rename = "data")]
     pub data: ContractClones,
@@ -2701,7 +2823,8 @@ pub struct ContractClonesResponse {
 }
 
 /// What the analysis of a contract's current code found at the opcode level.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractCodeFeatures {
     /// A DELEGATECALL target is read from storage, shown by following the data flow: the code
     /// the contract runs can be changed by writing that storage slot, which is how upgradeable
@@ -2722,7 +2845,8 @@ pub struct ContractCodeFeatures {
 }
 
 /// The writes to a proxy's control slots, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractControlHistory {
     /// The proxy, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2738,7 +2862,8 @@ pub struct ContractControlHistory {
 }
 
 /// Response of the control-history method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractControlHistoryResponse {
     #[serde(rename = "data")]
     pub data: ContractControlHistory,
@@ -2747,7 +2872,8 @@ pub struct ContractControlHistoryResponse {
 }
 
 /// One contract creation: a successful CREATE or CREATE2 frame.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractCreation {
     /// The created contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2784,7 +2910,8 @@ pub struct ContractCreation {
 }
 
 /// A contract's code reconstructed as readable pseudocode.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractDecompilation {
     /// The address asked about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2846,7 +2973,8 @@ pub struct ContractDecompilation {
 }
 
 /// Response of the contract-decompilation method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractDecompilationResponse {
     #[serde(rename = "data")]
     pub data: ContractDecompilation,
@@ -2855,7 +2983,8 @@ pub struct ContractDecompilationResponse {
 }
 
 /// A contract's code as instructions, a page at a time.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractDisassembly {
     /// The address asked about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2886,7 +3015,8 @@ pub struct ContractDisassembly {
 }
 
 /// Response of the contract-disassembly method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractDisassemblyResponse {
     #[serde(rename = "data")]
     pub data: ContractDisassembly,
@@ -2895,7 +3025,8 @@ pub struct ContractDisassemblyResponse {
 }
 
 /// One page of the events a contract emitted.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractEvents {
     /// The contract address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2912,7 +3043,8 @@ pub struct ContractEvents {
 }
 
 /// Response of the contract-events method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractEventsResponse {
     #[serde(rename = "data")]
     pub data: ContractEvents,
@@ -2921,7 +3053,8 @@ pub struct ContractEventsResponse {
 }
 
 /// Calls per function of an address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractFunctionCalls {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2954,7 +3087,8 @@ pub struct ContractFunctionCalls {
 }
 
 /// Response of the contract function-calls method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractFunctionCallsResponse {
     #[serde(rename = "data")]
     pub data: ContractFunctionCalls,
@@ -2963,7 +3097,8 @@ pub struct ContractFunctionCallsResponse {
 }
 
 /// The storage slots of a contract that changed in the most blocks of a recent window.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractHotSlots {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -2988,7 +3123,8 @@ pub struct ContractHotSlots {
 }
 
 /// Response of the hot slots method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractHotSlotsResponse {
     #[serde(rename = "data")]
     pub data: ContractHotSlots,
@@ -2998,7 +3134,8 @@ pub struct ContractHotSlotsResponse {
 
 /// The identity of a contract: which code it runs, how to recognise that code elsewhere, and
 /// how the contract came to be.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractIdentity {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3032,7 +3169,8 @@ pub struct ContractIdentity {
 }
 
 /// Response of the identity method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractIdentityResponse {
     #[serde(rename = "data")]
     pub data: ContractIdentity,
@@ -3041,7 +3179,8 @@ pub struct ContractIdentityResponse {
 }
 
 /// How the contract came to exist and whether it still does.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractLifecycle {
     /// Number of code states observed, deployment included.
     #[serde(rename = "codeChangeCount")]
@@ -3086,7 +3225,8 @@ pub struct ContractLifecycle {
 }
 
 /// Response of the contract method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractResponse {
     #[serde(rename = "data")]
     pub data: Contract,
@@ -3095,7 +3235,8 @@ pub struct ContractResponse {
 }
 
 /// The security profile of a contract's code: how it is built and how it can change.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractSecurity {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3133,7 +3274,8 @@ pub struct ContractSecurity {
 }
 
 /// Response of the security method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractSecurityResponse {
     #[serde(rename = "data")]
     pub data: ContractSecurity,
@@ -3143,7 +3285,8 @@ pub struct ContractSecurityResponse {
 
 /// The 4-byte selectors found as constants in a contract's bytecode: its functions, the
 /// selectors it calls on other contracts and its custom errors, not told apart.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractSelectors {
     /// The contract address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3164,7 +3307,8 @@ pub struct ContractSelectors {
 }
 
 /// Response of the contract-selectors method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractSelectorsResponse {
     #[serde(rename = "data")]
     pub data: ContractSelectors,
@@ -3173,7 +3317,8 @@ pub struct ContractSelectorsResponse {
 }
 
 /// How one storage slot of a contract changed, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractSlotHistory {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3195,7 +3340,8 @@ pub struct ContractSlotHistory {
 }
 
 /// Response of the slot history method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractSlotHistoryResponse {
     #[serde(rename = "data")]
     pub data: ContractSlotHistory,
@@ -3204,7 +3350,8 @@ pub struct ContractSlotHistoryResponse {
 }
 
 /// How a contract's storage was read and written, per UTC day.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageActivity {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3226,7 +3373,8 @@ pub struct ContractStorageActivity {
 }
 
 /// Response of the storage activity method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageActivityResponse {
     #[serde(rename = "data")]
     pub data: ContractStorageActivity,
@@ -3235,7 +3383,8 @@ pub struct ContractStorageActivityResponse {
 }
 
 /// The direct storage slots of a contract with their current values.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageParameters {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3254,7 +3403,8 @@ pub struct ContractStorageParameters {
 }
 
 /// Response of the storage parameters method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageParametersResponse {
     #[serde(rename = "data")]
     pub data: ContractStorageParameters,
@@ -3263,7 +3413,8 @@ pub struct ContractStorageParametersResponse {
 }
 
 /// Totals of a contract's storage writes over its history.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageProfile {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3298,7 +3449,8 @@ pub struct ContractStorageProfile {
 }
 
 /// Response of the storage profile method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageProfileResponse {
     #[serde(rename = "data")]
     pub data: ContractStorageProfile,
@@ -3307,7 +3459,8 @@ pub struct ContractStorageProfileResponse {
 }
 
 /// Who writes a contract's storage, ranked by writes.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageWriters {
     /// The contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3324,7 +3477,8 @@ pub struct ContractStorageWriters {
 }
 
 /// Response of the storage writers method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ContractStorageWritersResponse {
     #[serde(rename = "data")]
     pub data: ContractStorageWriters,
@@ -3333,7 +3487,8 @@ pub struct ContractStorageWritersResponse {
 }
 
 /// One write to a proxy's control slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ControlChange {
     /// The block, the transaction's index in it and its hash.
     #[serde(rename = "blockNumber")]
@@ -3371,7 +3526,8 @@ pub struct ControlChange {
 pub type CorpusBasis = String;
 
 /// One counterparty of the ranked address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Counterparty {
     /// The counterparty address, lowercase and `0x`-prefixed.
     #[serde(rename = "counterparty")]
@@ -3417,7 +3573,8 @@ pub struct Counterparty {
 }
 
 /// The addresses one address interacts with most, ranked.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CounterpartyRanking {
     /// The address the ranking is about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3446,7 +3603,8 @@ pub struct CounterpartyRanking {
 }
 
 /// Response of the address-counterparties method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CounterpartyRankingResponse {
     #[serde(rename = "data")]
     pub data: CounterpartyRanking,
@@ -3455,7 +3613,8 @@ pub struct CounterpartyRankingResponse {
 }
 
 /// What a counterparty ranking covers.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct CounterpartyWindow {
     /// The block the ranking is true as of. For `all`, the block the relationship graph
     /// was last built to; for `block`, the requested block.
@@ -3472,7 +3631,8 @@ pub type CounterpartyWindowKind = String;
 
 /// Per-day account-state activity of an address over a window ending at the latest day
 /// the daily aggregate holds.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DailyActivity {
     /// Days in the window with at least one active block.
     #[serde(rename = "activeDays")]
@@ -3495,7 +3655,8 @@ pub struct DailyActivity {
 }
 
 /// One day of an address's activity.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DailyActivityPoint {
     /// Of those, blocks with a balance change.
     #[serde(rename = "balanceChangeBlocks")]
@@ -3518,7 +3679,8 @@ pub struct DailyActivityPoint {
 }
 
 /// Response of the address-daily-activity method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DailyActivityResponse {
     #[serde(rename = "data")]
     pub data: DailyActivity,
@@ -3527,7 +3689,8 @@ pub struct DailyActivityResponse {
 }
 
 /// One decoded argument.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DecodedArg {
     #[serde(rename = "indexed")]
     pub indexed: bool,
@@ -3544,7 +3707,8 @@ pub struct DecodedArg {
 }
 
 /// A decoded event: its name and arguments.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DecodedEvent {
     /// Arguments in declaration order.
     #[serde(rename = "args")]
@@ -3559,7 +3723,8 @@ pub struct DecodedEvent {
 }
 
 /// What a decompiled view is and when it was made.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DecompilationAnalysis {
     /// Keccak-256 hash of the decompiled code, `0x`-prefixed.
     #[serde(rename = "codeHash")]
@@ -3574,7 +3739,8 @@ pub struct DecompilationAnalysis {
 }
 
 /// One argument of a decompiled function.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DecompiledArgument {
     /// The type the code checks; absent where the code does not fix one.
     #[serde(rename = "type", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -3582,7 +3748,8 @@ pub struct DecompiledArgument {
 }
 
 /// The decompiled body of one function.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DecompiledBody {
     /// `public`, `fallback` or `receive`.
     #[serde(rename = "kind")]
@@ -3596,7 +3763,8 @@ pub struct DecompiledBody {
 }
 
 /// One entry of a decompiled view's table of contents.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DecompiledFunction {
     #[serde(rename = "arguments")]
     pub arguments: Vec<DecompiledArgument>,
@@ -3638,7 +3806,8 @@ pub struct DecompiledFunction {
 }
 
 /// Whether the response states the code EIP-7702 delegated accounts ran.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DelegatedCodeStatus {
     /// The highest block for which delegated code is decided.
     #[serde(rename = "resolvedThroughBlock")]
@@ -3652,7 +3821,8 @@ pub struct DelegatedCodeStatus {
 }
 
 /// One swap on a DEX pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct DexTrade {
     #[serde(rename = "amountInRaw", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub amount_in_raw: Option<Option<String>>,
@@ -3728,7 +3898,8 @@ pub struct DexTrade {
 }
 
 /// Whether an account delegates its code with EIP-7702, to whom and since when.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Eip7702Delegation {
     /// The block the account's delegation history is guaranteed complete through. Delegations
     /// AFTER it may already be included — in `delegate` / `sinceBlock` and in the two counts —
@@ -3758,7 +3929,8 @@ pub struct Eip7702Delegation {
 
 /// When an address was first mentioned, when its own account state last changed, and
 /// when it was last active in any form.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityActivity {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3796,7 +3968,8 @@ pub struct EntityActivity {
 }
 
 /// Response of the address-activity method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityActivityResponse {
     #[serde(rename = "data")]
     pub data: EntityActivity,
@@ -3805,7 +3978,8 @@ pub struct EntityActivityResponse {
 }
 
 /// Facts proven for one address by the TraceFast knowledge graph.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityAttributes {
     /// One entry per id in `attributes`, in the same order, with the evaluation detail.
     #[serde(rename = "attributeDetails")]
@@ -3829,7 +4003,8 @@ pub struct EntityAttributes {
 
 /// Response of the address-attributes method: the facts under `data`, response metadata
 /// under `meta`.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityAttributesResponse {
     #[serde(rename = "data")]
     pub data: EntityAttributes,
@@ -3838,7 +4013,8 @@ pub struct EntityAttributesResponse {
 }
 
 /// The transactions that called an address, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityCallsReceived {
     /// The called address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3854,7 +4030,8 @@ pub struct EntityCallsReceived {
 }
 
 /// Response of the calls-received method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityCallsReceivedResponse {
     #[serde(rename = "data")]
     pub data: EntityCallsReceived,
@@ -3863,7 +4040,8 @@ pub struct EntityCallsReceivedResponse {
 }
 
 /// The contract creations an address made, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityDeployments {
     /// The creating address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3879,7 +4057,8 @@ pub struct EntityDeployments {
 }
 
 /// Response of the deployments method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityDeploymentsResponse {
     #[serde(rename = "data")]
     pub data: EntityDeployments,
@@ -3888,7 +4067,8 @@ pub struct EntityDeploymentsResponse {
 }
 
 /// The DEX trades an address took part in, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityDexTrades {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -3904,7 +4084,8 @@ pub struct EntityDexTrades {
 }
 
 /// Response of the DEX trades method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityDexTradesResponse {
     #[serde(rename = "data")]
     pub data: EntityDexTrades,
@@ -3913,7 +4094,8 @@ pub struct EntityDexTradesResponse {
 }
 
 /// A page of an address's internal transfers, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityInternalTransfers {
     #[serde(rename = "address")]
     pub address: String,
@@ -3924,7 +4106,8 @@ pub struct EntityInternalTransfers {
 }
 
 /// Response of the address-internal-transfers feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityInternalTransfersResponse {
     #[serde(rename = "data")]
     pub data: EntityInternalTransfers,
@@ -3933,7 +4116,8 @@ pub struct EntityInternalTransfersResponse {
 }
 
 /// One address as the chain currently sees it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityOverview {
     /// `eoa` (an externally owned account) or `contract` (code present). An account that
     /// delegates its code with EIP-7702 is `eoa`: its only code is the delegation designator.
@@ -4013,7 +4197,8 @@ pub struct EntityOverview {
 }
 
 /// Response of the address method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityOverviewResponse {
     #[serde(rename = "data")]
     pub data: EntityOverview,
@@ -4024,7 +4209,8 @@ pub struct EntityOverviewResponse {
 /// What a reference — an address, a name, a token symbol or name — resolves to: the
 /// addresses it can mean, best first, each with what TraceFast shows for it and what kind of
 /// address it is.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityResolution {
     /// For a query that is a whole number: the block with that number, when TraceFast holds
     /// it. Absent when it does not — a number past the chain head, or a block in a range that
@@ -4071,7 +4257,8 @@ pub struct EntityResolution {
 }
 
 /// Response of the resolve method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityResolutionResponse {
     #[serde(rename = "data")]
     pub data: EntityResolution,
@@ -4080,7 +4267,8 @@ pub struct EntityResolutionResponse {
 }
 
 /// The blocks that changed one account's own state, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityStateChanges {
     /// The account, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -4096,7 +4284,8 @@ pub struct EntityStateChanges {
 }
 
 /// Response of the state-changes method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityStateChangesResponse {
     #[serde(rename = "data")]
     pub data: EntityStateChanges,
@@ -4105,7 +4294,8 @@ pub struct EntityStateChangesResponse {
 }
 
 /// A page of an address's token transfers, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityTokenTransfers {
     #[serde(rename = "address")]
     pub address: String,
@@ -4116,7 +4306,8 @@ pub struct EntityTokenTransfers {
 }
 
 /// Response of the address-token-transfers feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityTokenTransfersResponse {
     #[serde(rename = "data")]
     pub data: EntityTokenTransfers,
@@ -4125,7 +4316,8 @@ pub struct EntityTokenTransfersResponse {
 }
 
 /// A page of an address's transactions, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityTransactions {
     /// The address this feed is about, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -4138,7 +4330,8 @@ pub struct EntityTransactions {
 }
 
 /// Response of the address-transactions feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EntityTransactionsResponse {
     #[serde(rename = "data")]
     pub data: EntityTransactions,
@@ -4147,7 +4340,8 @@ pub struct EntityTransactionsResponse {
 }
 
 /// Which ERC-20 view functions the bytecode exposes, from its selectors.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Erc20Interface {
     #[serde(rename = "hasDecimals")]
     pub has_decimals: bool,
@@ -4160,7 +4354,8 @@ pub struct Erc20Interface {
 }
 
 /// One event log emitted by a transaction, with its decoding when the signature is known.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EventLog {
     /// The contract that emitted the log, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -4200,7 +4395,8 @@ pub struct EventLog {
 }
 
 /// One evidence source a proof was read from.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct EvidenceSource {
     /// Opaque identifier of the evidence source, `ev:` + 12 hex characters. Stable: the
     /// same source carries the same identifier in every proof, so sources can be told
@@ -4211,7 +4407,8 @@ pub struct EvidenceSource {
 
 /// One frame of the paged, frame-level trace: the call frame as in the summary, with its
 /// calldata and output heads always present, plus the event logs it emitted.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ExecutionFrame {
     /// The frame's address in the tree, and its parent's. Absent parent = the root.
     #[serde(rename = "callPath")]
@@ -4323,7 +4520,8 @@ pub struct ExecutionFrame {
 }
 
 /// One failed call frame inside a reverted transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FailedFrame {
     /// Depth from the root frame, 1 = root.
     #[serde(rename = "callDepth")]
@@ -4375,7 +4573,8 @@ pub struct FailedFrame {
 /// One internal transfer: a value-carrying call frame inside a transaction. The
 /// transaction's own top-level call is NOT one of these — it is the transaction, and it
 /// rides the transactions feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FeedInternalTransfer {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -4417,7 +4616,8 @@ pub struct FeedInternalTransfer {
 }
 
 /// One token transfer of an address's feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FeedTokenTransfer {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -4472,7 +4672,8 @@ pub struct FeedTokenTransfer {
 
 /// One transaction of an address's feed: the transaction as recorded, plus how this address
 /// took part in it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FeedTransaction {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -4528,7 +4729,8 @@ pub struct FeedTransaction {
 }
 
 /// The first swap of a new pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FirstSwap {
     #[serde(rename = "amountIn", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub amount_in: Option<Option<f64>>,
@@ -4551,7 +4753,8 @@ pub struct FirstSwap {
 }
 
 /// One flash loan taken inside a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FlashLoan {
     /// The amount in the token's smallest unit, decimal string.
     #[serde(rename = "amountRaw")]
@@ -4581,7 +4784,8 @@ pub struct FlashLoan {
 }
 
 /// Where the EIP-7702 delegation a frame ran under was set.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FrameDelegation {
     /// Position of the authorization in that transaction's authorization list — the
     /// account's last applied one there.
@@ -4602,7 +4806,8 @@ pub struct FrameDelegation {
 }
 
 /// How often one function of an address was called.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct FunctionCalls {
     #[serde(rename = "candidateCount", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub candidate_count: Option<Option<i64>>,
@@ -4630,7 +4835,8 @@ pub struct FunctionCalls {
 }
 
 /// One slot and how often it changed in the window.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct HotSlotRow {
     /// Blocks of the window in which its value changed.
     #[serde(rename = "changes")]
@@ -4644,7 +4850,8 @@ pub struct HotSlotRow {
 }
 
 /// One instruction of a disassembly.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Instruction {
     /// The PUSH argument, `0x`-prefixed; absent for every other instruction.
     #[serde(rename = "arg", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -4666,7 +4873,8 @@ pub struct Instruction {
 }
 
 /// When the address was last active, with the sources the answer was computed over.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct LastActivity {
     /// Newest block across the consulted sources. `null` when nothing was observed
     /// anywhere; never `0`.
@@ -4686,7 +4894,8 @@ pub struct LastActivity {
 }
 
 /// One ranked liquidity removal.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct LiquidityRemoval {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -4728,7 +4937,8 @@ pub struct LiquidityRemoval {
 }
 
 /// The largest liquidity removals over a window.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct LiquidityRemovals {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -4746,7 +4956,8 @@ pub struct LiquidityRemovals {
 }
 
 /// Response of the largest liquidity removals method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct LiquidityRemovalsResponse {
     #[serde(rename = "data")]
     pub data: LiquidityRemovals,
@@ -4760,7 +4971,8 @@ pub struct LiquidityRemovalsResponse {
 pub type NativeFreshness = String;
 
 /// A pool of the newest-pools feed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct NewPool {
     #[serde(rename = "firstSwap")]
     pub first_swap: FirstSwap,
@@ -4777,7 +4989,8 @@ pub struct NewPool {
 }
 
 /// One page of the newest pools, by first swap.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct NewPools {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -4790,7 +5003,8 @@ pub struct NewPools {
 }
 
 /// Response of the new pools method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct NewPoolsResponse {
     #[serde(rename = "data")]
     pub data: NewPools,
@@ -4799,7 +5013,8 @@ pub struct NewPoolsResponse {
 }
 
 /// The account change of one participant over the block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ParticipantStateChange {
     #[serde(rename = "balanceAfter", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub balance_after: Option<Option<String>>,
@@ -4820,7 +5035,8 @@ pub struct ParticipantStateChange {
 }
 
 /// One token's transfers for one participant in the block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ParticipantTokenFlow {
     /// Received and sent in the block, raw units (ERC-721: number of tokens).
     #[serde(rename = "amountIn")]
@@ -4845,7 +5061,8 @@ pub struct ParticipantTokenFlow {
 }
 
 /// One DEX pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolCard {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -4916,7 +5133,8 @@ pub struct PoolCard {
 }
 
 /// One token of a pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLeg {
     /// The token contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -4937,7 +5155,8 @@ pub struct PoolLeg {
 }
 
 /// One UTC day of liquidity added to and removed from a pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLiquidityDayOut {
     /// Add and remove events, and the distinct providers behind them.
     #[serde(rename = "addEvents")]
@@ -4965,7 +5184,8 @@ pub struct PoolLiquidityDayOut {
 }
 
 /// One liquidity event of a pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLiquidityEvent {
     /// `add` or `remove`, and the event as the pool names it (`mint`, `burn`,
     /// `add_liquidity`, …).
@@ -5003,7 +5223,8 @@ pub struct PoolLiquidityEvent {
 }
 
 /// One page of a pool's liquidity events in a block window, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLiquidityEvents {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -5024,7 +5245,8 @@ pub struct PoolLiquidityEvents {
 }
 
 /// Response of the pool liquidity events method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLiquidityEventsResponse {
     #[serde(rename = "data")]
     pub data: PoolLiquidityEvents,
@@ -5033,7 +5255,8 @@ pub struct PoolLiquidityEventsResponse {
 }
 
 /// A pool's daily liquidity flow over a window, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLiquidityFlow {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -5050,7 +5273,8 @@ pub struct PoolLiquidityFlow {
 }
 
 /// Response of the pool liquidity flow method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolLiquidityFlowResponse {
     #[serde(rename = "data")]
     pub data: PoolLiquidityFlow,
@@ -5059,7 +5283,8 @@ pub struct PoolLiquidityFlowResponse {
 }
 
 /// What a pool holds now, with how far its USD figure can be relied on.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolReservesNow {
     #[serde(rename = "accuracyBand")]
     pub accuracy_band: String,
@@ -5105,7 +5330,8 @@ pub struct PoolReservesNow {
 }
 
 /// Response of the pool reserves method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolReservesResponse {
     #[serde(rename = "data")]
     pub data: PoolReservesNow,
@@ -5114,7 +5340,8 @@ pub struct PoolReservesResponse {
 }
 
 /// Response of the pool method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolResponse {
     #[serde(rename = "data")]
     pub data: PoolCard,
@@ -5123,7 +5350,8 @@ pub struct PoolResponse {
 }
 
 /// The pools holding two tokens.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolsForPair {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -5142,7 +5370,8 @@ pub struct PoolsForPair {
 }
 
 /// Response of the pools-for-pair method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolsForPairResponse {
     #[serde(rename = "data")]
     pub data: PoolsForPair,
@@ -5151,7 +5380,8 @@ pub struct PoolsForPairResponse {
 }
 
 /// One swap of a pool.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolSwap {
     #[serde(rename = "amountInRaw", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub amount_in_raw: Option<Option<String>>,
@@ -5204,7 +5434,8 @@ pub struct PoolSwap {
 }
 
 /// One page of a pool's swaps, newest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolSwaps {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -5227,7 +5458,8 @@ pub struct PoolSwaps {
 }
 
 /// Response of the pool swaps method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolSwapsResponse {
     #[serde(rename = "data")]
     pub data: PoolSwaps,
@@ -5236,7 +5468,8 @@ pub struct PoolSwapsResponse {
 }
 
 /// A pool's daily volume over a window, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolVolume {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -5270,7 +5503,8 @@ pub struct PoolVolume {
 }
 
 /// One UTC day of a pool's trading.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolVolumeDayOut {
     /// The UTC day, `YYYY-MM-DD`.
     #[serde(rename = "day")]
@@ -5291,7 +5525,8 @@ pub struct PoolVolumeDayOut {
 }
 
 /// Response of the pool volume method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PoolVolumeResponse {
     #[serde(rename = "data")]
     pub data: PoolVolume,
@@ -5300,7 +5535,8 @@ pub struct PoolVolumeResponse {
 }
 
 /// What one address holds, valued in USD.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Portfolio {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -5340,7 +5576,8 @@ pub struct Portfolio {
 }
 
 /// Response of the address-portfolio method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PortfolioResponse {
     #[serde(rename = "data")]
     pub data: Portfolio,
@@ -5349,7 +5586,8 @@ pub struct PortfolioResponse {
 }
 
 /// One valued position of a portfolio.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Position {
     /// The block this balance last changed at. For a token in the current view it can be
     /// earlier than `window.asOfBlock`: the balance has not changed since and is valid at
@@ -5376,7 +5614,7 @@ pub struct Position {
     /// USD price of one whole unit of the asset at `priceHour`.
     #[serde(rename = "priceUsd")]
     pub price_usd: f64,
-    /// `valueUsd / totalUsd`, in `0..=1`.
+    /// `valueUsd / totalUsd`, in `0 to 1`.
     #[serde(rename = "share")]
     pub share: f64,
     /// Ticker as declared by the token contract; `ETH` for the native asset. Absent when
@@ -5406,7 +5644,8 @@ pub type PriceBasis = String;
 /// The evidence behind one proven fact — an attribute of an address, or a relation
 /// between two addresses. Nothing here is summarised or ranked: the fields are the
 /// evaluator's own record, so a reader can check the claim rather than trust it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Proof {
     /// The attribute or relation id, `family:name`.
     #[serde(rename = "attributeId")]
@@ -5490,7 +5729,8 @@ pub struct Proof {
 }
 
 /// Response of the two proof methods.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ProofResponse {
     #[serde(rename = "data")]
     pub data: Proof,
@@ -5499,7 +5739,8 @@ pub struct ProofResponse {
 }
 
 /// A proven answer and the block it speaks about.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ProvenAt {
     /// The block the answer was evaluated at.
     #[serde(rename = "referenceBlock")]
@@ -5507,7 +5748,8 @@ pub struct ProvenAt {
 }
 
 /// One implementation a proxy has been observed delegating to, and whether it still does.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ProxyImplementation {
     /// Only on a `storage_beacon` row, where `implementation` is the BEACON: the logic
     /// contracts the beacon handed to its proxies, read on the beacon itself. Absent on every
@@ -5562,7 +5804,8 @@ pub struct ProxyImplementation {
 }
 
 /// The implementations a proxy contract has delegated to.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ProxyImplementations {
     /// The proxy contract address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -5577,7 +5820,8 @@ pub struct ProxyImplementations {
 }
 
 /// Response of the contract-proxy method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ProxyImplementationsResponse {
     #[serde(rename = "data")]
     pub data: ProxyImplementations,
@@ -5586,7 +5830,8 @@ pub struct ProxyImplementationsResponse {
 }
 
 /// Response metadata.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct PublicMeta {
     /// The block height the answer is valid at — the same place on every method, whatever
     /// the body's own shape. Absent when the method's source states no block (a ranking
@@ -5616,7 +5861,8 @@ pub struct PublicMeta {
 }
 
 /// One transaction that called the address — directly or from inside another contract.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ReceivedCall {
     /// The block and the transaction's index in it.
     #[serde(rename = "blockNumber")]
@@ -5662,7 +5908,8 @@ pub struct ReceivedCall {
 }
 
 /// One relation that holds now.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Relation {
     /// Relation id, `relation:name`.
     #[serde(rename = "attributeId")]
@@ -5683,7 +5930,8 @@ pub struct Relation {
 }
 
 /// How many addresses point at one address under one relation id.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationCount {
     /// The relation id, `relation:name`.
     #[serde(rename = "attributeId")]
@@ -5694,7 +5942,8 @@ pub struct RelationCount {
 }
 
 /// Every relation interval an address has held, in one direction, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationHistory {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -5728,7 +5977,8 @@ pub struct RelationHistory {
 }
 
 /// Response of the address-relation-history method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationHistoryResponse {
     #[serde(rename = "data")]
     pub data: RelationHistory,
@@ -5737,7 +5987,8 @@ pub struct RelationHistoryResponse {
 }
 
 /// One relation and the block window it held for.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationInterval {
     /// Relation id, `relation:name` (for example `relation:was_implementation_of`,
     /// `relation:eip7702_delegates_to`).
@@ -5760,7 +6011,8 @@ pub struct RelationInterval {
 }
 
 /// One page of the relations an address holds now.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Relations {
     /// The address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -5790,7 +6042,8 @@ pub struct Relations {
 }
 
 /// The relations an address was the subject of at one block.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationsAtBlock {
     /// The address, lowercase and `0x`-prefixed. Always the SUBJECT of the relations
     /// listed: "what did this address point at".
@@ -5820,7 +6073,8 @@ pub struct RelationsAtBlock {
 }
 
 /// Response of the address-relations-at-block method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationsAtBlockResponse {
     #[serde(rename = "data")]
     pub data: RelationsAtBlock,
@@ -5829,7 +6083,8 @@ pub struct RelationsAtBlockResponse {
 }
 
 /// Response of the address-relations method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct RelationsResponse {
     #[serde(rename = "data")]
     pub data: Relations,
@@ -5838,7 +6093,8 @@ pub struct RelationsResponse {
 }
 
 /// One token of a pool's reserves.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ReserveLegNow {
     #[serde(rename = "decimals", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub decimals: Option<Option<i64>>,
@@ -5872,7 +6128,8 @@ pub struct ReserveLegNow {
 pub type ResolveCorpus = String;
 
 /// A block a number query resolved to. Pass `number` to the block methods.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ResolvedBlock {
     /// The block number.
     #[serde(rename = "number")]
@@ -5880,7 +6137,8 @@ pub struct ResolvedBlock {
 }
 
 /// One address the query resolves to.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ResolvedEntity {
     /// The address, lowercase and `0x`-prefixed. Pass it to the address methods.
     #[serde(rename = "address")]
@@ -5914,7 +6172,8 @@ pub struct ResolvedEntity {
 }
 
 /// The token contract's identity as it declares it.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ResolvedToken {
     /// The name the contract declares — verbatim, not verified.
     #[serde(rename = "name", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -5933,7 +6192,8 @@ pub struct ResolvedToken {
 pub type ResolvedTokenState = String;
 
 /// A transaction a hash query resolved to. Pass `hash` to the transaction methods.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ResolvedTransaction {
     /// The block that includes it, and its index in that block.
     #[serde(rename = "blockNumber")]
@@ -5946,7 +6206,8 @@ pub struct ResolvedTransaction {
 }
 
 /// What kind of address a match is: its proven type attributes.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ResolvedType {
     /// Proven attribute ids of the families `asset` (what it is as an asset, e.g.
     /// `asset:fungible_token`), `address_nature` (e.g. `address_nature:contract_currently`)
@@ -5980,7 +6241,8 @@ pub type ResolveMatchedOn = String;
 pub type ResolveQueryKind = String;
 
 /// One function selector of a contract, resolved to a signature where one is known.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Selector {
     /// How many known signatures share this selector. `1` is unambiguous; when several do,
     /// `signature` is the most common one.
@@ -6006,7 +6268,8 @@ pub struct Selector {
 }
 
 /// One write to a proxy's pointer slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct SlotEvent {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -6020,7 +6283,8 @@ pub struct SlotEvent {
 }
 
 /// One block in which the slot's value changed.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct SlotValueChange {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -6039,7 +6303,8 @@ pub struct SlotValueChange {
 }
 
 /// A transaction that wrote the slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct SlotWriterTx {
     #[serde(rename = "txHash")]
     pub tx_hash: String,
@@ -6049,7 +6314,8 @@ pub struct SlotWriterTx {
 
 /// One read-after-write edge inside a block: `readerTxIndex` read the slot whose last
 /// committed write before it, in this block, was `writerTxIndex`'s.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct StateDependency {
     #[serde(rename = "readerTxHash", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub reader_tx_hash: Option<Option<String>>,
@@ -6071,7 +6337,8 @@ pub struct StateDependency {
 }
 
 /// One pair of dependent transactions, all their shared slots counted.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct StateDependencyPair {
     #[serde(rename = "readerTxHash", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub reader_tx_hash: Option<Option<String>>,
@@ -6091,7 +6358,8 @@ pub struct StateDependencyPair {
 }
 
 /// One UTC day.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct StorageActivityDay {
     /// `YYYY-MM-DD`.
     #[serde(rename = "date")]
@@ -6123,7 +6391,8 @@ pub struct StorageActivityDay {
 }
 
 /// One direct slot.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct StorageParameterRow {
     /// Blocks in which its value changed.
     #[serde(rename = "changes")]
@@ -6148,7 +6417,8 @@ pub struct StorageParameterRow {
 }
 
 /// One storage slot written by one call frame of a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct StorageWrite {
     /// Depth of the writing frame; `1` is the top-level call.
     #[serde(rename = "callDepth")]
@@ -6201,7 +6471,8 @@ pub struct StorageWrite {
 }
 
 /// One (caller, execution address) pair that wrote the storage.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct StorageWriterRow {
     /// Who called the frame that wrote.
     #[serde(rename = "callerAddress")]
@@ -6227,7 +6498,8 @@ pub struct StorageWriterRow {
 pub type Surface = String;
 
 /// One token contract, as it declares itself.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Token {
     /// The token contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -6264,7 +6536,8 @@ pub struct Token {
 }
 
 /// The balance of one token on one address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenBalance {
     /// The holder address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -6291,7 +6564,8 @@ pub struct TokenBalance {
 }
 
 /// Response of the address-token-balance method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenBalanceResponse {
     #[serde(rename = "data")]
     pub data: TokenBalance,
@@ -6306,7 +6580,8 @@ pub struct TokenBalanceResponse {
 pub type TokenClass = String;
 
 /// A token's daily DEX volume over a window, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenDexVolume {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -6333,7 +6608,8 @@ pub struct TokenDexVolume {
 }
 
 /// One UTC day of a token's DEX trading.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenDexVolumeDay {
     /// The UTC day, `YYYY-MM-DD`.
     #[serde(rename = "day")]
@@ -6349,7 +6625,8 @@ pub struct TokenDexVolumeDay {
 }
 
 /// Response of the token DEX volume method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenDexVolumeResponse {
     #[serde(rename = "data")]
     pub data: TokenDexVolume,
@@ -6358,7 +6635,8 @@ pub struct TokenDexVolumeResponse {
 }
 
 /// One holder of a token.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenHolder {
     /// The holder address, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -6370,7 +6648,8 @@ pub struct TokenHolder {
 }
 
 /// The largest current holders of a token.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenHolders {
     /// Number of addresses holding a positive balance now — the size of the set this list
     /// is the top of. Holders who once held and now hold nothing are not counted.
@@ -6386,7 +6665,8 @@ pub struct TokenHolders {
 }
 
 /// Response of the token-holders method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenHoldersResponse {
     #[serde(rename = "data")]
     pub data: TokenHolders,
@@ -6395,7 +6675,8 @@ pub struct TokenHoldersResponse {
 }
 
 /// One pool holding a token.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPoolEntry {
     /// Whether the pool's token list is known, as the source states it (`complete`: every token
     /// of the pool is listed).
@@ -6433,7 +6714,8 @@ pub struct TokenPoolEntry {
 }
 
 /// One page of the pools holding a token, newest created first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPools {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -6453,7 +6735,8 @@ pub struct TokenPools {
 }
 
 /// Response of the token pools method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPoolsResponse {
     #[serde(rename = "data")]
     pub data: TokenPools,
@@ -6462,7 +6745,8 @@ pub struct TokenPoolsResponse {
 }
 
 /// A token's USD price for one hour.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPrice {
     /// Hours between `observedHour` and `hour`.
     #[serde(rename = "ageHours", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -6504,7 +6788,8 @@ pub struct TokenPrice {
 }
 
 /// The DEX side of a priced hour: the DEX observation, not the chosen price.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPriceDex {
     /// The source's confidence in the DEX price.
     #[serde(rename = "confidenceTier", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -6526,7 +6811,8 @@ pub struct TokenPriceDex {
 }
 
 /// A token's hourly USD prices over a window, oldest first.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPriceHistory {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -6545,7 +6831,8 @@ pub struct TokenPriceHistory {
 }
 
 /// Response of the token price history method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPriceHistoryResponse {
     #[serde(rename = "data")]
     pub data: TokenPriceHistory,
@@ -6554,7 +6841,8 @@ pub struct TokenPriceHistoryResponse {
 }
 
 /// The oracle side of a priced hour.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPriceOracle {
     /// The price feed contract, lowercase and `0x`-prefixed.
     #[serde(rename = "address", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -6568,7 +6856,8 @@ pub struct TokenPriceOracle {
 }
 
 /// One priced hour of a token.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPricePoint {
     /// `true` when the price was carried over from an earlier hour.
     #[serde(rename = "carried")]
@@ -6599,7 +6888,8 @@ pub struct TokenPricePoint {
 }
 
 /// Response of the token price method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenPriceResponse {
     #[serde(rename = "data")]
     pub data: TokenPrice,
@@ -6608,7 +6898,8 @@ pub struct TokenPriceResponse {
 }
 
 /// Response of the token method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenResponse {
     #[serde(rename = "data")]
     pub data: Token,
@@ -6617,7 +6908,8 @@ pub struct TokenResponse {
 }
 
 /// Token counts for one token standard.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenStandardStats {
     /// Holder positions: for each token of this standard, the addresses whose received
     /// minus sent transfers is positive now, summed over the tokens — an address holding
@@ -6637,7 +6929,8 @@ pub struct TokenStandardStats {
 }
 
 /// Network-wide token statistics, recomputed daily.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenStats {
     /// Per standard, most transfers first.
     #[serde(rename = "byStandard")]
@@ -6656,7 +6949,8 @@ pub struct TokenStats {
 }
 
 /// Response of the token-statistics method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenStatsResponse {
     #[serde(rename = "data")]
     pub data: TokenStats,
@@ -6665,7 +6959,8 @@ pub struct TokenStatsResponse {
 }
 
 /// One transfer event of a token.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenTransfer {
     /// Position inside an ERC-1155 `TransferBatch`; `0` for every other event.
     #[serde(rename = "batchIndex")]
@@ -6717,7 +7012,8 @@ pub struct TokenTransfer {
 }
 
 /// One page of a token's transfers.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenTransfers {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -6734,7 +7030,8 @@ pub struct TokenTransfers {
 }
 
 /// Response of the token-transfers method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TokenTransfersResponse {
     #[serde(rename = "data")]
     pub data: TokenTransfers,
@@ -6743,7 +7040,8 @@ pub struct TokenTransfersResponse {
 }
 
 /// One executed call frame of a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TraceFrame {
     /// The frame's address in the tree, and its parent's. Absent parent = the root.
     #[serde(rename = "callPath")]
@@ -6851,7 +7149,8 @@ pub struct TraceFrame {
 }
 
 /// One transaction as recorded on chain, with its receipt's outcome.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct Transaction {
     /// The block that includes it, and the transaction's index within that block.
     #[serde(rename = "blockNumber")]
@@ -6945,7 +7244,8 @@ pub struct Transaction {
 /// priority fee (so "no row for the fee recipient" does not mean "it did not change"); an
 /// account created and destroyed within the transaction has no row (no net change); the set
 /// is never empty for a computed transaction (its sender always changes).
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionAccountChanges {
     /// Ordered by address.
     #[serde(rename = "accounts")]
@@ -6962,7 +7262,8 @@ pub struct TransactionAccountChanges {
 }
 
 /// Response of the account-changes method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionAccountChangesResponse {
     #[serde(rename = "data")]
     pub data: TransactionAccountChanges,
@@ -6971,7 +7272,8 @@ pub struct TransactionAccountChangesResponse {
 }
 
 /// A page of one transaction's event logs.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionEvents {
     /// This page, in emission order.
     #[serde(rename = "events")]
@@ -6985,7 +7287,8 @@ pub struct TransactionEvents {
 }
 
 /// Response of the transaction-events method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionEventsResponse {
     #[serde(rename = "data")]
     pub data: TransactionEvents,
@@ -6995,7 +7298,8 @@ pub struct TransactionEventsResponse {
 
 /// How heavy a transaction was inside the EVM: opcode counts over every frame, the reverted
 /// ones included.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionExecutionProfile {
     /// The block and the transaction's index in it.
     #[serde(rename = "blockNumber")]
@@ -7042,7 +7346,8 @@ pub struct TransactionExecutionProfile {
 }
 
 /// Response of the execution-profile method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionExecutionProfileResponse {
     #[serde(rename = "data")]
     pub data: TransactionExecutionProfile,
@@ -7051,7 +7356,8 @@ pub struct TransactionExecutionProfileResponse {
 }
 
 /// Why a transaction reverted, frame by frame.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionFailures {
     /// The block that includes it. Absent when there are no failed frames.
     #[serde(rename = "blockNumber", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -7077,7 +7383,8 @@ pub struct TransactionFailures {
 }
 
 /// Response of the transaction-failures method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionFailuresResponse {
     #[serde(rename = "data")]
     pub data: TransactionFailures,
@@ -7090,7 +7397,8 @@ pub struct TransactionFailuresResponse {
 /// those lenders — stated
 /// only for a transaction whose block the index has reached; above it the method answers 422,
 /// never an empty list.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionFlashLoans {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -7103,7 +7411,8 @@ pub struct TransactionFlashLoans {
 }
 
 /// Response of the flash-loans method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionFlashLoansResponse {
     #[serde(rename = "data")]
     pub data: TransactionFlashLoans,
@@ -7112,7 +7421,8 @@ pub struct TransactionFlashLoansResponse {
 }
 
 /// A page of one transaction's call frames in pre-order.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionFrames {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -7138,7 +7448,8 @@ pub struct TransactionFrames {
 }
 
 /// Response of the transaction-trace-frames method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionFramesResponse {
     #[serde(rename = "data")]
     pub data: TransactionFrames,
@@ -7147,7 +7458,8 @@ pub struct TransactionFramesResponse {
 }
 
 /// The liquidity events of a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionLiquidityEvents {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -7160,7 +7472,8 @@ pub struct TransactionLiquidityEvents {
 }
 
 /// Response of the transaction liquidity events method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionLiquidityEventsResponse {
     #[serde(rename = "data")]
     pub data: TransactionLiquidityEvents,
@@ -7169,7 +7482,8 @@ pub struct TransactionLiquidityEventsResponse {
 }
 
 /// Response of the transaction method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionResponse {
     #[serde(rename = "data")]
     pub data: Transaction,
@@ -7178,7 +7492,8 @@ pub struct TransactionResponse {
 }
 
 /// The top-level failure of a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionRevert {
     /// The raw revert payload, `0x`-prefixed. It may be cut: see `dataTruncated`.
     #[serde(rename = "data", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -7206,7 +7521,8 @@ pub struct TransactionRevert {
 
 /// Which other transactions of its block a transaction depends on through storage, and
 /// which depend on it. Facts of execution order only: no verdict about intent.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionStateDependencies {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -7229,7 +7545,8 @@ pub struct TransactionStateDependencies {
 }
 
 /// Response of the state-dependencies method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionStateDependenciesResponse {
     #[serde(rename = "data")]
     pub data: TransactionStateDependencies,
@@ -7238,7 +7555,8 @@ pub struct TransactionStateDependenciesResponse {
 }
 
 /// What a transaction wrote to contract storage.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionStorage {
     /// Distinct contracts written.
     #[serde(rename = "contracts")]
@@ -7255,7 +7573,8 @@ pub struct TransactionStorage {
 }
 
 /// A page of one transaction's storage writes.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionStorageWrites {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -7277,7 +7596,8 @@ pub struct TransactionStorageWrites {
 }
 
 /// Response of the transaction-storage-writes method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionStorageWritesResponse {
     #[serde(rename = "data")]
     pub data: TransactionStorageWrites,
@@ -7286,7 +7606,8 @@ pub struct TransactionStorageWritesResponse {
 }
 
 /// The call tree of one transaction, in pre-order.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionTrace {
     #[serde(rename = "blockNumber")]
     pub block_number: i64,
@@ -7316,7 +7637,8 @@ pub struct TransactionTrace {
 }
 
 /// Response of the transaction-trace method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionTraceResponse {
     #[serde(rename = "data")]
     pub data: TransactionTrace,
@@ -7326,7 +7648,8 @@ pub struct TransactionTraceResponse {
 
 /// The committed transient writes of a transaction, in execution order. Empty for a computed
 /// transaction means "no transient writes".
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionTransientWrites {
     /// Chain id. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -7342,7 +7665,8 @@ pub struct TransactionTransientWrites {
 }
 
 /// Response of the transient-writes method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransactionTransientWritesResponse {
     #[serde(rename = "data")]
     pub data: TransactionTransientWrites,
@@ -7352,7 +7676,8 @@ pub struct TransactionTransientWritesResponse {
 
 /// The token a transfer moved, as the contract declares itself. Same words as the token
 /// method; no price and no name from any resolver.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransferToken {
     /// The token contract. It is what identifies the token — the symbol and the name do not.
     #[serde(rename = "address")]
@@ -7375,7 +7700,8 @@ pub struct TransferToken {
 }
 
 /// One committed TSTORE (EIP-1153; none before block 19 426 976).
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TransientWrite {
     /// The frame's depth, 1 = the top-level call.
     #[serde(rename = "callDepth")]
@@ -7406,7 +7732,8 @@ pub struct TransientWrite {
 }
 
 /// One liquidity event of a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TxLiquidityEvent {
     /// `add` or `remove`, and the event as the pool names it.
     #[serde(rename = "action")]
@@ -7436,7 +7763,8 @@ pub struct TxLiquidityEvent {
 }
 
 /// One token leg of a liquidity event in a transaction.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TxLiquidityLeg {
     #[serde(rename = "amount", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
     pub amount: Option<Option<f64>>,
@@ -7471,7 +7799,8 @@ pub struct TxLiquidityLeg {
 /// Hints are positive and non-exclusive: a freshly deployed token carries both `contract`
 /// and `fungible_token`. They are a list, never a set of booleans — a `false` here would
 /// read as a negative fact that was never established.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct TypeHints {
     /// Newest block among the evidence behind the hints. Present only with `source: hint`.
     #[serde(rename = "evidenceBlock", default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::de::double_option")]
@@ -7490,7 +7819,8 @@ pub struct TypeHints {
 pub type TypeHintSource = String;
 
 /// One withdrawal paid out to a validator's withdrawal address.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ValidatorWithdrawal {
     /// The address paid, lowercase and `0x`-prefixed.
     #[serde(rename = "address")]
@@ -7516,7 +7846,8 @@ pub struct ValidatorWithdrawal {
 /// newest window by default, or the one asked for with `fromBlock` / `toBlock`. The
 /// window is echoed in `window`; to read further back, ask again with
 /// `toBlock = window.fromBlock - 1`. `nextCursor` pages inside the window only.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ValidatorWithdrawals {
     /// Chain id the facts are about. `1` is Ethereum mainnet.
     #[serde(rename = "chainId")]
@@ -7537,7 +7868,8 @@ pub struct ValidatorWithdrawals {
 }
 
 /// Response of the validator-withdrawals method.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct ValidatorWithdrawalsResponse {
     #[serde(rename = "data")]
     pub data: ValidatorWithdrawals,
@@ -7546,7 +7878,8 @@ pub struct ValidatorWithdrawalsResponse {
 }
 
 /// The inclusive block window a page was answered over.
-#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize)]
+#[non_exhaustive]
 pub struct WithdrawalWindow {
     /// Lowest block of the window, inclusive.
     #[serde(rename = "fromBlock")]

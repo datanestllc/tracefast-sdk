@@ -6,6 +6,7 @@
 // fully typed under `mypy --strict`.
 const PLAN = { data: 'Enriched Data', intelligence: 'Intelligence', investigation: 'Investigation' }
 const WIDTH = 88
+const NOT_SENT = 'A keyword argument left as None is not sent: the API applies its own default.'
 
 const KEYWORDS = new Set([
   'False', 'None', 'True', 'and', 'as', 'assert', 'async', 'await', 'break', 'class', 'continue', 'def', 'del', 'elif',
@@ -87,6 +88,8 @@ const docstring = (lines, indent) => {
 const comment = (text, indent) =>
   text.trim() ? wrap(text.trim(), WIDTH - indent.length - 2).map((l) => (l ? `${indent}# ${l}` : `${indent}#`)).join('\n') + '\n' : ''
 const oneLine = (s) => s.replace(/\s+/g, ' ').trim()
+const capital = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s)
+const sentence = (s) => (s && !/[.!?:]$/.test(s) ? `${s}.` : s)
 
 // ---- types.py
 
@@ -103,34 +106,41 @@ function emitTypes(ir, header) {
     docstring(['The response types of the TraceFast API, one TypedDict per catalogue object.', '', 'A key the API leaves out is absent from the dict; a `null` is `None`. Enums are open: a value the catalogue does not list may appear.'], '') +
     '\nfrom __future__ import annotations\n\nfrom typing import Any, Literal, TypeAlias\n\nfrom typing_extensions import NotRequired, TypedDict\n'
   const exported = []
+  const hasRef = (t) => t.kind === 'ref' || (t.items && hasRef(t.items)) || (t.values && hasRef(t.values))
   for (const [name, t] of sorted) {
     exported.push(name)
     out += '\n\n'
     if (t.kind === 'alias') {
+      // Evaluated at runtime (typing.get_type_hints reads it), so it may not
+      // name a type that is declared further down.
+      if (hasRef(t.type)) throw new Error(`alias ${name} refers to another type; the Python emitter cannot order it`)
       out += comment(t.description, '')
-      out += `${name}: TypeAlias = ${str(pyType(t.type))}\n`
+      out += `${name}: TypeAlias = ${pyType(t.type)}\n`
       continue
     }
-    const functional = t.fields.some((f) => !isIdent(f.name) || SHADOWED.has(f.name) || typeNames.has(f.name))
-    if (functional) {
-      // A field named like a keyword (`from`) needs the functional syntax; the
-      // annotations are evaluated at runtime here, so each one is a string.
-      out += comment(t.description, '')
-      out += `${name} = TypedDict(\n    ${str(name)},\n    {\n`
-      for (const f of t.fields) {
+    // A field named like a keyword (`from`) cannot be written in class syntax:
+    // those fields go into a functional base, the others keep their docstrings.
+    const special = (f) => !isIdent(f.name) || SHADOWED.has(f.name) || typeNames.has(f.name)
+    const kw = t.fields.filter(special)
+    const plain = t.fields.filter((f) => !special(f))
+    let base = 'TypedDict'
+    if (kw.length) {
+      base = `_${name}Kw`
+      out += `${base} = TypedDict(\n    ${str(base)},\n    {\n`
+      for (const f of kw) {
+        // The functional form is evaluated at runtime: only builtins may appear.
+        if (hasRef(f.type)) throw new Error(`${name}.${f.name}: a keyword field may not refer to another type`)
         out += comment(f.description, '        ')
-        const ft = fieldType(f)
-        const m = ft.match(/^NotRequired\[(.*)\]$/)
-        out += `        ${str(f.name)}: ${m ? `NotRequired[${str(m[1])}]` : str(ft)},\n`
+        out += `        ${str(f.name)}: ${fieldType(f)},\n`
       }
-      out += '    },\n)\n'
-      continue
+      out += '    },\n)\n\n\n'
     }
-    out += `class ${name}(TypedDict):\n`
-    const doc = docstring([t.description], '    ')
+    out += `class ${name}(${base}):\n`
+    const kwDocs = kw.filter((f) => f.description).map((f) => `\`${f.name}\`: ${oneLine(f.description)}`)
+    const doc = docstring([t.description, ...(kwDocs.length ? ['', 'Fields named like a Python keyword:', '', ...kwDocs.map((d) => `- ${d}`)] : [])], '    ')
     out += doc
-    if (!t.fields.length) out += doc ? '' : '    pass\n'
-    t.fields.forEach((f, i) => {
+    if (!plain.length) out += doc ? '' : '    pass\n'
+    plain.forEach((f, i) => {
       if (i > 0 || doc) out += '\n'
       out += `    ${f.name}: ${fieldType(f)}\n`
       out += docstring([f.description], '    ')
@@ -168,14 +178,16 @@ function emitApi(ir, header) {
     }
     const path = op.pathParams.map((p) => ({ ...p, py: own(pyName(p.name), p.name) }))
     const query = op.queryParams.map((q) => ({ ...q, py: own(pyName(q.name), q.name) }))
+    for (const extra of ['max_pages', 'max_items']) if (op.paged && seen.has(extra)) throw new Error(`${op.id}: a parameter is named ${extra}`)
     const res = ann(op.response)
     // Required query parameters first: they take no default.
     const ordered = [...query.filter((q) => q.required), ...query.filter((q) => !q.required)]
-    const sig = [
+    const sig = (extra) => [
       'self',
-      ...path.map((p) => `${p.py}: ${p.type.kind === 'integer' ? 'int | str' : 'str'}`),
-      ...(ordered.length ? ['*'] : []),
+      ...path.map((p) => `${p.py}: ${p.type.kind === 'integer' ? 'int' : 'str'}`),
+      ...(ordered.length || extra.length ? ['*'] : []),
       ...ordered.map((q) => (q.required ? `${q.py}: ${ann(q.type)}` : `${q.py}: ${ann(q.type)} | None = None`)),
+      ...extra,
     ]
     const pathExpr =
       'f' +
@@ -185,42 +197,71 @@ function emitApi(ir, header) {
           .replace('{chainId}', '{self._http.chain_id}'),
       )
     const queryExpr = query.length ? `{${query.map((q) => `${str(q.name)}: ${q.py}`).join(', ')}}` : 'None'
-    const args = [
-      ...path.map((p) => `    ${p.py}: ${oneLine(p.description) || 'Path parameter.'}`),
-      ...query.map((q) => `    ${q.py}: ${oneLine(q.description) || 'Query parameter.'}${q.py !== q.name ? ` Sent as \`\`${q.name}\`\`.` : ''}${q.required ? '' : ' Left as None, it is not sent.'}`),
-    ]
-    const tail = (extra) => [
-      `Plan: ${PLAN[op.plan] ?? op.plan} or higher.${op.stability === 'beta' ? ' **Beta** — the shape may still change.' : ''}`,
-      ...(args.length ? ['', 'Args:', ...args] : []),
-      '',
+    const args = (extra) => [
+      ...path.map((p) => `    ${p.py}: ${sentence(oneLine(p.description)) || 'Path parameter.'}`),
+      ...query.map((q) => `    ${q.py}: ${sentence(oneLine(q.description)) || 'Query parameter.'}${q.py !== q.name ? ` Sent as \`${q.name}\`.` : ''}`),
       ...extra,
-      `Docs: ${op.docsUrl}`,
     ]
-    const doc = docstring([op.summary, '', op.description, '', ...tail([])], '        ')
-    const sigText = (name, ret) => {
-      const one = `    ${async_ ? 'async ' : ''}def ${name}(${sig.join(', ')}) -> ${ret}:`
+    const plan = `Plan: ${PLAN[op.plan] ?? op.plan} or higher.${op.stability === 'beta' ? ' **Beta**: the shape may still change.' : ''}`
+    const raises = (iterating) => [
+      'Raises:',
+      `    TraceFastError: ${iterating ? 'While iterating: the' : 'The'} API refused the call or it failed; the subclass and \`code\` say why.`,
+      ...(path.length ? ['    ValueError: A path value is empty, `.` or `..`; nothing is sent.'] : []),
+    ]
+    const doc = (lead, extraArgs, returns, iterating = false) =>
+      docstring(
+        [
+          ...lead,
+          '',
+          plan,
+          '',
+          'Args:',
+          ...args(extraArgs),
+          '',
+          'Returns:',
+          `    ${returns}`,
+          '',
+          ...raises(iterating),
+          '',
+          `Docs: ${op.docsUrl}`,
+        ].filter((l, i, all) => !(l === 'Args:' && all[i + 1] === '')),
+        '        ',
+      )
+    const sigText = (name, ret, extra) => {
+      const parts = sig(extra)
+      const one = `    ${async_ ? 'async ' : ''}def ${name}(${parts.join(', ')}) -> ${ret}:`
       if (one.length <= WIDTH) return one + '\n'
-      return `    ${async_ ? 'async ' : ''}def ${name}(\n${sig.map((s) => `        ${s},`).join('\n')}\n    ) -> ${ret}:\n`
+      return `    ${async_ ? 'async ' : ''}def ${name}(\n${parts.map((s) => `        ${s},`).join('\n')}\n    ) -> ${ret}:\n`
     }
-    let m = sigText(pyMethod(op), res) + doc
-    const call = `self._http.get(${pathExpr}, ${queryExpr})`
-    m += `        return cast(${str(res)}, ${async_ ? 'await ' : ''}${call})\n`
+    let m =
+      sigText(pyMethod(op), res, []) +
+      doc([op.summary, '', capital(op.description)], [], `\`${res}\`: the whole answer, \`data\` and \`meta\`.`) +
+      `        return cast(${str(res)}, ${async_ ? 'await ' : ''}self._http.get(${pathExpr}, ${queryExpr}))\n`
     if (op.paged) {
-      const it = `${async_ ? 'AsyncIterator' : 'Iterator'}[${res}]`
+      const walker = async_ ? 'An async iterator' : 'An iterator'
+      const pagesT = `${async_ ? 'AsyncIterator' : 'Iterator'}[${res}]`
+      const item = ann(op.itemType)
+      const itemsT = `${async_ ? 'AsyncIterator' : 'Iterator'}[${item}]`
+      const stop = 'It stops when `data.nextCursor` is absent, never on a short page, and passes the cursor back unchanged with the same other parameters. A `cursor` given here is the first one sent.'
       m +=
         '\n' +
-        sigText(`${pyMethod(op)}_pages`, it).replace('async def', 'def') +
-        docstring(
-          [
-            `Every page of \`${label}\`, following \`data.nextCursor\` to the end.`,
-            '',
-            `${async_ ? 'An async iterator' : 'A generator'} of whole responses; the cursor goes back unchanged with the same other parameters. The pager never stops on a short page.`,
-            '',
-            ...tail([]),
-          ],
-          '        ',
+        sigText(`${pyMethod(op)}_pages`, pagesT, ['max_pages: int | None = None']).replace('async def', 'def') +
+        doc(
+          [`Every page of \`${label}\`, one whole response at a time.`, '', stop],
+          ['    max_pages: Stop after this many pages. Left as None, the walk goes to the last page.'],
+          `${walker} of \`${res}\`, \`meta\` included.`,
+          true,
         ) +
-        `        return self._http.pages(${pathExpr}, ${queryExpr})\n`
+        `        return self._http.pages(${pathExpr}, ${queryExpr}, max_pages)\n` +
+        '\n' +
+        sigText(`${pyMethod(op)}_items`, itemsT, ['max_items: int | None = None']).replace('async def', 'def') +
+        doc(
+          [`Every row of \`data.${op.itemsField}\` of \`${label}\`, page after page.`, '', stop],
+          ['    max_items: Stop after this many rows; no further page is fetched. Left as None, the walk goes to the last page.'],
+          `${walker} of \`${item}\`.`,
+          true,
+        ) +
+        `        return self._http.items(${pathExpr}, ${queryExpr}, ${str(op.itemsField)}, max_items)\n`
     }
     return m
   }
@@ -233,7 +274,7 @@ function emitApi(ir, header) {
       if (ns === 'root') continue
       classes +=
         `\n\nclass ${nsClass(ns, async_)}:\n` +
-        docstring([`\`client.${ns}\` — the ${ns} methods of the TraceFast API${async_ ? ' (async)' : ''}.`], '    ') +
+        docstring([`\`client.${ns}\`: the ${ns} methods of the TraceFast API${async_ ? ', as coroutines' : ''}.`, '', NOT_SENT], '    ') +
         `\n    def __init__(self, http: ${http}) -> None:\n        self._http = http\n\n` +
         ops.map((op) => method(op, async_)).join('\n')
     }
@@ -244,7 +285,7 @@ function emitApi(ir, header) {
     const nss = [...groups.keys()].filter((n) => n !== 'root')
     classes +=
       `\n\nclass ${async_ ? 'AsyncClientBase' : 'ClientBase'}:\n` +
-      docstring([`The generated part of \`${async_ ? 'AsyncTraceFast' : 'TraceFast'}\`: its namespaces and the methods on the client itself.`], '    ') +
+      docstring([`The generated part of \`${async_ ? 'AsyncTraceFast' : 'TraceFast'}\`: its namespaces and the methods on the client itself.`, '', NOT_SENT], '    ') +
       '\n' +
       nss.map((ns) => `    ${ns}: ${nsClass(ns, async_)}\n`).join('') +
       `\n    def __init__(self, http: ${http}) -> None:\n        self._http = http\n` +

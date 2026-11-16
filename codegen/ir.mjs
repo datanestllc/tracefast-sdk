@@ -52,13 +52,23 @@ export function loadIr() {
     !!s && ((Array.isArray(s.type) && s.type.includes('null')) || (s.oneOf ?? s.anyOf ?? []).some((a) => a.type === 'null') || s.nullable === true)
   const mergedProps = (s) => Object.assign({}, ...s.allOf.map((a) => (a.$ref ? schemas[refName(a.$ref)] : a).properties ?? {}), s.properties ?? {})
   const mergedRequired = (s) => [...new Set(s.allOf.flatMap((a) => (a.$ref ? schemas[refName(a.$ref)] : a).required ?? []).concat(s.required ?? []))]
+  // Catalogue copy written for listings, not for a hover: the product prefix, and
+  // Rust range syntax in parameter notes.
+  const clean = (t) =>
+    (t ?? '')
+      .replace(/^TraceFast (live Ethereum data|knowledge graph):\s*/, '')
+      .replace(/(\d+)\.\.=(\d+)/g, '$1 to $2')
+      .replace(/^[a-z]/, (c) => c.toUpperCase())
   const describe = (p) => p?.description ?? (p?.allOf ?? p?.oneOf ?? []).map((a) => a.description).find(Boolean) ?? ''
 
   const objectType = (s, name) => {
     if (!name) throw new Error('inline object without a name')
-    let unique = name
-    for (let i = 2; types.has(unique) && types.get(unique).source !== s; i++) unique = `${name}${i}`
-    if (types.has(unique)) return { kind: 'ref', name: unique }
+    // A public type name never changes silently: two schemas wanting one name fail generation.
+    const unique = name
+    if (types.has(unique)) {
+      if (types.get(unique).source === s) return { kind: 'ref', name: unique }
+      throw new Error(`two schemas want the type name ${unique}; rename one in the catalogue or the generator`)
+    }
     const entry = { kind: 'object', description: s.description ?? '', fields: [], source: s }
     types.set(unique, entry)
     const req = new Set(s.required ?? [])
@@ -68,7 +78,7 @@ export function loadIr() {
         type: typeOf(ps, `${unique}${pascal(field)}`),
         required: req.has(field),
         nullable: nullable(ps),
-        description: describe(ps),
+        description: clean(describe(ps)),
       })
     }
     return { kind: 'ref', name: unique }
@@ -97,6 +107,7 @@ export function loadIr() {
     return n ? n[0].toLowerCase() + n.slice(1) : 'get'
   }
 
+  const sentence = (t) => (t && !/[.!?]$/.test(t) ? `${t}.` : t)
   const operations = []
   for (const [path, item] of Object.entries(doc.paths)) {
     for (const [method, op] of Object.entries(item)) {
@@ -112,15 +123,15 @@ export function loadIr() {
         name: methodName(op, namespace),
         method: method.toUpperCase(),
         path: path.replace('/chains/{chain_id}', '/chains/{chainId}'),
-        summary: op.summary ?? '',
-        description: op.description ?? '',
+        summary: sentence(op.summary ?? ''),
+        description: clean(op.description),
         docsUrl: op.externalDocs?.url ?? '',
         plan: op['x-minimum-plan'] ?? '',
         stability: stability[op.operationId] ?? (() => { throw new Error(`${op.operationId}: no stability — run sync`) })(),
-        pathParams: params.filter((p) => p.in === 'path').map((p) => ({ name: p.name, type: typeOf(p.schema, 'Param'), description: p.description ?? '' })),
+        pathParams: params.filter((p) => p.in === 'path').map((p) => ({ name: p.name, type: typeOf(p.schema, 'Param'), description: clean(p.description) })),
         queryParams: params
           .filter((p) => p.in === 'query')
-          .map((p) => ({ name: p.name, type: typeOf(p.schema, 'Param'), required: !!p.required, description: p.description ?? '' })),
+          .map((p) => ({ name: p.name, type: typeOf(p.schema, 'Param'), required: !!p.required, description: clean(p.description) })),
         paged: params.some((p) => p.in === 'query' && p.name === 'cursor'),
         response: ok ? typeOf(ok, `${pascal(op.operationId.replace(/^get/, ''))}Response`) : { kind: 'any' },
       })
@@ -132,6 +143,22 @@ export function loadIr() {
     const k = `${o.namespace}.${o.name}`
     if (seen.has(k)) throw new Error(`two operations are named ${k}; add an override to names.json`)
     seen.add(k)
+  }
+  // The row array each paged operation's item iterator walks.
+  for (const o of operations.filter((x) => x.paged)) {
+    const env = types.get(o.response.name)
+    const data = types.get(env.fields.find((f) => f.name === 'data').type.name)
+    const arrays = data.fields.filter((f) => f.type.kind === 'array').map((f) => f.name)
+    const chosen = names.items?.[o.id] ?? (arrays.length === 1 ? arrays[0] : undefined)
+    if (!chosen || !arrays.includes(chosen)) throw new Error(`${o.id}: cannot tell its row array among [${arrays}]; add it to names.json items`)
+    o.itemsField = chosen
+    o.itemType = data.fields.find((f) => f.name === chosen).type.items
+  }
+  // A schema the generator cannot type fails generation, unless it is a known gap.
+  const allowed = new Set(names.untyped?.allow ?? [])
+  for (const [n, t] of types) {
+    if (t.kind !== 'object') continue
+    for (const f of t.fields) if (f.type.kind === 'any' && !allowed.has(`${n}.${f.name}`)) throw new Error(`${n}.${f.name} has no type in the catalogue`)
   }
   for (const t of types.values()) delete t.source
   return { version: doc.info.version, operations, types }

@@ -4,14 +4,14 @@
 //
 // openapi/openapi.json — the published REST catalogue, as served.
 // openapi/stability.json — operationId → "stable" | "beta". Stability is not in
-//   the published catalogue; it is read from the document the API gateway routes
-//   by, whose address is given in TRACEFAST_STABILITY_SOURCE and never written
-//   into this repository. Only the operation ids and their stability are kept.
+//   the published catalogue; it is read from a source given in
+//   TRACEFAST_STABILITY_SOURCE (maintainers only). Only the operation ids and
+//   their stability are kept.
 import { writeFileSync } from 'node:fs'
 
 const CATALOGUE = 'https://tracefast.xyz/api/v1/openapi.json'
 const source = process.env.TRACEFAST_STABILITY_SOURCE
-if (!source) throw new Error('set TRACEFAST_STABILITY_SOURCE to the URL of the routing document')
+if (!source) throw new Error('set TRACEFAST_STABILITY_SOURCE (maintainers only)')
 
 const get = async (url) => {
   const res = await fetch(url, { headers: { 'user-agent': 'tracefast-sdk-codegen' } })

@@ -248,7 +248,7 @@ class AttributesAtBlockResponse(TypedDict):
 
 
 # Whether the signer of an authorization is known.
-AuthorityStatus: TypeAlias = "Literal[\"recovered\", \"recovery_failed\", \"not_available\"] | str"
+AuthorityStatus: TypeAlias = Literal["recovered", "recovery_failed", "not_available"] | str
 
 
 class Authorization(TypedDict):
@@ -438,7 +438,7 @@ class BalanceWindow(TypedDict):
 
 
 # Which state a balance answer describes.
-BalanceWindowKind: TypeAlias = "Literal[\"current\", \"block\"] | str"
+BalanceWindowKind: TypeAlias = Literal["current", "block"] | str
 
 
 class BeaconImplementations(TypedDict):
@@ -1107,32 +1107,44 @@ class BlockAuthorizationsResponse(TypedDict):
     meta: PublicMeta
 
 
-# One call frame that moved ETH.
-BlockInternalTransferRow = TypedDict(
-    "BlockInternalTransferRow",
+_BlockInternalTransferRowKw = TypedDict(
+    "_BlockInternalTransferRowKw",
     {
-        # Depth in the call tree: 2 = called by the transaction's target.
-        "callDepth": "int",
-        # `call`, `callcode`, `create`, `create2` or `selfdestruct`. Other values may be
-        # added.
-        "callType": "str",
-        "from": "str",
-        # `success`, `revert` or `halt` — the frame's own outcome. A successful frame
-        # inside a
-        # reverted transaction, or under a reverted parent frame, moved nothing in the
-        # end.
-        "status": "str",
-        # The receiving account. Absent where the frame names none.
-        "to": NotRequired["str | None"],
-        "txHash": "str",
-        "txIndex": "int",
-        # Who sent the transaction — not necessarily `from`, which is the frame's sender
-        # (often a contract). Absent when not resolved.
-        "txSender": NotRequired["str | None"],
-        # Wei, decimal string.
-        "value": "str",
+        "from": str,
     },
 )
+
+
+class BlockInternalTransferRow(_BlockInternalTransferRowKw):
+    """One call frame that moved ETH."""
+
+    callDepth: int
+    """Depth in the call tree: 2 = called by the transaction's target."""
+
+    callType: str
+    """`call`, `callcode`, `create`, `create2` or `selfdestruct`. Other values may be
+    added.
+    """
+
+    status: str
+    """`success`, `revert` or `halt` — the frame's own outcome. A successful frame inside a
+    reverted transaction, or under a reverted parent frame, moved nothing in the end.
+    """
+
+    to: NotRequired[str | None]
+    """The receiving account. Absent where the frame names none."""
+
+    txHash: str
+
+    txIndex: int
+
+    txSender: NotRequired[str | None]
+    """Who sent the transaction — not necessarily `from`, which is the frame's sender
+    (often a contract). Absent when not resolved.
+    """
+
+    value: str
+    """Wei, decimal string."""
 
 
 class BlockInternalTransfers(TypedDict):
@@ -1276,53 +1288,78 @@ class BlockResponse(TypedDict):
     meta: PublicMeta
 
 
-# One token transfer event of a block: which token, and the transfer.
-BlockTokenTransfer = TypedDict(
-    "BlockTokenTransfer",
+_BlockTokenTransferKw = TypedDict(
+    "_BlockTokenTransferKw",
     {
-        # Position inside an ERC-1155 `TransferBatch`; `0` for every other event.
-        "batchIndex": "int",
-        "blockNumber": "int",
-        # `transfer`, `transfer_single`, `transfer_batch`, `sent`, `minted`, `burned`,
-        # `deposit`, `withdraw`, `wrap` or `unwrap`. `deposit` and `withdraw` are vault
-        # (ERC-4626) events; `wrap` and `unwrap` are ether wrapped into and unwrapped
-        # from
-        # WETH — one-sided: a `wrap` has no sender, an `unwrap` no recipient.
-        "eventType": "str",
         # Sender of the transfer. Absent on a mint and on a `wrap`.
-        "from": NotRequired["str | None"],
-        # The log's index within the block.
-        "logIndex": "int",
-        # The operator of an ERC-1155 transfer.
-        "operator": NotRequired["str | None"],
-        # Unix time of the block, seconds. Absent when it could not be resolved.
-        "timestamp": NotRequired["int | None"],
-        # Receiver of the transfer. Absent on a burn and on an `unwrap`.
-        "to": NotRequired["str | None"],
-        # Token id of an ERC-721 or ERC-1155 transfer, decimal string.
-        "tokenId": NotRequired["str | None"],
-        # Hash of the transaction that emitted the transfer. Absent when it could not be
-        # resolved for this page.
-        "txHash": NotRequired["str | None"],
-        "txIndex": "int",
-        # Who sent the transaction that emitted the transfer — on a router or a batch
-        # disburser another party than `from`. Absent when it could not be resolved;
-        # never
-        # `from` standing in for it.
-        "txSender": NotRequired["str | None"],
-        # The contract the transaction called at the top level. Absent when it could not
-        # be
-        # resolved, or on a contract creation.
-        "txTo": NotRequired["str | None"],
-        # Amount in the token's smallest unit, decimal string. Absent on an ERC-721
-        # transfer.
-        "value": NotRequired["str | None"],
-        # The token contract, lowercase and `0x`-prefixed.
-        "token": "str",
-        # `erc20`, `erc721` or `erc1155`. Other values may be added.
-        "tokenStandard": "str",
+        "from": NotRequired[str | None],
     },
 )
+
+
+class BlockTokenTransfer(_BlockTokenTransferKw):
+    """One token transfer event of a block: which token, and the transfer.
+
+    Fields named like a Python keyword:
+
+    - `from`: Sender of the transfer. Absent on a mint and on a `wrap`.
+    """
+
+    batchIndex: int
+    """Position inside an ERC-1155 `TransferBatch`; `0` for every other event."""
+
+    blockNumber: int
+
+    eventType: str
+    """`transfer`, `transfer_single`, `transfer_batch`, `sent`, `minted`, `burned`,
+    `deposit`, `withdraw`, `wrap` or `unwrap`. `deposit` and `withdraw` are vault
+    (ERC-4626) events; `wrap` and `unwrap` are ether wrapped into and unwrapped from
+    WETH — one-sided: a `wrap` has no sender, an `unwrap` no recipient.
+    """
+
+    logIndex: int
+    """The log's index within the block."""
+
+    operator: NotRequired[str | None]
+    """The operator of an ERC-1155 transfer."""
+
+    timestamp: NotRequired[int | None]
+    """Unix time of the block, seconds. Absent when it could not be resolved."""
+
+    to: NotRequired[str | None]
+    """Receiver of the transfer. Absent on a burn and on an `unwrap`."""
+
+    tokenId: NotRequired[str | None]
+    """Token id of an ERC-721 or ERC-1155 transfer, decimal string."""
+
+    txHash: NotRequired[str | None]
+    """Hash of the transaction that emitted the transfer. Absent when it could not be
+    resolved for this page.
+    """
+
+    txIndex: int
+
+    txSender: NotRequired[str | None]
+    """Who sent the transaction that emitted the transfer — on a router or a batch
+    disburser another party than `from`. Absent when it could not be resolved; never
+    `from` standing in for it.
+    """
+
+    txTo: NotRequired[str | None]
+    """The contract the transaction called at the top level. Absent when it could not be
+    resolved, or on a contract creation.
+    """
+
+    value: NotRequired[str | None]
+    """Amount in the token's smallest unit, decimal string. Absent on an ERC-721 transfer.
+
+    """
+
+    token: str
+    """The token contract, lowercase and `0x`-prefixed."""
+
+    tokenStandard: str
+    """`erc20`, `erc721` or `erc1155`. Other values may be added."""
 
 
 class BlockTokenTransfers(TypedDict):
@@ -2105,19 +2142,29 @@ class ConsensusQueueFlow(TypedDict):
     """Validators that exited in the last 7 days."""
 
 
-# The span between the end of the reconstruction and the start of sampling, which no
-# series covers. Draw a break, not a line: a missing span is not an empty queue.
-ConsensusQueueGap = TypedDict(
-    "ConsensusQueueGap",
+_ConsensusQueueGapKw = TypedDict(
+    "_ConsensusQueueGapKw",
     {
         # Start of the uncovered span, RFC 3339 UTC.
-        "from": NotRequired["str | None"],
-        # Why nothing covers it.
-        "note": "str",
-        # End of the uncovered span, RFC 3339 UTC.
-        "to": NotRequired["str | None"],
+        "from": NotRequired[str | None],
     },
 )
+
+
+class ConsensusQueueGap(_ConsensusQueueGapKw):
+    """The span between the end of the reconstruction and the start of sampling, which no
+    series covers. Draw a break, not a line: a missing span is not an empty queue.
+
+    Fields named like a Python keyword:
+
+    - `from`: Start of the uncovered span, RFC 3339 UTC.
+    """
+
+    note: str
+    """Why nothing covers it."""
+
+    to: NotRequired[str | None]
+    """End of the uncovered span, RFC 3339 UTC."""
 
 
 class ConsensusQueuePoint(TypedDict):
@@ -3551,7 +3598,7 @@ class ControlChange(TypedDict):
 
 
 # How the `corpus` figure beside a ranking was obtained.
-CorpusBasis: TypeAlias = "Literal[\"registry\", \"counted\", \"precomputed\", \"window\", \"at_block\"] | str"
+CorpusBasis: TypeAlias = Literal["registry", "counted", "precomputed", "window", "at_block"] | str
 
 
 class Counterparty(TypedDict):
@@ -3664,7 +3711,7 @@ class CounterpartyWindow(TypedDict):
     """
 
 
-CounterpartyWindowKind: TypeAlias = "Literal[\"all\", \"block\"] | str"
+CounterpartyWindowKind: TypeAlias = Literal["all", "block"] | str
 
 
 class DailyActivity(TypedDict):
@@ -4451,271 +4498,402 @@ class EvidenceSource(TypedDict):
     """
 
 
-# One frame of the paged, frame-level trace: the call frame as in the summary, with its
-# calldata and output heads always present, plus the event logs it emitted.
-ExecutionFrame = TypedDict(
-    "ExecutionFrame",
+_ExecutionFrameKw = TypedDict(
+    "_ExecutionFrameKw",
     {
-        # The frame's address in the tree, and its parent's. Absent parent = the root.
-        "callPath": "str",
-        # `call`, `callcode`, `delegatecall`, `staticcall`, `create`, `create2`,
-        # `selfdestruct`, `eoa_transfer`.
-        "callType": "str",
-        # The address whose code this frame runs. On a `delegatecall` this is the
-        # implementation while `to` stays the storage context — the PAIR is what makes a
-        # proxy call readable, which is why `to` does not change meaning. When this
-        # address is
-        # an account with an EIP-7702 delegation, the code that ran is its delegate's:
-        # `executedCodeAddress`. Absent where there is no callee code (`create`,
-        # `create2`,
-        # `selfdestruct`).
-        "codeAddress": NotRequired["str | None"],
-        # The address a `create` / `create2` frame deployed.
-        "createdAddress": NotRequired["str | None"],
-        # The authorization that set that delegation. Present exactly when
-        # `executedCodeAddress` is.
-        "delegation": NotRequired["FrameDelegation | None"],
-        # Depth in the tree; `1` is the top-level call.
-        "depth": "int",
-        # How it failed: `Revert`, `Panic`, `CustomError`, `OutOfGas`, …
-        "errorKind": NotRequired["str | None"],
-        # The custom error's 4-byte selector — the ERROR selector, not `inputSelector`.
-        "errorSelector": NotRequired["str | None"],
-        # The code that actually ran when `codeAddress` is an account with an EIP-7702
-        # delegation in force at this frame: the delegate the account points at. Present
-        # only on
-        # such frames. Where the response's `delegatedCode.status` is `resolved`, a
-        # frame without
-        # it ran its own code; while it is `pending`, absence says nothing yet.
-        "executedCodeAddress": NotRequired["str | None"],
-        "from": "str",
-        # Gas offered to the frame and gas it consumed, decimal strings.
-        "gas": "str",
-        "gasUsed": "str",
-        "initCodeHash": NotRequired["str | None"],
-        # The first 260 bytes of the frame's calldata and of its output, `0x`-hex, with
-        # each
-        # full length in BYTES. Present when calldata heads are included: always on the
-        # paged
-        # frames, and on the whole trace when `includeCalldata` is true. Compare the
-        # size
-        # against 260, not against the hex string's length: the units differ.
-        "inputHead": NotRequired["str | None"],
-        # The called function's 4-byte selector.
-        "inputSelector": NotRequired["str | None"],
-        "inputSize": NotRequired["int | None"],
-        # Position in pre-order traversal of the call tree; `0` is the transaction's own
-        # top-level call.
-        "order": "int",
-        "outputHead": NotRequired["str | None"],
-        "outputSize": NotRequired["int | None"],
-        "parentPath": NotRequired["str | None"],
-        # The raw ABI revert payload, and its full length in BYTES. The payload may be
-        # truncated, and `revertDataTruncated` says when — a clipped payload decodes
-        # into a
-        # plausible but wrong argument list, so the flag is not decoration.
-        "revertData": NotRequired["str | None"],
-        "revertDataSize": NotRequired["int | None"],
-        "revertDataTruncated": NotRequired["bool | None"],
-        # Why `revertReason` is what it is: `decoded`, `undecodable` (a payload is
-        # present
-        # but no name was found) or `absent` (no payload to decode). An empty reason is
-        # ambiguous three ways, and this field is what separates them.
-        #
-        # Named apart from the event decoder's `decodeStatus` on purpose: that
-        # vocabulary
-        # describes event-decode confidence and the two appear in one response.
-        "revertDecodeStatus": NotRequired["str | None"],
-        # The decoded revert reason, or the custom error's name when its selector is
-        # known.
-        "revertReason": NotRequired["str | None"],
-        # `create2` salt, and the keccak-256 of the init code on a creating frame.
-        "salt": NotRequired["str | None"],
-        # Who received the balance of a `selfdestruct` frame.
-        "selfdestructBeneficiary": NotRequired["str | None"],
-        # `success`, `reverted` or `halted` — the FRAME's own outcome, which on a caught
-        # revert differs from the transaction's.
-        "status": "str",
-        # The frame's target. Absent on a contract creation.
-        "to": NotRequired["str | None"],
-        # Value this frame moved, in wei, as a decimal string.
-        "valueWei": "str",
-        # Positions within the transaction's receipt of the logs this frame emitted,
-        # ascending. Empty when it emitted none.
-        "logIndexes": "list[int]",
+        "from": str,
     },
 )
 
 
-# One failed call frame inside a reverted transaction.
-FailedFrame = TypedDict(
-    "FailedFrame",
+class ExecutionFrame(_ExecutionFrameKw):
+    """One frame of the paged, frame-level trace: the call frame as in the summary, with
+    its
+    calldata and output heads always present, plus the event logs it emitted.
+    """
+
+    callPath: str
+    """The frame's address in the tree, and its parent's. Absent parent = the root."""
+
+    callType: str
+    """`call`, `callcode`, `delegatecall`, `staticcall`, `create`, `create2`,
+    `selfdestruct`, `eoa_transfer`.
+    """
+
+    codeAddress: NotRequired[str | None]
+    """The address whose code this frame runs. On a `delegatecall` this is the
+    implementation while `to` stays the storage context — the PAIR is what makes a
+    proxy call readable, which is why `to` does not change meaning. When this address is
+    an account with an EIP-7702 delegation, the code that ran is its delegate's:
+    `executedCodeAddress`. Absent where there is no callee code (`create`, `create2`,
+    `selfdestruct`).
+    """
+
+    createdAddress: NotRequired[str | None]
+    """The address a `create` / `create2` frame deployed."""
+
+    delegation: NotRequired[FrameDelegation | None]
+    """The authorization that set that delegation. Present exactly when
+    `executedCodeAddress` is.
+    """
+
+    depth: int
+    """Depth in the tree; `1` is the top-level call."""
+
+    errorKind: NotRequired[str | None]
+    """How it failed: `Revert`, `Panic`, `CustomError`, `OutOfGas`, …"""
+
+    errorSelector: NotRequired[str | None]
+    """The custom error's 4-byte selector — the ERROR selector, not `inputSelector`."""
+
+    executedCodeAddress: NotRequired[str | None]
+    """The code that actually ran when `codeAddress` is an account with an EIP-7702
+    delegation in force at this frame: the delegate the account points at. Present only
+    on
+    such frames. Where the response's `delegatedCode.status` is `resolved`, a frame
+    without
+    it ran its own code; while it is `pending`, absence says nothing yet.
+    """
+
+    gas: str
+    """Gas offered to the frame and gas it consumed, decimal strings."""
+
+    gasUsed: str
+
+    initCodeHash: NotRequired[str | None]
+
+    inputHead: NotRequired[str | None]
+    """The first 260 bytes of the frame's calldata and of its output, `0x`-hex, with each
+    full length in BYTES. Present when calldata heads are included: always on the paged
+    frames, and on the whole trace when `includeCalldata` is true. Compare the size
+    against 260, not against the hex string's length: the units differ.
+    """
+
+    inputSelector: NotRequired[str | None]
+    """The called function's 4-byte selector."""
+
+    inputSize: NotRequired[int | None]
+
+    order: int
+    """Position in pre-order traversal of the call tree; `0` is the transaction's own
+    top-level call.
+    """
+
+    outputHead: NotRequired[str | None]
+
+    outputSize: NotRequired[int | None]
+
+    parentPath: NotRequired[str | None]
+
+    revertData: NotRequired[str | None]
+    """The raw ABI revert payload, and its full length in BYTES. The payload may be
+    truncated, and `revertDataTruncated` says when — a clipped payload decodes into a
+    plausible but wrong argument list, so the flag is not decoration.
+    """
+
+    revertDataSize: NotRequired[int | None]
+
+    revertDataTruncated: NotRequired[bool | None]
+
+    revertDecodeStatus: NotRequired[str | None]
+    """Why `revertReason` is what it is: `decoded`, `undecodable` (a payload is present
+    but no name was found) or `absent` (no payload to decode). An empty reason is
+    ambiguous three ways, and this field is what separates them.
+
+    Named apart from the event decoder's `decodeStatus` on purpose: that vocabulary
+    describes event-decode confidence and the two appear in one response.
+    """
+
+    revertReason: NotRequired[str | None]
+    """The decoded revert reason, or the custom error's name when its selector is known.
+
+    """
+
+    salt: NotRequired[str | None]
+    """`create2` salt, and the keccak-256 of the init code on a creating frame."""
+
+    selfdestructBeneficiary: NotRequired[str | None]
+    """Who received the balance of a `selfdestruct` frame."""
+
+    status: str
+    """`success`, `reverted` or `halted` — the FRAME's own outcome, which on a caught
+    revert differs from the transaction's.
+    """
+
+    to: NotRequired[str | None]
+    """The frame's target. Absent on a contract creation."""
+
+    valueWei: str
+    """Value this frame moved, in wei, as a decimal string."""
+
+    logIndexes: list[int]
+    """Positions within the transaction's receipt of the logs this frame emitted,
+    ascending. Empty when it emitted none.
+    """
+
+
+_FailedFrameKw = TypedDict(
+    "_FailedFrameKw",
     {
-        # Depth from the root frame, 1 = root.
-        "callDepth": "int",
-        # Position in the call tree: four hex characters per level, the root frame is
-        # `0000`. Sort by `(callDepth, callPath)` to render the tree.
-        "callPath": "str",
-        # EVM call type: `CALL`, `CALLCODE`, `DELEGATECALL`, `STATICCALL`, `CREATE`,
-        # `CREATE2`, `SELFDESTRUCT`, `EOA_TRANSFER`.
-        "callType": "str",
-        # Why the frame failed: `Revert`, `Panic`, `CustomError`, `OutOfGas`,
-        # `StackOverflow`, `InvalidOpcode`, `PrecompileError`, `Other`.
-        "errorKind": "str",
-        # Human-readable error name and canonical signature (for example
-        # `Error(string)`)
-        # when the selector is known; both absent otherwise — render `revertSelector`
-        # then.
-        "errorName": NotRequired["str | None"],
-        "errorSignature": NotRequired["str | None"],
         # The frame's caller and target, lowercase and `0x`-prefixed.
-        "from": "str",
-        # Gas used by this frame.
-        "gasUsed": "int",
-        # The revert payload, `0x`-prefixed; `0x` when the frame reverted with no data.
-        # Capped at 4 KB: `revertDataTruncated` says when, and `revertDataLength` is the
-        # full length.
-        "revertData": "str",
-        "revertDataLength": "int",
-        "revertDataTruncated": "bool",
-        # First four bytes of the revert payload, `0x`-prefixed (`0x00000000` when the
-        # payload is shorter).
-        "revertSelector": "str",
-        # `Revert` (the frame reverted) or `Halt` (the EVM halted the frame).
-        "status": "str",
-        "to": "str",
+        "from": str,
     },
 )
 
 
-# One internal transfer: a value-carrying call frame inside a transaction. The
-# transaction's own top-level call is NOT one of these — it is the transaction, and it
-# rides the transactions feed.
-FeedInternalTransfer = TypedDict(
-    "FeedInternalTransfer",
+class FailedFrame(_FailedFrameKw):
+    """One failed call frame inside a reverted transaction.
+
+    Fields named like a Python keyword:
+
+    - `from`: The frame's caller and target, lowercase and `0x`-prefixed.
+    """
+
+    callDepth: int
+    """Depth from the root frame, 1 = root."""
+
+    callPath: str
+    """Position in the call tree: four hex characters per level, the root frame is
+    `0000`. Sort by `(callDepth, callPath)` to render the tree.
+    """
+
+    callType: str
+    """EVM call type: `CALL`, `CALLCODE`, `DELEGATECALL`, `STATICCALL`, `CREATE`,
+    `CREATE2`, `SELFDESTRUCT`, `EOA_TRANSFER`.
+    """
+
+    errorKind: str
+    """Why the frame failed: `Revert`, `Panic`, `CustomError`, `OutOfGas`,
+    `StackOverflow`, `InvalidOpcode`, `PrecompileError`, `Other`.
+    """
+
+    errorName: NotRequired[str | None]
+    """Human-readable error name and canonical signature (for example `Error(string)`)
+    when the selector is known; both absent otherwise — render `revertSelector` then.
+    """
+
+    errorSignature: NotRequired[str | None]
+
+    gasUsed: int
+    """Gas used by this frame."""
+
+    revertData: str
+    """The revert payload, `0x`-prefixed; `0x` when the frame reverted with no data.
+    Capped at 4 KB: `revertDataTruncated` says when, and `revertDataLength` is the
+    full length.
+    """
+
+    revertDataLength: int
+
+    revertDataTruncated: bool
+
+    revertSelector: str
+    """First four bytes of the revert payload, `0x`-prefixed (`0x00000000` when the
+    payload is shorter).
+    """
+
+    status: str
+    """`Revert` (the frame reverted) or `Halt` (the EVM halted the frame)."""
+
+    to: str
+
+
+_FeedInternalTransferKw = TypedDict(
+    "_FeedInternalTransferKw",
     {
-        "blockNumber": "int",
-        # Depth in the call tree; `1` is the transaction's own top-level call, which
-        # never
-        # appears here.
-        "callDepth": "int",
-        # The frame's position in the call tree, as the trace encodes it — the third
-        # component
-        # of this feed's cursor.
-        "callPath": "str",
-        # `call`, `delegatecall`, `create`, `create2`, `selfdestruct`, …
-        "callType": "str",
-        # The other party of the frame, when there is one.
-        "counterparty": NotRequired["str | None"],
-        "from": "str",
-        # `sender` | `receiver` | `self`.
-        "role": "str",
-        # The frame's own outcome: `success` | `reverted` | …
-        "status": "str",
-        "timestamp": "int",
-        # The frame's recipient. Absent where the trace records none — a `selfdestruct`
-        # beneficiary is written that way when it IS the participant.
-        "to": NotRequired["str | None"],
-        "txHash": "str",
-        "txIndex": "int",
-        # Value moved by this frame, in wei, as a decimal string.
-        "valueWei": "str",
+        "from": str,
     },
 )
 
 
-# One token transfer of an address's feed.
-FeedTokenTransfer = TypedDict(
-    "FeedTokenTransfer",
+class FeedInternalTransfer(_FeedInternalTransferKw):
+    """One internal transfer: a value-carrying call frame inside a transaction. The
+    transaction's own top-level call is NOT one of these — it is the transaction, and it
+    rides the transactions feed.
+    """
+
+    blockNumber: int
+
+    callDepth: int
+    """Depth in the call tree; `1` is the transaction's own top-level call, which never
+    appears here.
+    """
+
+    callPath: str
+    """The frame's position in the call tree, as the trace encodes it — the third component
+    of this feed's cursor.
+    """
+
+    callType: str
+    """`call`, `delegatecall`, `create`, `create2`, `selfdestruct`, …"""
+
+    counterparty: NotRequired[str | None]
+    """The other party of the frame, when there is one."""
+
+    role: str
+    """`sender` | `receiver` | `self`."""
+
+    status: str
+    """The frame's own outcome: `success` | `reverted` | …"""
+
+    timestamp: int
+
+    to: NotRequired[str | None]
+    """The frame's recipient. Absent where the trace records none — a `selfdestruct`
+    beneficiary is written that way when it IS the participant.
+    """
+
+    txHash: str
+
+    txIndex: int
+
+    valueWei: str
+    """Value moved by this frame, in wei, as a decimal string."""
+
+
+_FeedTokenTransferKw = TypedDict(
+    "_FeedTokenTransferKw",
     {
-        "blockNumber": "int",
-        # The log that carried it: `transfer`, `transfer_single`, `transfer_batch`,
-        # `sent`,
-        # `minted`, `burned`, `deposit`, `withdraw`, `wrap` or `unwrap`.
-        "eventType": "str",
         # Whose balance decreased. Absent on a mint and on a `wrap` (ether wrapped into
         # WETH) — no token balance was debited.
-        "from": NotRequired["str | None"],
-        # The log's index within its block — the position this feed pages on.
-        "logIndex": "int",
-        # The party that executed an approved transfer (ERC-1155 `operator`), when the
-        # log
-        # names one.
-        "operator": NotRequired["str | None"],
-        # `sender` | `receiver` | `self` — this address's part in the transfer.
-        "role": "str",
-        # Block time, Unix seconds. Absent for the same reason as `txHash`.
-        "timestamp": NotRequired["int | None"],
-        # Whose balance increased. Absent on a burn and on an `unwrap`.
-        "to": NotRequired["str | None"],
-        "token": "TransferToken",
-        # The NFT's token id, as a decimal string.
-        "tokenId": NotRequired["str | None"],
-        # The transaction that emitted the transfer. Absent on the rare resolve miss:
-        # the
-        # transfer is recorded by its position, and the hash is resolved alongside it.
-        "txHash": NotRequired["str | None"],
-        "txIndex": "int",
-        # Who SENT the transaction that emitted this transfer. On a batch disburser or
-        # an
-        # approved `transferFrom` this is a different party from `from`. Absent when
-        # unresolved — `from` never stands in for it.
-        "txSender": NotRequired["str | None"],
-        # The transaction's top-level recipient — on a router or a disburser, not the
-        # token.
-        "txTo": NotRequired["str | None"],
-        # Raw amount as a decimal string, unscaled by `decimals`. Absent where the
-        # standard
-        # carries no amount.
-        "value": NotRequired["str | None"],
+        "from": NotRequired[str | None],
     },
 )
 
 
-# One transaction of an address's feed: the transaction as recorded, plus how this
-# address
-# took part in it.
-FeedTransaction = TypedDict(
-    "FeedTransaction",
+class FeedTokenTransfer(_FeedTokenTransferKw):
+    """One token transfer of an address's feed.
+
+    Fields named like a Python keyword:
+
+    - `from`: Whose balance decreased. Absent on a mint and on a `wrap` (ether wrapped
+    into WETH) — no token balance was debited.
+    """
+
+    blockNumber: int
+
+    eventType: str
+    """The log that carried it: `transfer`, `transfer_single`, `transfer_batch`, `sent`,
+    `minted`, `burned`, `deposit`, `withdraw`, `wrap` or `unwrap`.
+    """
+
+    logIndex: int
+    """The log's index within its block — the position this feed pages on."""
+
+    operator: NotRequired[str | None]
+    """The party that executed an approved transfer (ERC-1155 `operator`), when the log
+    names one.
+    """
+
+    role: str
+    """`sender` | `receiver` | `self` — this address's part in the transfer."""
+
+    timestamp: NotRequired[int | None]
+    """Block time, Unix seconds. Absent for the same reason as `txHash`."""
+
+    to: NotRequired[str | None]
+    """Whose balance increased. Absent on a burn and on an `unwrap`."""
+
+    token: TransferToken
+
+    tokenId: NotRequired[str | None]
+    """The NFT's token id, as a decimal string."""
+
+    txHash: NotRequired[str | None]
+    """The transaction that emitted the transfer. Absent on the rare resolve miss: the
+    transfer is recorded by its position, and the hash is resolved alongside it.
+    """
+
+    txIndex: int
+
+    txSender: NotRequired[str | None]
+    """Who SENT the transaction that emitted this transfer. On a batch disburser or an
+    approved `transferFrom` this is a different party from `from`. Absent when
+    unresolved — `from` never stands in for it.
+    """
+
+    txTo: NotRequired[str | None]
+    """The transaction's top-level recipient — on a router or a disburser, not the token.
+
+    """
+
+    value: NotRequired[str | None]
+    """Raw amount as a decimal string, unscaled by `decimals`. Absent where the standard
+    carries no amount.
+    """
+
+
+_FeedTransactionKw = TypedDict(
+    "_FeedTransactionKw",
     {
-        "blockNumber": "int",
-        # The other party, when there is one. Absent on a contract creation and on a
-        # transaction the address sent to itself: `self` already says the other side is
-        # this
-        # address, and a null would conflate that with "no other side".
-        "counterparty": NotRequired["str | None"],
-        # Fee actually paid, in wei, as a decimal string.
-        "feeWei": "str",
         # Who sent the transaction.
-        "from": "str",
-        "gasPrice": NotRequired["str | None"],
-        "gasUsed": "str",
-        # Transaction hash, lowercase and `0x`-prefixed.
-        "hash": "str",
-        "inputSize": "int",
-        # The called function's 4-byte selector, `0x`-prefixed. Absent on a plain
-        # transfer.
-        "methodId": NotRequired["str | None"],
-        # The function's name where the selector is known. Absent when it is not — never
-        # a
-        # guess, and never the selector standing in for a name.
-        "methodName": NotRequired["str | None"],
-        "nonce": "int",
-        # `sender` | `receiver` | `self` — this address's part in the transaction.
-        "role": "str",
-        # Receipt status: `1` success, `0` failure. Absent when the receipt is not yet
-        # recorded — absence is "unknown", never "failed".
-        "status": NotRequired["int | None"],
-        # Block time, Unix seconds.
-        "timestamp": "int",
-        # The recipient. Absent on a contract creation — the contract has no `to`.
-        "to": NotRequired["str | None"],
-        "txIndex": "int",
-        "txType": "int",
-        # Value moved by the top-level call, in wei, as a decimal string.
-        "valueWei": "str",
+        "from": str,
     },
 )
+
+
+class FeedTransaction(_FeedTransactionKw):
+    """One transaction of an address's feed: the transaction as recorded, plus how this
+    address
+    took part in it.
+
+    Fields named like a Python keyword:
+
+    - `from`: Who sent the transaction.
+    """
+
+    blockNumber: int
+
+    counterparty: NotRequired[str | None]
+    """The other party, when there is one. Absent on a contract creation and on a
+    transaction the address sent to itself: `self` already says the other side is this
+    address, and a null would conflate that with "no other side".
+    """
+
+    feeWei: str
+    """Fee actually paid, in wei, as a decimal string."""
+
+    gasPrice: NotRequired[str | None]
+
+    gasUsed: str
+
+    hash: str
+    """Transaction hash, lowercase and `0x`-prefixed."""
+
+    inputSize: int
+
+    methodId: NotRequired[str | None]
+    """The called function's 4-byte selector, `0x`-prefixed. Absent on a plain transfer.
+
+    """
+
+    methodName: NotRequired[str | None]
+    """The function's name where the selector is known. Absent when it is not — never a
+    guess, and never the selector standing in for a name.
+    """
+
+    nonce: int
+
+    role: str
+    """`sender` | `receiver` | `self` — this address's part in the transaction."""
+
+    status: NotRequired[int | None]
+    """Receipt status: `1` success, `0` failure. Absent when the receipt is not yet
+    recorded — absence is "unknown", never "failed".
+    """
+
+    timestamp: int
+    """Block time, Unix seconds."""
+
+    to: NotRequired[str | None]
+    """The recipient. Absent on a contract creation — the contract has no `to`."""
+
+    txIndex: int
+
+    txType: int
+
+    valueWei: str
+    """Value moved by the top-level call, in wei, as a decimal string."""
 
 
 class FirstSwap(TypedDict):
@@ -4961,7 +5139,7 @@ class LiquidityRemovalsResponse(TypedDict):
 
 
 # How far the native balance of a current portfolio is current.
-NativeFreshness: TypeAlias = "Literal[\"head\"] | str"
+NativeFreshness: TypeAlias = Literal["head"] | str
 
 
 class NewPool(TypedDict):
@@ -5603,7 +5781,7 @@ class Position(TypedDict):
     """USD price of one whole unit of the asset at `priceHour`."""
 
     share: float
-    """`valueUsd / totalUsd`, in `0..=1`."""
+    """`valueUsd / totalUsd`, in `0 to 1`."""
 
     symbol: NotRequired[str | None]
     """Ticker as declared by the token contract; `ETH` for the native asset. Absent when
@@ -5622,11 +5800,11 @@ class Position(TypedDict):
 
 
 # Kind of asset a portfolio position is.
-PositionKind: TypeAlias = "Literal[\"native\", \"token\"] | str"
+PositionKind: TypeAlias = Literal["native", "token"] | str
 
 
 # Which hour the USD prices of a portfolio are for.
-PriceBasis: TypeAlias = "Literal[\"latest_hour\", \"hour_of_block\"] | str"
+PriceBasis: TypeAlias = Literal["latest_hour", "hour_of_block"] | str
 
 
 class Proof(TypedDict):
@@ -6129,19 +6307,19 @@ class ReserveLegNow(TypedDict):
 
 
 # A collection a text query is looked up in.
-ResolveCorpus: TypeAlias = "Literal[\"tokens\", \"names\", \"transactions\"] | str"
+ResolveCorpus: TypeAlias = Literal["tokens", "names", "transactions"] | str
 
 
 # How closely the query matched.
-ResolveMatch: TypeAlias = "Literal[\"exact\", \"prefix\", \"substring\", \"address_fragment\"] | str"
+ResolveMatch: TypeAlias = Literal["exact", "prefix", "substring", "address_fragment"] | str
 
 
 # Where the query matched.
-ResolveMatchedOn: TypeAlias = "Literal[\"address\", \"token_symbol\", \"token_name\", \"name\"] | str"
+ResolveMatchedOn: TypeAlias = Literal["address", "token_symbol", "token_name", "name"] | str
 
 
 # How the query was read.
-ResolveQueryKind: TypeAlias = "Literal[\"address\", \"text\", \"hash\"] | str"
+ResolveQueryKind: TypeAlias = Literal["address", "text", "hash"] | str
 
 
 class ResolvedBlock(TypedDict):
@@ -6203,7 +6381,7 @@ class ResolvedToken(TypedDict):
     """The symbol the contract declares — verbatim, not verified."""
 
 
-ResolvedTokenState: TypeAlias = "Literal[\"found\", \"absent\", \"unavailable\"] | str"
+ResolvedTokenState: TypeAlias = Literal["found", "absent", "unavailable"] | str
 
 
 class ResolvedTransaction(TypedDict):
@@ -6237,7 +6415,7 @@ class ResolvedType(TypedDict):
     """
 
 
-ResolvedTypeState: TypeAlias = "Literal[\"known\", \"unknown\", \"unavailable\"] | str"
+ResolvedTypeState: TypeAlias = Literal["known", "unknown", "unavailable"] | str
 
 
 class Selector(TypedDict):
@@ -6503,7 +6681,7 @@ class StorageWriterRow(TypedDict):
 
 
 # Where an interaction can be observed.
-Surface: TypeAlias = "Literal[\"external\", \"internal\", \"token\"] | str"
+Surface: TypeAlias = Literal["external", "internal", "token"] | str
 
 
 class Token(TypedDict):
@@ -6585,7 +6763,7 @@ class TokenBalanceResponse(TypedDict):
 
 # Class of token behind a `token` surface. `nft` covers both single- and multi-token
 # collections; they are not distinguished.
-TokenClass: TypeAlias = "Literal[\"fungible\", \"nft\"] | str"
+TokenClass: TypeAlias = Literal["fungible", "nft"] | str
 
 
 class TokenDexVolume(TypedDict):
@@ -6952,49 +7130,72 @@ class TokenStatsResponse(TypedDict):
     meta: PublicMeta
 
 
-# One transfer event of a token.
-TokenTransfer = TypedDict(
-    "TokenTransfer",
+_TokenTransferKw = TypedDict(
+    "_TokenTransferKw",
     {
-        # Position inside an ERC-1155 `TransferBatch`; `0` for every other event.
-        "batchIndex": "int",
-        "blockNumber": "int",
-        # `transfer`, `transfer_single`, `transfer_batch`, `sent`, `minted`, `burned`,
-        # `deposit`, `withdraw`, `wrap` or `unwrap`. `deposit` and `withdraw` are vault
-        # (ERC-4626) events; `wrap` and `unwrap` are ether wrapped into and unwrapped
-        # from
-        # WETH — one-sided: a `wrap` has no sender, an `unwrap` no recipient.
-        "eventType": "str",
         # Sender of the transfer. Absent on a mint and on a `wrap`.
-        "from": NotRequired["str | None"],
-        # The log's index within the block.
-        "logIndex": "int",
-        # The operator of an ERC-1155 transfer.
-        "operator": NotRequired["str | None"],
-        # Unix time of the block, seconds. Absent when it could not be resolved.
-        "timestamp": NotRequired["int | None"],
-        # Receiver of the transfer. Absent on a burn and on an `unwrap`.
-        "to": NotRequired["str | None"],
-        # Token id of an ERC-721 or ERC-1155 transfer, decimal string.
-        "tokenId": NotRequired["str | None"],
-        # Hash of the transaction that emitted the transfer. Absent when it could not be
-        # resolved for this page.
-        "txHash": NotRequired["str | None"],
-        "txIndex": "int",
-        # Who sent the transaction that emitted the transfer — on a router or a batch
-        # disburser another party than `from`. Absent when it could not be resolved;
-        # never
-        # `from` standing in for it.
-        "txSender": NotRequired["str | None"],
-        # The contract the transaction called at the top level. Absent when it could not
-        # be
-        # resolved, or on a contract creation.
-        "txTo": NotRequired["str | None"],
-        # Amount in the token's smallest unit, decimal string. Absent on an ERC-721
-        # transfer.
-        "value": NotRequired["str | None"],
+        "from": NotRequired[str | None],
     },
 )
+
+
+class TokenTransfer(_TokenTransferKw):
+    """One transfer event of a token.
+
+    Fields named like a Python keyword:
+
+    - `from`: Sender of the transfer. Absent on a mint and on a `wrap`.
+    """
+
+    batchIndex: int
+    """Position inside an ERC-1155 `TransferBatch`; `0` for every other event."""
+
+    blockNumber: int
+
+    eventType: str
+    """`transfer`, `transfer_single`, `transfer_batch`, `sent`, `minted`, `burned`,
+    `deposit`, `withdraw`, `wrap` or `unwrap`. `deposit` and `withdraw` are vault
+    (ERC-4626) events; `wrap` and `unwrap` are ether wrapped into and unwrapped from
+    WETH — one-sided: a `wrap` has no sender, an `unwrap` no recipient.
+    """
+
+    logIndex: int
+    """The log's index within the block."""
+
+    operator: NotRequired[str | None]
+    """The operator of an ERC-1155 transfer."""
+
+    timestamp: NotRequired[int | None]
+    """Unix time of the block, seconds. Absent when it could not be resolved."""
+
+    to: NotRequired[str | None]
+    """Receiver of the transfer. Absent on a burn and on an `unwrap`."""
+
+    tokenId: NotRequired[str | None]
+    """Token id of an ERC-721 or ERC-1155 transfer, decimal string."""
+
+    txHash: NotRequired[str | None]
+    """Hash of the transaction that emitted the transfer. Absent when it could not be
+    resolved for this page.
+    """
+
+    txIndex: int
+
+    txSender: NotRequired[str | None]
+    """Who sent the transaction that emitted the transfer — on a router or a batch
+    disburser another party than `from`. Absent when it could not be resolved; never
+    `from` standing in for it.
+    """
+
+    txTo: NotRequired[str | None]
+    """The contract the transaction called at the top level. Absent when it could not be
+    resolved, or on a contract creation.
+    """
+
+    value: NotRequired[str | None]
+    """Amount in the token's smallest unit, decimal string. Absent on an ERC-721 transfer.
+
+    """
 
 
 class TokenTransfers(TypedDict):
@@ -7021,171 +7222,238 @@ class TokenTransfersResponse(TypedDict):
     meta: PublicMeta
 
 
-# One executed call frame of a transaction.
-TraceFrame = TypedDict(
-    "TraceFrame",
+_TraceFrameKw = TypedDict(
+    "_TraceFrameKw",
     {
-        # The frame's address in the tree, and its parent's. Absent parent = the root.
-        "callPath": "str",
-        # `call`, `callcode`, `delegatecall`, `staticcall`, `create`, `create2`,
-        # `selfdestruct`, `eoa_transfer`.
-        "callType": "str",
-        # The address whose code this frame runs. On a `delegatecall` this is the
-        # implementation while `to` stays the storage context — the PAIR is what makes a
-        # proxy call readable, which is why `to` does not change meaning. When this
-        # address is
-        # an account with an EIP-7702 delegation, the code that ran is its delegate's:
-        # `executedCodeAddress`. Absent where there is no callee code (`create`,
-        # `create2`,
-        # `selfdestruct`).
-        "codeAddress": NotRequired["str | None"],
-        # The address a `create` / `create2` frame deployed.
-        "createdAddress": NotRequired["str | None"],
-        # The authorization that set that delegation. Present exactly when
-        # `executedCodeAddress` is.
-        "delegation": NotRequired["FrameDelegation | None"],
-        # Depth in the tree; `1` is the top-level call.
-        "depth": "int",
-        # How it failed: `Revert`, `Panic`, `CustomError`, `OutOfGas`, …
-        "errorKind": NotRequired["str | None"],
-        # The custom error's 4-byte selector — the ERROR selector, not `inputSelector`.
-        "errorSelector": NotRequired["str | None"],
-        # The code that actually ran when `codeAddress` is an account with an EIP-7702
-        # delegation in force at this frame: the delegate the account points at. Present
-        # only on
-        # such frames. Where the response's `delegatedCode.status` is `resolved`, a
-        # frame without
-        # it ran its own code; while it is `pending`, absence says nothing yet.
-        "executedCodeAddress": NotRequired["str | None"],
-        "from": "str",
-        # Gas offered to the frame and gas it consumed, decimal strings.
-        "gas": "str",
-        "gasUsed": "str",
-        "initCodeHash": NotRequired["str | None"],
-        # The first 260 bytes of the frame's calldata and of its output, `0x`-hex, with
-        # each
-        # full length in BYTES. Present when calldata heads are included: always on the
-        # paged
-        # frames, and on the whole trace when `includeCalldata` is true. Compare the
-        # size
-        # against 260, not against the hex string's length: the units differ.
-        "inputHead": NotRequired["str | None"],
-        # The called function's 4-byte selector.
-        "inputSelector": NotRequired["str | None"],
-        "inputSize": NotRequired["int | None"],
-        # Position in pre-order traversal of the call tree; `0` is the transaction's own
-        # top-level call.
-        "order": "int",
-        "outputHead": NotRequired["str | None"],
-        "outputSize": NotRequired["int | None"],
-        "parentPath": NotRequired["str | None"],
-        # The raw ABI revert payload, and its full length in BYTES. The payload may be
-        # truncated, and `revertDataTruncated` says when — a clipped payload decodes
-        # into a
-        # plausible but wrong argument list, so the flag is not decoration.
-        "revertData": NotRequired["str | None"],
-        "revertDataSize": NotRequired["int | None"],
-        "revertDataTruncated": NotRequired["bool | None"],
-        # Why `revertReason` is what it is: `decoded`, `undecodable` (a payload is
-        # present
-        # but no name was found) or `absent` (no payload to decode). An empty reason is
-        # ambiguous three ways, and this field is what separates them.
-        #
-        # Named apart from the event decoder's `decodeStatus` on purpose: that
-        # vocabulary
-        # describes event-decode confidence and the two appear in one response.
-        "revertDecodeStatus": NotRequired["str | None"],
-        # The decoded revert reason, or the custom error's name when its selector is
-        # known.
-        "revertReason": NotRequired["str | None"],
-        # `create2` salt, and the keccak-256 of the init code on a creating frame.
-        "salt": NotRequired["str | None"],
-        # Who received the balance of a `selfdestruct` frame.
-        "selfdestructBeneficiary": NotRequired["str | None"],
-        # `success`, `reverted` or `halted` — the FRAME's own outcome, which on a caught
-        # revert differs from the transaction's.
-        "status": "str",
-        # The frame's target. Absent on a contract creation.
-        "to": NotRequired["str | None"],
-        # Value this frame moved, in wei, as a decimal string.
-        "valueWei": "str",
+        "from": str,
     },
 )
 
 
-# One transaction as recorded on chain, with its receipt's outcome.
-Transaction = TypedDict(
-    "Transaction",
+class TraceFrame(_TraceFrameKw):
+    """One executed call frame of a transaction."""
+
+    callPath: str
+    """The frame's address in the tree, and its parent's. Absent parent = the root."""
+
+    callType: str
+    """`call`, `callcode`, `delegatecall`, `staticcall`, `create`, `create2`,
+    `selfdestruct`, `eoa_transfer`.
+    """
+
+    codeAddress: NotRequired[str | None]
+    """The address whose code this frame runs. On a `delegatecall` this is the
+    implementation while `to` stays the storage context — the PAIR is what makes a
+    proxy call readable, which is why `to` does not change meaning. When this address is
+    an account with an EIP-7702 delegation, the code that ran is its delegate's:
+    `executedCodeAddress`. Absent where there is no callee code (`create`, `create2`,
+    `selfdestruct`).
+    """
+
+    createdAddress: NotRequired[str | None]
+    """The address a `create` / `create2` frame deployed."""
+
+    delegation: NotRequired[FrameDelegation | None]
+    """The authorization that set that delegation. Present exactly when
+    `executedCodeAddress` is.
+    """
+
+    depth: int
+    """Depth in the tree; `1` is the top-level call."""
+
+    errorKind: NotRequired[str | None]
+    """How it failed: `Revert`, `Panic`, `CustomError`, `OutOfGas`, …"""
+
+    errorSelector: NotRequired[str | None]
+    """The custom error's 4-byte selector — the ERROR selector, not `inputSelector`."""
+
+    executedCodeAddress: NotRequired[str | None]
+    """The code that actually ran when `codeAddress` is an account with an EIP-7702
+    delegation in force at this frame: the delegate the account points at. Present only
+    on
+    such frames. Where the response's `delegatedCode.status` is `resolved`, a frame
+    without
+    it ran its own code; while it is `pending`, absence says nothing yet.
+    """
+
+    gas: str
+    """Gas offered to the frame and gas it consumed, decimal strings."""
+
+    gasUsed: str
+
+    initCodeHash: NotRequired[str | None]
+
+    inputHead: NotRequired[str | None]
+    """The first 260 bytes of the frame's calldata and of its output, `0x`-hex, with each
+    full length in BYTES. Present when calldata heads are included: always on the paged
+    frames, and on the whole trace when `includeCalldata` is true. Compare the size
+    against 260, not against the hex string's length: the units differ.
+    """
+
+    inputSelector: NotRequired[str | None]
+    """The called function's 4-byte selector."""
+
+    inputSize: NotRequired[int | None]
+
+    order: int
+    """Position in pre-order traversal of the call tree; `0` is the transaction's own
+    top-level call.
+    """
+
+    outputHead: NotRequired[str | None]
+
+    outputSize: NotRequired[int | None]
+
+    parentPath: NotRequired[str | None]
+
+    revertData: NotRequired[str | None]
+    """The raw ABI revert payload, and its full length in BYTES. The payload may be
+    truncated, and `revertDataTruncated` says when — a clipped payload decodes into a
+    plausible but wrong argument list, so the flag is not decoration.
+    """
+
+    revertDataSize: NotRequired[int | None]
+
+    revertDataTruncated: NotRequired[bool | None]
+
+    revertDecodeStatus: NotRequired[str | None]
+    """Why `revertReason` is what it is: `decoded`, `undecodable` (a payload is present
+    but no name was found) or `absent` (no payload to decode). An empty reason is
+    ambiguous three ways, and this field is what separates them.
+
+    Named apart from the event decoder's `decodeStatus` on purpose: that vocabulary
+    describes event-decode confidence and the two appear in one response.
+    """
+
+    revertReason: NotRequired[str | None]
+    """The decoded revert reason, or the custom error's name when its selector is known.
+
+    """
+
+    salt: NotRequired[str | None]
+    """`create2` salt, and the keccak-256 of the init code on a creating frame."""
+
+    selfdestructBeneficiary: NotRequired[str | None]
+    """Who received the balance of a `selfdestruct` frame."""
+
+    status: str
+    """`success`, `reverted` or `halted` — the FRAME's own outcome, which on a caught
+    revert differs from the transaction's.
+    """
+
+    to: NotRequired[str | None]
+    """The frame's target. Absent on a contract creation."""
+
+    valueWei: str
+    """Value this frame moved, in wei, as a decimal string."""
+
+
+_TransactionKw = TypedDict(
+    "_TransactionKw",
     {
-        # The block that includes it, and the transaction's index within that block.
-        "blockNumber": "int",
-        # Chain id. `1` is Ethereum mainnet.
-        "chainId": "int",
-        "effectiveGasPrice": NotRequired["str | None"],
         # Sender, lowercase and `0x`-prefixed.
-        "from": "str",
-        # Gas limit and gas used by the receipt, decimal strings.
-        "gasLimit": "str",
-        # `gasPrice` as declared (legacy types), `maxFeePerGas` / `maxPriorityFeePerGas`
-        # (EIP-1559), and the price actually PAID per gas — all wei, decimal strings.
-        # Each
-        # absent where the type does not carry it; `effectiveGasPrice` absent only while
-        # the
-        # block's base fee is not yet available.
-        "gasPrice": NotRequired["str | None"],
-        "gasUsed": "str",
-        # Whether a frame ran SELFDESTRUCT. Absent until the trace is computed.
-        "hasSelfdestruct": NotRequired["bool | None"],
-        # Transaction hash, lowercase and `0x`-prefixed.
-        "hash": "str",
-        # Size of the input in bytes.
-        "inputSize": "int",
-        # Value transfers made by inner calls, from the call trace. Absent until the
-        # trace is
-        # computed (usually within minutes); `0` is a fact.
-        "internalTransfersCount": NotRequired["int | None"],
-        # Number of receipt logs. Absent where not yet recorded; a log-less transaction
-        # is
-        # an honest `0`.
-        "logCount": NotRequired["int | None"],
-        "maxFeePerGas": NotRequired["str | None"],
-        "maxPriorityFeePerGas": NotRequired["str | None"],
-        # The first four bytes of the input (`0x`-prefixed), when the input is at least
-        # four
-        # bytes long — the function selector of a contract call.
-        "methodId": NotRequired["str | None"],
-        # The called function's name, when its selector is in TraceFast's signature
-        # registry
-        # (e.g. `transfer`). Absent when unknown.
-        "methodName": NotRequired["str | None"],
-        # Sender's nonce.
-        "nonce": "int",
-        # Why the transaction failed at the top level. Present on a failed transaction
-        # once
-        # the trace is computed. Absent otherwise.
-        "revert": NotRequired["TransactionRevert | None"],
-        # Call frames that reverted, at any depth, from the call trace. A successful
-        # transaction can contain some. Absent until the trace is computed.
-        "revertsTotal": NotRequired["int | None"],
-        # Receipt status: `1` success, `0` failure. Absent when the receipt is not yet
-        # available — absence is "unknown", never "failed".
-        "status": NotRequired["int | None"],
-        # What the transaction wrote to contract storage. Absent until the storage
-        # writes of
-        # its block are computed: a missing block here is "not known yet", never "no
-        # writes".
-        "storage": NotRequired["TransactionStorage | None"],
-        # Unix time of the block, seconds.
-        "timestamp": "int",
-        # Recipient. Absent for a contract creation.
-        "to": NotRequired["str | None"],
-        "txIndex": "int",
-        # Transaction type (0 legacy, 1 EIP-2930, 2 EIP-1559, 3 EIP-4844, 4 EIP-7702).
-        "txType": "int",
-        # Value transferred, wei, decimal string.
-        "valueWei": "str",
+        "from": str,
     },
 )
+
+
+class Transaction(_TransactionKw):
+    """One transaction as recorded on chain, with its receipt's outcome.
+
+    Fields named like a Python keyword:
+
+    - `from`: Sender, lowercase and `0x`-prefixed.
+    """
+
+    blockNumber: int
+    """The block that includes it, and the transaction's index within that block."""
+
+    chainId: int
+    """Chain id. `1` is Ethereum mainnet."""
+
+    effectiveGasPrice: NotRequired[str | None]
+
+    gasLimit: str
+    """Gas limit and gas used by the receipt, decimal strings."""
+
+    gasPrice: NotRequired[str | None]
+    """`gasPrice` as declared (legacy types), `maxFeePerGas` / `maxPriorityFeePerGas`
+    (EIP-1559), and the price actually PAID per gas — all wei, decimal strings. Each
+    absent where the type does not carry it; `effectiveGasPrice` absent only while the
+    block's base fee is not yet available.
+    """
+
+    gasUsed: str
+
+    hasSelfdestruct: NotRequired[bool | None]
+    """Whether a frame ran SELFDESTRUCT. Absent until the trace is computed."""
+
+    hash: str
+    """Transaction hash, lowercase and `0x`-prefixed."""
+
+    inputSize: int
+    """Size of the input in bytes."""
+
+    internalTransfersCount: NotRequired[int | None]
+    """Value transfers made by inner calls, from the call trace. Absent until the trace is
+    computed (usually within minutes); `0` is a fact.
+    """
+
+    logCount: NotRequired[int | None]
+    """Number of receipt logs. Absent where not yet recorded; a log-less transaction is
+    an honest `0`.
+    """
+
+    maxFeePerGas: NotRequired[str | None]
+
+    maxPriorityFeePerGas: NotRequired[str | None]
+
+    methodId: NotRequired[str | None]
+    """The first four bytes of the input (`0x`-prefixed), when the input is at least four
+    bytes long — the function selector of a contract call.
+    """
+
+    methodName: NotRequired[str | None]
+    """The called function's name, when its selector is in TraceFast's signature registry
+    (e.g. `transfer`). Absent when unknown.
+    """
+
+    nonce: int
+    """Sender's nonce."""
+
+    revert: NotRequired[TransactionRevert | None]
+    """Why the transaction failed at the top level. Present on a failed transaction once
+    the trace is computed. Absent otherwise.
+    """
+
+    revertsTotal: NotRequired[int | None]
+    """Call frames that reverted, at any depth, from the call trace. A successful
+    transaction can contain some. Absent until the trace is computed.
+    """
+
+    status: NotRequired[int | None]
+    """Receipt status: `1` success, `0` failure. Absent when the receipt is not yet
+    available — absence is "unknown", never "failed".
+    """
+
+    storage: NotRequired[TransactionStorage | None]
+    """What the transaction wrote to contract storage. Absent until the storage writes of
+    its block are computed: a missing block here is "not known yet", never "no writes".
+    """
+
+    timestamp: int
+    """Unix time of the block, seconds."""
+
+    to: NotRequired[str | None]
+    """Recipient. Absent for a contract creation."""
+
+    txIndex: int
+
+    txType: int
+    """Transaction type (0 legacy, 1 EIP-2930, 2 EIP-1559, 3 EIP-4844, 4 EIP-7702)."""
+
+    valueWei: str
+    """Value transferred, wei, decimal string."""
 
 
 class TransactionAccountChanges(TypedDict):
@@ -7725,7 +7993,7 @@ class TxLiquidityLeg(TypedDict):
 
 
 # Which source answered the "what kind of address is this" question.
-TypeHintSource: TypeAlias = "Literal[\"graph\", \"hint\", \"none\"] | str"
+TypeHintSource: TypeAlias = Literal["graph", "hint", "none"] | str
 
 
 class TypeHints(TypedDict):

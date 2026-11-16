@@ -3998,7 +3998,7 @@ export interface Counterparty {
    * (high-degree addresses served from the pre-built top list); absence means the
    * breakdown was not computed, never zero.
    */
-  surfaceCounts?: Record<string, number> | null
+  surfaceCounts?: Partial<Record<string, number>> | null
   /**
    * On which surfaces the relation was observed: `external` (top-level transactions),
    * `internal` (calls inside transactions), `token` (token transfers). A surface missing
@@ -6171,7 +6171,7 @@ export interface Position {
    */
   priceUsd: number
   /**
-   * `valueUsd / totalUsd`, in `0..=1`.
+   * `valueUsd / totalUsd`, in `0 to 1`.
    */
   share: number
   /**
@@ -6219,7 +6219,7 @@ export interface Proof {
    * the same binding, and the same source, carry the same identifier in every proof.
    * Absent when the record does not state the bindings in a readable form.
    */
-  bindingVersions?: Record<string, string> | null
+  bindingVersions?: Partial<Record<string, string>> | null
   /**
    * Chain id the fact is about. `1` is Ethereum mainnet.
    */
@@ -6446,7 +6446,7 @@ export interface PublicMeta {
    * has reached. Present only on methods whose coverage is bounded; each such method
    * documents its keys. Re-read on every call, so a cached body carries current bounds.
    */
-  coverage?: Record<string, number> | null
+  coverage?: Partial<Record<string, number>> | null
   /**
    * Documentation page of the method that produced this response.
    */

@@ -8,27 +8,40 @@ from typing import cast
 
 from .._http import AsyncHttp, SyncHttp, segment
 from .types import (
+    AccountStateChange,
     AttributeHistoryResponse,
     AttributesAtBlockResponse,
+    Authorization,
     BalanceHistoryResponse,
+    BlacklistEvent,
     BlacklistEventsResponse,
+    BlacklistFeedEvent,
     BlacklistFeedResponse,
     BlacklistIssuersResponse,
     BlacklistStatusResponse,
+    BlacklistedPair,
     BlacklistedPairsResponse,
+    BlockAddress,
     BlockAddressesResponse,
     BlockAtTimeResponse,
     BlockAuthorizationsResponse,
+    BlockInternalTransferRow,
     BlockInternalTransfersResponse,
+    BlockParticipantRow,
     BlockParticipantsResponse,
     BlockResponse,
+    BlockTokenTransfer,
     BlockTokenTransfersResponse,
     BlockTransactionsResponse,
+    BlockWithdrawal,
     BlockWithdrawalsResponse,
+    CodeClone,
     ConsensusAddressValidatorsResponse,
     ConsensusCurrentResponse,
+    ConsensusEpoch,
     ConsensusEpochsResponse,
     ConsensusHealthResponse,
+    ConsensusMissedSlot,
     ConsensusMissedSlotsResponse,
     ConsensusProposersResponse,
     ConsensusQueuesResponse,
@@ -39,6 +52,7 @@ from .types import (
     ContractCapabilitiesResponse,
     ContractClonesResponse,
     ContractControlHistoryResponse,
+    ContractCreation,
     ContractDecompilationResponse,
     ContractDisassemblyResponse,
     ContractEventsResponse,
@@ -53,8 +67,11 @@ from .types import (
     ContractStorageParametersResponse,
     ContractStorageProfileResponse,
     ContractStorageWritersResponse,
+    ControlChange,
     CounterpartyRankingResponse,
     DailyActivityResponse,
+    DecompiledBody,
+    DexTrade,
     EntityActivityResponse,
     EntityAttributesResponse,
     EntityCallsReceivedResponse,
@@ -66,30 +83,48 @@ from .types import (
     EntityStateChangesResponse,
     EntityTokenTransfersResponse,
     EntityTransactionsResponse,
+    EventLog,
+    ExecutionFrame,
+    FeedInternalTransfer,
+    FeedTokenTransfer,
+    FeedTransaction,
+    Instruction,
     LiquidityRemovalsResponse,
+    NewPool,
     NewPoolsResponse,
+    PoolLiquidityEvent,
     PoolLiquidityEventsResponse,
     PoolLiquidityFlowResponse,
     PoolReservesResponse,
     PoolResponse,
+    PoolSwap,
     PoolSwapsResponse,
     PoolVolumeResponse,
     PoolsForPairResponse,
     PortfolioResponse,
     ProofResponse,
     ProxyImplementationsResponse,
+    ReceivedCall,
+    Relation,
     RelationHistoryResponse,
+    RelationInterval,
     RelationsAtBlockResponse,
     RelationsResponse,
+    SlotValueChange,
+    StorageParameterRow,
+    StorageWrite,
     TokenBalanceResponse,
     TokenDexVolumeResponse,
     TokenHoldersResponse,
+    TokenPoolEntry,
     TokenPoolsResponse,
     TokenPriceHistoryResponse,
     TokenPriceResponse,
     TokenResponse,
     TokenStatsResponse,
+    TokenTransfer,
     TokenTransfersResponse,
+    Transaction,
     TransactionAccountChangesResponse,
     TransactionEventsResponse,
     TransactionExecutionProfileResponse,
@@ -102,6 +137,7 @@ from .types import (
     TransactionStorageWritesResponse,
     TransactionTraceResponse,
     TransactionTransientWritesResponse,
+    ValidatorWithdrawal,
     ValidatorWithdrawalsResponse,
 )
 
@@ -110,58 +146,81 @@ NAMESPACES: tuple[str, ...] = ("blocks", "consensus", "contracts", "addresses", 
 
 
 class BlocksApi:
-    """`client.blocks` — the blocks methods of the TraceFast API."""
+    """`client.blocks`: the blocks methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def at_time(self, *, timestamp: int) -> BlockAtTimeResponse:
-        """Which block was the chain's at a given time
+        """Which block was the chain's at a given time.
 
-        TraceFast live Ethereum data: the last block whose time is at or before a Unix
-        time, and the first block after it — the bracket around the moment. Block times
-        rise strictly with the number, so the answer is exact. `final: false` means the
-        time is after the newest block: a later block may still land at or before it, so
-        ask again later; `nextBlock` is then absent. If blocks around the time are
-        temporarily unavailable, the method answers `422 coverage_gap` rather than a
-        pair across the gap. Pass a block's number to the block methods for its
-        contents.
+        The last block whose time is at or before a Unix time, and the first block after
+        it — the bracket around the moment. Block times rise strictly with the number,
+        so the answer is exact. `final: false` means the time is after the newest block:
+        a later block may still land at or before it, so ask again later; `nextBlock` is
+        then absent. If blocks around the time are temporarily unavailable, the method
+        answers `422 coverage_gap` rather than a pair across the gap. Pass a block's
+        number to the block methods for its contents.
 
-        Plan: Enriched Data or higher. **Beta** — the shape may still change.
+        Plan: Enriched Data or higher. **Beta**: the shape may still change.
 
         Args:
             timestamp: Unix time, seconds. Required.
+
+        Returns:
+            `BlockAtTimeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/block-at-time
         """
         return cast("BlockAtTimeResponse", self._http.get(f"/chains/{self._http.chain_id}/blocks/at-time", {"timestamp": timestamp}))
 
     def latest(self) -> BlockResponse:
-        """The latest block
+        """The latest block.
 
-        TraceFast live Ethereum data: the most recent block, with its header and the
-        totals of what it contains — transaction counts by outcome, gas, fees, value
-        moved, withdrawals. The same shape as `blocks/{number}`.
+        The most recent block, with its header and the totals of what it contains —
+        transaction counts by outcome, gas, fees, value moved, withdrawals. The same
+        shape as `blocks/{number}`.
 
         Plan: Enriched Data or higher.
+
+        Returns:
+            `BlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/block-latest
         """
         return cast("BlockResponse", self._http.get(f"/chains/{self._http.chain_id}/blocks/latest", None))
 
-    def get(self, number: int | str) -> BlockResponse:
-        """One block
+    def get(self, number: int) -> BlockResponse:
+        """One block.
 
-        TraceFast live Ethereum data: one block by height — its header (hash, parent,
-        roots, fee recipient, gas, base fee, blob gas) and the totals of what it
-        contains: transactions by outcome, contract creations, blob transactions, logs,
-        withdrawals, value moved, fees burnt and paid. A block that is not known yet
-        answers 404.
+        One block by height — its header (hash, parent, roots, fee recipient, gas, base
+        fee, blob gas) and the totals of what it contains: transactions by outcome,
+        contract creations, blob transactions, logs, withdrawals, value moved, fees
+        burnt and paid. A block that is not known yet answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
+
+        Returns:
+            `BlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block
         """
@@ -169,29 +228,36 @@ class BlocksApi:
 
     def addresses(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockAddressesResponse:
-        """Accounts touched by one block
+        """Accounts touched by one block.
 
-        TraceFast live Ethereum data: every account whose own state — native balance,
-        nonce or code — changed in one block, with what changed and the balance before
-        and after, in address order. Accounts only mentioned by the block's activity
-        without a state change are not listed. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent. Account changes are served to
-        the chain head: a block with no account change answers an empty list, which is a
-        statement about that block and not a gap. A block above the chain head does not
-        exist yet and answers 404.
+        Every account whose own state — native balance, nonce or code — changed in one
+        block, with what changed and the balance before and after, in address order.
+        Accounts only mentioned by the block's activity without a state change are not
+        listed. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it
+        is absent. Account changes are served to the chain head: a block with no account
+        change answers an empty list, which is a statement about that block and not a
+        gap. A block above the chain head does not exist yet and answers 404.
 
         Plan: Intelligence or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+
+        Returns:
+            `BlockAddressesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-addresses
         """
@@ -199,56 +265,111 @@ class BlocksApi:
 
     def addresses_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockAddressesResponse]:
-        """Every page of `blocks.addresses`, following `data.nextCursor` to the end.
+        """Every page of `blocks.addresses`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockAddressesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-addresses
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/addresses", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/addresses", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def addresses_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlockAddress]:
+        """Every row of `data.addresses` of `blocks.addresses`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlockAddress`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-addresses
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/addresses", {"limit": limit, "cursor": cursor}, "addresses", max_items)
 
     def authorizations(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockAuthorizationsResponse:
-        """EIP-7702 authorizations of one block
+        """EIP-7702 authorizations of one block.
 
-        TraceFast live Ethereum data: every EIP-7702 authorization-list entry carried by
-        the transactions of one block — the delegation target, the account that signed
-        it (`authority`), the chain id and nonce it was signed for, the signature, and
-        the carrying transaction's hash and position — in transaction order and then
-        list order. `authorityStatus` says whether the signer is known: `recovered`,
-        `recovery_failed` (an invalid signature — the authorization has no signer) or
-        `not_available` (not determined yet). Empty when the block carries no type-4
-        transaction. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until
-        it is absent. A block the authorization history has not reached yet answers 422
-        with the highest block it can answer; a block above the chain head does not
-        exist yet and answers 404.
+        Every EIP-7702 authorization-list entry carried by the transactions of one block
+        — the delegation target, the account that signed it (`authority`), the chain id
+        and nonce it was signed for, the signature, and the carrying transaction's hash
+        and position — in transaction order and then list order. `authorityStatus` says
+        whether the signer is known: `recovered`, `recovery_failed` (an invalid
+        signature — the authorization has no signer) or `not_available` (not determined
+        yet). Empty when the block carries no type-4 transaction. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent. A block the
+        authorization history has not reached yet answers 422 with the highest block it
+        can answer; a block above the chain head does not exist yet and answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+
+        Returns:
+            `BlockAuthorizationsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-authorizations
         """
@@ -256,55 +377,110 @@ class BlocksApi:
 
     def authorizations_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockAuthorizationsResponse]:
-        """Every page of `blocks.authorizations`, following `data.nextCursor` to the end.
+        """Every page of `blocks.authorizations`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockAuthorizationsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-authorizations
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/authorizations", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/authorizations", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def authorizations_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[Authorization]:
+        """Every row of `data.authorizations` of `blocks.authorizations`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `Authorization`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-authorizations
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/authorizations", {"limit": limit, "cursor": cursor}, "authorizations", max_items)
 
     def internal_transfers(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockInternalTransfersResponse:
-        """Every internal ETH transfer of a block
+        """Every internal ETH transfer of a block.
 
-        TraceFast live Ethereum data: every call frame of one block that moved ETH below
-        the transaction's own top level — sends from contracts, value carried by
-        internal calls, self-destruct payouts, contract creations with value — in
-        transaction order: the transaction and its sender, the frame's depth (2 = called
-        by the transaction's target), its kind, from, to, the amount in wei and whether
-        the frame succeeded. A frame that succeeded inside a reverted transaction, or
-        under a reverted parent frame, moved nothing in the end. `total` counts the
-        block's rows. A block the traces have not reached yet is refused (`422
-        coverage_gap` with the bound), never answered with an empty list. Continue with
-        `nextCursor`.
+        Every call frame of one block that moved ETH below the transaction's own top
+        level — sends from contracts, value carried by internal calls, self-destruct
+        payouts, contract creations with value — in transaction order: the transaction
+        and its sender, the frame's depth (2 = called by the transaction's target), its
+        kind, from, to, the amount in wei and whether the frame succeeded. A frame that
+        succeeded inside a reverted transaction, or under a reverted parent frame, moved
+        nothing in the end. `total` counts the block's rows. A block the traces have not
+        reached yet is refused (`422 coverage_gap` with the bound), never answered with
+        an empty list. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+
+        Returns:
+            `BlockInternalTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-internal-transfers
         """
@@ -312,58 +488,112 @@ class BlocksApi:
 
     def internal_transfers_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockInternalTransfersResponse]:
-        """Every page of `blocks.internal_transfers`, following `data.nextCursor` to the
-        end.
+        """Every page of `blocks.internal_transfers`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockInternalTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-internal-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/internal-transfers", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/internal-transfers", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def internal_transfers_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlockInternalTransferRow]:
+        """Every row of `data.transfers` of `blocks.internal_transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            number: The block height.
+            limit: 1 to 200, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlockInternalTransferRow`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-internal-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/internal-transfers", {"limit": limit, "cursor": cursor}, "transfers", max_items)
 
     def participants(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockParticipantsResponse:
-        """Every address a block touched, and how
+        """Every address a block touched, and how.
 
-        TraceFast live Ethereum data: every address that took part in one block, in the
-        block's order (the system calls before the first transaction, then by first
-        transaction, then the rest — withdrawals, the fee recipient), with its roles
-        (transaction sender or recipient, caller or callee, token party, created, named
-        in an event, …), its primary class, how many of the block's transactions it took
-        part in, whether its own account changed — the balance before and after and the
-        signed ETH delta — its token transfers in the block summed per token (raw units;
-        transfers, not balance changes), and what the knowledge graph says the address
-        was at that block (`nature`, stated only when `natureState` is `known`). The
-        block's counts come with every page. A block whose participants are not computed
-        yet is refused (`422 coverage_gap`), never answered empty. Continue with
-        `nextCursor`.
+        Every address that took part in one block, in the block's order (the system
+        calls before the first transaction, then by first transaction, then the rest —
+        withdrawals, the fee recipient), with its roles (transaction sender or
+        recipient, caller or callee, token party, created, named in an event, …), its
+        primary class, how many of the block's transactions it took part in, whether its
+        own account changed — the balance before and after and the signed ETH delta —
+        its token transfers in the block summed per token (raw units; transfers, not
+        balance changes), and what the knowledge graph says the address was at that
+        block (`nature`, stated only when `natureState` is `known`). The block's counts
+        come with every page. A block whose participants are not computed yet is refused
+        (`422 coverage_gap`), never answered empty. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+
+        Returns:
+            `BlockParticipantsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-participants
         """
@@ -371,52 +601,107 @@ class BlocksApi:
 
     def participants_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockParticipantsResponse]:
-        """Every page of `blocks.participants`, following `data.nextCursor` to the end.
+        """Every page of `blocks.participants`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockParticipantsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-participants
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/participants", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/participants", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def participants_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlockParticipantRow]:
+        """Every row of `data.participants` of `blocks.participants`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            number: The block height.
+            limit: 1 to 100, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlockParticipantRow`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-participants
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/participants", {"limit": limit, "cursor": cursor}, "participants", max_items)
 
     def token_transfers(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockTokenTransfersResponse:
-        """Every token transfer of a block
+        """Every token transfer of a block.
 
-        TraceFast live Ethereum data: every token transfer event of one block — ERC-20,
-        ERC-721 and ERC-1155 transfers, mints, burns, vault deposits and withdrawals,
-        WETH wraps and unwraps — in transaction and log order: the token and its
-        standard, the event, from, to, the raw amount or token id, and the transaction
-        with its sender and target. Amounts are in each token's smallest unit; pass the
-        token to the token method for its decimals. `total` counts the block's rows.
-        Continue with `nextCursor`.
+        Every token transfer event of one block — ERC-20, ERC-721 and ERC-1155
+        transfers, mints, burns, vault deposits and withdrawals, WETH wraps and unwraps
+        — in transaction and log order: the token and its standard, the event, from, to,
+        the raw amount or token id, and the transaction with its sender and target.
+        Amounts are in each token's smallest unit; pass the token to the token method
+        for its decimals. `total` counts the block's rows. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+
+        Returns:
+            `BlockTokenTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-token-transfers
         """
@@ -424,51 +709,106 @@ class BlocksApi:
 
     def token_transfers_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockTokenTransfersResponse]:
-        """Every page of `blocks.token_transfers`, following `data.nextCursor` to the end.
+        """Every page of `blocks.token_transfers`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockTokenTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-token-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/token-transfers", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/token-transfers", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def token_transfers_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlockTokenTransfer]:
+        """Every row of `data.transfers` of `blocks.token_transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            number: The block height.
+            limit: 1 to 200, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlockTokenTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-token-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/token-transfers", {"limit": limit, "cursor": cursor}, "transfers", max_items)
 
     def transactions(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockTransactionsResponse:
-        """Transactions of one block
+        """Transactions of one block.
 
-        TraceFast live Ethereum data: the transactions of one block in their order
-        within the block, each with sender, recipient, value, gas, fee fields and the
-        receipt's outcome. Paged by an opaque cursor: pass `nextCursor` back as `cursor`
-        until it is absent. `txCount` is the block's whole count. A block that is not
-        known yet answers 404; a block this API cannot see right now answers 422 like
-        `blocks/{number}` does.
+        The transactions of one block in their order within the block, each with sender,
+        recipient, value, gas, fee fields and the receipt's outcome. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent. `txCount` is the
+        block's whole count. A block that is not known yet answers 404; a block this API
+        cannot see right now answers 422 like `blocks/{number}` does.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+
+        Returns:
+            `BlockTransactionsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-transactions
         """
@@ -476,58 +816,113 @@ class BlocksApi:
 
     def transactions_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockTransactionsResponse]:
-        """Every page of `blocks.transactions`, following `data.nextCursor` to the end.
+        """Every page of `blocks.transactions`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockTransactionsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-transactions
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/transactions", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/transactions", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def transactions_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[Transaction]:
+        """Every row of `data.transactions` of `blocks.transactions`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `Transaction`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-transactions
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/transactions", {"limit": limit, "cursor": cursor}, "transactions", max_items)
 
     def withdrawals(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         validator_index: int | None = None,
         address: str | None = None,
     ) -> BlockWithdrawalsResponse:
-        """Validator withdrawals of one block
+        """Validator withdrawals of one block.
 
-        TraceFast live Ethereum data: the validator withdrawals paid out in one block —
-        index, validator, recipient and amount — in withdrawal-index order. A block
-        holds at most 16. Optionally narrowed to one validator or one recipient. Paged
-        by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
-        Withdrawals are served to the chain head: a block with no withdrawals answers an
-        empty list, which is a statement about that block and not a gap. A block above
-        the chain head does not exist yet and answers 404.
+        The validator withdrawals paid out in one block — index, validator, recipient
+        and amount — in withdrawal-index order. A block holds at most 16. Optionally
+        narrowed to one validator or one recipient. Paged by an opaque cursor: pass
+        `nextCursor` back as `cursor` until it is absent. Withdrawals are served to the
+        chain head: a block with no withdrawals answers an empty list, which is a
+        statement about that block and not a gap. A block above the chain head does not
+        exist yet and answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, block and filters. Left as None, it is not sent.
+                method, block and filters.
             validator_index: Only withdrawals of this validator index. Sent as
-                ``validatorIndex``. Left as None, it is not sent.
-            address: Only withdrawals paid to this address, `0x`-prefixed. Left as None,
-                it is not sent.
+                `validatorIndex`.
+            address: Only withdrawals paid to this address, `0x`-prefixed.
+
+        Returns:
+            `BlockWithdrawalsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-withdrawals
         """
@@ -535,56 +930,117 @@ class BlocksApi:
 
     def withdrawals_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         validator_index: int | None = None,
         address: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlockWithdrawalsResponse]:
-        """Every page of `blocks.withdrawals`, following `data.nextCursor` to the end.
+        """Every page of `blocks.withdrawals`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, block and filters. Left as None, it is not sent.
+                method, block and filters.
             validator_index: Only withdrawals of this validator index. Sent as
-                ``validatorIndex``. Left as None, it is not sent.
-            address: Only withdrawals paid to this address, `0x`-prefixed. Left as None,
-                it is not sent.
+                `validatorIndex`.
+            address: Only withdrawals paid to this address, `0x`-prefixed.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlockWithdrawalsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-withdrawals
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/withdrawals", {"limit": limit, "cursor": cursor, "validatorIndex": validator_index, "address": address})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/withdrawals", {"limit": limit, "cursor": cursor, "validatorIndex": validator_index, "address": address}, max_pages)
+
+    def withdrawals_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        validator_index: int | None = None,
+        address: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlockWithdrawal]:
+        """Every row of `data.withdrawals` of `blocks.withdrawals`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, block and filters.
+            validator_index: Only withdrawals of this validator index. Sent as
+                `validatorIndex`.
+            address: Only withdrawals paid to this address, `0x`-prefixed.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlockWithdrawal`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-withdrawals
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/withdrawals", {"limit": limit, "cursor": cursor, "validatorIndex": validator_index, "address": address}, "withdrawals", max_items)
 
 
 class ConsensusApi:
-    """`client.consensus` — the consensus methods of the TraceFast API."""
+    """`client.consensus`: the consensus methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def current(self) -> ConsensusCurrentResponse:
-        """Validator queues now
+        """Validator queues now.
 
-        TraceFast live Ethereum data: the validator queues by the Electra rules as of
-        the newest sampled epoch, under `queues` — the deposit queue (new validators and
-        top-ups), the exit queue, consolidations, partial withdrawals and validators
-        awaiting withdrawal, each as a count and a balance; the active set; the
-        per-epoch churn limits; and wait ESTIMATES (queue balance over churn, entry also
-        bounded by 16 deposits an epoch; for the queue as a whole, not a promise to one
-        validator). Beside them: recent exit and deposit flow, and validator counts by
-        STATUS under `status`, which since Electra are not the queues. Observed facts
-        and arithmetic over them only; no score or verdict. Values not yet sampled are
-        `null`, never zero.
+        The validator queues by the Electra rules as of the newest sampled epoch, under
+        `queues` — the deposit queue (new validators and top-ups), the exit queue,
+        consolidations, partial withdrawals and validators awaiting withdrawal, each as
+        a count and a balance; the active set; the per-epoch churn limits; and wait
+        ESTIMATES (queue balance over churn, entry also bounded by 16 deposits an epoch;
+        for the queue as a whole, not a promise to one validator). Beside them: recent
+        exit and deposit flow, and validator counts by STATUS under `status`, which
+        since Electra are not the queues. Observed facts and arithmetic over them only;
+        no score or verdict. Values not yet sampled are `null`, never zero.
 
         Plan: Intelligence or higher.
+
+        Returns:
+            `ConsensusCurrentResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-current
         """
@@ -596,21 +1052,28 @@ class ConsensusApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ConsensusEpochsResponse:
-        """Epoch health
+        """Epoch health.
 
-        TraceFast live Ethereum data: complete epochs (32 slots), newest first —
-        proposed and missed slots, sync committee participation, attestations, blob
-        commitments, deposits, exits, slashings, execution-layer requests and execution
-        gas. The epoch in progress is absent until it is complete; a field that the
-        epoch's fork had not introduced yet is absent. `publishedThroughEpoch` is the
-        newest complete epoch. Continue with `nextCursor`.
+        Complete epochs (32 slots), newest first — proposed and missed slots, sync
+        committee participation, attestations, blob commitments, deposits, exits,
+        slashings, execution-layer requests and execution gas. The epoch in progress is
+        absent until it is complete; a field that the epoch's fork had not introduced
+        yet is absent. `publishedThroughEpoch` is the newest complete epoch. Continue
+        with `nextCursor`.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `ConsensusEpochsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-epochs
         """
@@ -621,36 +1084,86 @@ class ConsensusApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ConsensusEpochsResponse]:
-        """Every page of `consensus.epochs`, following `data.nextCursor` to the end.
+        """Every page of `consensus.epochs`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ConsensusEpochsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-epochs
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/epochs", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/epochs", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def epochs_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ConsensusEpoch]:
+        """Every row of `data.epochs` of `consensus.epochs`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ConsensusEpoch`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/consensus-epochs
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/consensus/epochs", {"limit": limit, "cursor": cursor}, "epochs", max_items)
 
     def health(self) -> ConsensusHealthResponse:
-        """Consensus liveness
+        """Consensus liveness.
 
-        TraceFast live Ethereum data: the newest head and finalized slot TraceFast saw
-        and when, the distance between them, the newest published slot, missed slots and
-        reorgs over the last 24 hours (the reorgs and the newest missed slots as rows),
-        and `observation24h` — how completely the head was seen over the window. A reorg
-        count is a statement about what was SEEN: read it next to `observation24h` and
-        `ages.headSeconds`. A missed slot names its assigned validator only when
-        `dutyStatus` is `recorded`. The facts are refreshed every minute; `ages` is
-        computed for each request.
+        The newest head and finalized slot TraceFast saw and when, the distance between
+        them, the newest published slot, missed slots and reorgs over the last 24 hours
+        (the reorgs and the newest missed slots as rows), and `observation24h` — how
+        completely the head was seen over the window. A reorg count is a statement about
+        what was SEEN: read it next to `observation24h` and `ages.headSeconds`. A missed
+        slot names its assigned validator only when `dutyStatus` is `recorded`. The
+        facts are refreshed every minute; `ages` is computed for each request.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Returns:
+            `ConsensusHealthResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-health
         """
@@ -662,21 +1175,27 @@ class ConsensusApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ConsensusMissedSlotsResponse:
-        """Missed slots
+        """Missed slots.
 
-        TraceFast live Ethereum data: beacon slots in which no block was proposed,
-        newest first. Each names the validator that was assigned to it when `dutyStatus`
-        is `recorded`; below slot 14 971 296 assignments were never captured and the
-        status is `not_recorded`, permanently. Slots are published once finalised, 13-19
-        minutes behind the chain head; `publishedThroughSlot` is the newest one.
-        Continue with `nextCursor`.
+        Beacon slots in which no block was proposed, newest first. Each names the
+        validator that was assigned to it when `dutyStatus` is `recorded`; below slot 14
+        971 296 assignments were never captured and the status is `not_recorded`,
+        permanently. Slots are published once finalised, 13-19 minutes behind the chain
+        head; `publishedThroughSlot` is the newest one. Continue with `nextCursor`.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `ConsensusMissedSlotsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-missed-slots
         """
@@ -687,22 +1206,66 @@ class ConsensusApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ConsensusMissedSlotsResponse]:
-        """Every page of `consensus.missed_slots`, following `data.nextCursor` to the end.
+        """Every page of `consensus.missed_slots`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ConsensusMissedSlotsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-missed-slots
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/missed-slots", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/missed-slots", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def missed_slots_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ConsensusMissedSlot]:
+        """Every row of `data.missedSlots` of `consensus.missed_slots`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ConsensusMissedSlot`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/consensus-missed-slots
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/consensus/missed-slots", {"limit": limit, "cursor": cursor}, "missedSlots", max_items)
 
     def proposers(
         self,
@@ -711,86 +1274,111 @@ class ConsensusApi:
         group_by: str | None = None,
         limit: int | None = None,
     ) -> ConsensusProposersResponse:
-        """Block-proposal leaderboard
+        """Block-proposal leaderboard.
 
-        TraceFast live Ethereum data: which validators proposed the most blocks over a
-        window, or — grouped by withdrawal address — which payout addresses their
-        proposals sum to. The proposer is the validator whose duty the slot was, never
-        the block's fee recipient (usually a builder or relay). A withdrawal address is
-        a payout destination, not an operator. The two groupings rank different sets;
-        ask for the one you need.
+        Which validators proposed the most blocks over a window, or — grouped by
+        withdrawal address — which payout addresses their proposals sum to. The proposer
+        is the validator whose duty the slot was, never the block's fee recipient
+        (usually a builder or relay). A withdrawal address is a payout destination, not
+        an operator. The two groupings rank different sets; ask for the one you need.
 
         Plan: Intelligence or higher.
 
         Args:
-            period: `7d` (default), `30d`, `90d`, `1y` or `all`. Left as None, it is not
-                sent.
-            group_by: `validator` (default) or `address`. Sent as ``groupBy``. Left as
-                None, it is not sent.
-            limit: Rows to return, 1..=100, default 20. Left as None, it is not sent.
+            period: `7d` (default), `30d`, `90d`, `1y` or `all`.
+            group_by: `validator` (default) or `address`. Sent as `groupBy`.
+            limit: Rows to return, 1 to 100, default 20.
+
+        Returns:
+            `ConsensusProposersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-proposers
         """
         return cast("ConsensusProposersResponse", self._http.get(f"/chains/{self._http.chain_id}/consensus/proposers", {"period": period, "groupBy": group_by, "limit": limit}))
 
     def queues(self, *, limit: int | None = None) -> ConsensusQueuesResponse:
-        """Validator queues over time
+        """Validator queues over time.
 
-        TraceFast live Ethereum data: the validator queues now, plus one closing point
-        per UTC day for the most recent `limit` days (up to 90), newest first. Each
-        point carries the queues by the Electra rules under `queues` (deposit, exit and
-        consolidation queues with wait estimates in epochs; `null` on days before they
-        were sampled) and the validator counts by STATUS under `status`. The span
-        between the end of the reconstruction and the start of sampling is listed in
-        `gaps` — draw a break there, not a zero. Daily granularity only, stated in
-        `granularity`.
+        The validator queues now, plus one closing point per UTC day for the most recent
+        `limit` days (up to 90), newest first. Each point carries the queues by the
+        Electra rules under `queues` (deposit, exit and consolidation queues with wait
+        estimates in epochs; `null` on days before they were sampled) and the validator
+        counts by STATUS under `status`. The span between the end of the reconstruction
+        and the start of sampling is listed in `gaps` — draw a break there, not a zero.
+        Daily granularity only, stated in `granularity`.
 
         Plan: Intelligence or higher.
 
         Args:
-            limit: Most recent daily points to return, 1..=90, default 30. Left as None,
-                it is not sent.
+            limit: Most recent daily points to return, 1 to 90, default 30.
+
+        Returns:
+            `ConsensusQueuesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-queues
         """
         return cast("ConsensusQueuesResponse", self._http.get(f"/chains/{self._http.chain_id}/consensus/queues", {"limit": limit}))
 
-    def slot(self, slot: int | str) -> ConsensusSlotResponse:
-        """One beacon slot
+    def slot(self, slot: int) -> ConsensusSlotResponse:
+        """One beacon slot.
 
-        TraceFast live Ethereum data: one beacon slot — whether a block was proposed and
-        by which validator, the validator that was ASSIGNED to it (`duty`; known from
-        slot 14 971 296 on, `not_recorded` below, permanently), and the execution block
-        with its fee recipient (who was paid for the block — under MEV-Boost usually the
-        builder, not the validator). A missed slot carries no block fields.
-        `graffitiHex` is the proposer's free 32-byte field, raw and undecoded. Slots are
-        published once finalised, 13-19 minutes behind the chain head;
-        `publishedThroughSlot` is the newest one.
+        One beacon slot — whether a block was proposed and by which validator, the
+        validator that was ASSIGNED to it (`duty`; known from slot 14 971 296 on,
+        `not_recorded` below, permanently), and the execution block with its fee
+        recipient (who was paid for the block — under MEV-Boost usually the builder, not
+        the validator). A missed slot carries no block fields. `graffitiHex` is the
+        proposer's free 32-byte field, raw and undecoded. Slots are published once
+        finalised, 13-19 minutes behind the chain head; `publishedThroughSlot` is the
+        newest one.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             slot: The beacon slot.
+
+        Returns:
+            `ConsensusSlotResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/consensus-slot
         """
         return cast("ConsensusSlotResponse", self._http.get(f"/chains/{self._http.chain_id}/consensus/slots/{segment(slot)}", None))
 
-    def validator(self, index: int | str) -> ConsensusValidatorResponse:
-        """One validator
+    def validator(self, index: int) -> ConsensusValidatorResponse:
+        """One validator.
 
-        TraceFast live Ethereum data: one validator as of the validator snapshot (taken
-        about once a day; `snapshotEpoch`) — status, slashed, lifecycle epochs (an
-        absent epoch is not scheduled), effective balance, public key, credential type,
-        withdrawal credentials and `withdrawalAddress`, the execution address its
-        payouts go to. That address is a DESTINATION, not the owner or the operator; a
-        validator with BLS credentials has none. A validator index is never answered
-        'not found': a snapshot cannot prove that a validator does not exist.
+        One validator as of the validator snapshot (taken about once a day;
+        `snapshotEpoch`) — status, slashed, lifecycle epochs (an absent epoch is not
+        scheduled), effective balance, public key, credential type, withdrawal
+        credentials and `withdrawalAddress`, the execution address its payouts go to.
+        That address is a DESTINATION, not the owner or the operator; a validator with
+        BLS credentials has none. A validator index is never answered 'not found': a
+        snapshot cannot prove that a validator does not exist.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             index: The validator's index in the consensus registry.
+
+        Returns:
+            `ConsensusValidatorResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/consensus-validator
         """
@@ -798,25 +1386,32 @@ class ConsensusApi:
 
     def validator_slots(
         self,
-        index: int | str,
+        index: int,
         *,
         limit: int | None = None,
     ) -> ConsensusValidatorSlotsResponse:
-        """A validator's proposal history
+        """A validator's proposal history.
 
-        TraceFast live Ethereum data: a validator's proposal history over EVERY
-        published slot (not a recent window), newest first — each slot it proposed
-        (`outcome: proposed`, with its execution block) and each slot it was assigned
-        and no block was proposed in (`outcome: missed`). Proposals are complete; misses
-        are a lower bound: assignments are recorded from slot 14 971 296 on. An index
-        that proposed nothing answers an empty list — a fact up to
-        `publishedThroughSlot`.
+        A validator's proposal history over EVERY published slot (not a recent window),
+        newest first — each slot it proposed (`outcome: proposed`, with its execution
+        block) and each slot it was assigned and no block was proposed in (`outcome:
+        missed`). Proposals are complete; misses are a lower bound: assignments are
+        recorded from slot 14 971 296 on. An index that proposed nothing answers an
+        empty list — a fact up to `publishedThroughSlot`.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             index: The validator's index in the consensus registry.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
+
+        Returns:
+            `ConsensusValidatorSlotsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/consensus-validator-slots
         """
@@ -824,35 +1419,42 @@ class ConsensusApi:
 
     def validator_withdrawals(
         self,
-        index: int | str,
+        index: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
     ) -> ValidatorWithdrawalsResponse:
-        """Withdrawals of a validator
+        """Withdrawals of a validator.
 
-        TraceFast live Ethereum data: the withdrawals paid out for one validator —
-        block, global withdrawal index, the address paid and the amount — newest first,
-        inside a block window of at most 216 000 blocks (about 30 days). Without
-        `fromBlock` / `toBlock` the newest window is answered; the window used is echoed
-        in `window`, and older history is read by asking again with `toBlock` set to
-        `window.fromBlock - 1`. Paged inside the window by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent. A wider window is refused with
-        the bound, never narrowed.
+        The withdrawals paid out for one validator — block, global withdrawal index, the
+        address paid and the amount — newest first, inside a block window of at most 216
+        000 blocks (about 30 days). Without `fromBlock` / `toBlock` the newest window is
+        answered; the window used is echoed in `window`, and older history is read by
+        asking again with `toBlock` set to `window.fromBlock - 1`. Paged inside the
+        window by an opaque cursor: pass `nextCursor` back as `cursor` until it is
+        absent. A wider window is refused with the bound, never narrowed.
 
         Plan: Intelligence or higher.
 
         Args:
             index: The validator's index in the consensus registry.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same window. Left as None, it is not sent.
+                method with the same window.
             from_block: Inclusive lower block bound. Default: `toBlock - 215999`. Sent
-                as ``fromBlock``. Left as None, it is not sent.
+                as `fromBlock`.
             to_block: Inclusive upper block bound. Default: the newest covered block.
-                Sent as ``toBlock``. Left as None, it is not sent.
+                Sent as `toBlock`.
+
+        Returns:
+            `ValidatorWithdrawalsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/validator-withdrawals
         """
@@ -860,34 +1462,88 @@ class ConsensusApi:
 
     def validator_withdrawals_pages(
         self,
-        index: int | str,
+        index: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ValidatorWithdrawalsResponse]:
-        """Every page of `consensus.validator_withdrawals`, following `data.nextCursor` to
-        the end.
+        """Every page of `consensus.validator_withdrawals`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             index: The validator's index in the consensus registry.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same window. Left as None, it is not sent.
+                method with the same window.
             from_block: Inclusive lower block bound. Default: `toBlock - 215999`. Sent
-                as ``fromBlock``. Left as None, it is not sent.
+                as `fromBlock`.
             to_block: Inclusive upper block bound. Default: the newest covered block.
-                Sent as ``toBlock``. Left as None, it is not sent.
+                Sent as `toBlock`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ValidatorWithdrawalsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/validator-withdrawals
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/validators/{segment(index)}/withdrawals", {"limit": limit, "cursor": cursor, "fromBlock": from_block, "toBlock": to_block})
+        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/validators/{segment(index)}/withdrawals", {"limit": limit, "cursor": cursor, "fromBlock": from_block, "toBlock": to_block}, max_pages)
+
+    def validator_withdrawals_items(
+        self,
+        index: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ValidatorWithdrawal]:
+        """Every row of `data.withdrawals` of `consensus.validator_withdrawals`, page after
+        page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            index: The validator's index in the consensus registry.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with the same window.
+            from_block: Inclusive lower block bound. Default: `toBlock - 215999`. Sent
+                as `fromBlock`.
+            to_block: Inclusive upper block bound. Default: the newest covered block.
+                Sent as `toBlock`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ValidatorWithdrawal`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/validator-withdrawals
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/consensus/validators/{segment(index)}/withdrawals", {"limit": limit, "cursor": cursor, "fromBlock": from_block, "toBlock": to_block}, "withdrawals", max_items)
 
     def entity_validators(
         self,
@@ -895,21 +1551,28 @@ class ConsensusApi:
         *,
         limit: int | None = None,
     ) -> ConsensusAddressValidatorsResponse:
-        """Validators paying out to an address
+        """Validators paying out to an address.
 
-        TraceFast live Ethereum data: the validators that direct their withdrawals to an
-        address, as of the validator snapshot (about once a day; `snapshotEpoch`) —
-        counts over all of them (active, withdrawn, slashed, by credential type, total
-        effective balance) and the validators themselves, lowest index first. The
-        address is where the payouts GO — not the owner or the operator. An address with
-        no validator answers zeros: the snapshot covers every validator with an
-        execution address.
+        The validators that direct their withdrawals to an address, as of the validator
+        snapshot (about once a day; `snapshotEpoch`) — counts over all of them (active,
+        withdrawn, slashed, by credential type, total effective balance) and the
+        validators themselves, lowest index first. The address is where the payouts GO —
+        not the owner or the operator. An address with no validator answers zeros: the
+        snapshot covers every validator with an execution address.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            limit: 1 to 500, default 100.
+
+        Returns:
+            `ConsensusAddressValidatorsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-validators
         """
@@ -917,64 +1580,90 @@ class ConsensusApi:
 
 
 class ContractsApi:
-    """`client.contracts` — the contracts methods of the TraceFast API."""
+    """`client.contracts`: the contracts methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def get(self, address: str) -> ContractResponse:
-        """One contract
+        """One contract.
 
-        TraceFast live Ethereum data: one deployed contract — the hash and size of its
-        current code, what the code exposes (ERC-20 view functions, ERC-165, an EIP-1167
-        minimal proxy and its target), the proxy pattern detected in it, and its
-        lifecycle: the deploying account, the origin account, the creating transaction,
-        code changes and self-destruction. An address with no indexed code answers 404.
+        One deployed contract — the hash and size of its current code, what the code
+        exposes (ERC-20 view functions, ERC-165, an EIP-1167 minimal proxy and its
+        target), the proxy pattern detected in it, and its lifecycle: the deploying
+        account, the origin account, the creating transaction, code changes and
+        self-destruction. An address with no indexed code answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `ContractResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract
         """
         return cast("ContractResponse", self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}", None))
 
     def bytecode(self, address: str) -> ContractBytecodeResponse:
-        """Bytecode of a contract
+        """Bytecode of a contract.
 
-        TraceFast live Ethereum data: the current runtime bytecode of a contract as hex,
-        with its code hash and a structural fingerprint that is equal across contracts
-        sharing the same logic. Up to 24 576 bytes of code. An address with no indexed
-        code answers 404.
+        The current runtime bytecode of a contract as hex, with its code hash and a
+        structural fingerprint that is equal across contracts sharing the same logic. Up
+        to 24 576 bytes of code. An address with no indexed code answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
 
+        Returns:
+            `ContractBytecodeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/contract-bytecode
         """
         return cast("ContractBytecodeResponse", self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/bytecode", None))
 
     def capabilities(self, address: str) -> ContractCapabilitiesResponse:
-        """What a contract can do: mint, pause, blacklist, upgrade
+        """What a contract can do: mint, pause, blacklist, upgrade.
 
-        TraceFast knowledge graph: the powers of one contract, each with three questions
-        — `inCode` (the code exposes it), `availableNow` (it can be used right now) and
-        `usedBefore` (it has been used on chain) — and the block each answer was
-        evaluated at. Powers include `mint`, `burn`, `pause`, `blacklist`, `freeze`,
-        `seize`, `upgrade` and `emergency_withdraw`; others may appear. An answer is
-        present only when it is proven: an absent answer means "not proven", never "no".
-        `otherFacts` lists the remaining proven capability facts as they are named (for
-        example `capability:currently_paused`). `graphReached: false` means the graph
-        has not reached the address yet, and nothing here is an answer about it. The
-        same facts appear among the address's attributes.
+        The powers of one contract, each with three questions — `inCode` (the code
+        exposes it), `availableNow` (it can be used right now) and `usedBefore` (it has
+        been used on chain) — and the block each answer was evaluated at. Powers include
+        `mint`, `burn`, `pause`, `blacklist`, `freeze`, `seize`, `upgrade` and
+        `emergency_withdraw`; others may appear. An answer is present only when it is
+        proven: an absent answer means "not proven", never "no". `otherFacts` lists the
+        remaining proven capability facts as they are named (for example
+        `capability:currently_paused`). `graphReached: false` means the graph has not
+        reached the address yet, and nothing here is an answer about it. The same facts
+        appear among the address's attributes.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractCapabilitiesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-capabilities
         """
@@ -987,30 +1676,37 @@ class ContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractClonesResponse:
-        """Contracts running exactly the same code
+        """Contracts running exactly the same code.
 
-        TraceFast live Ethereum data: every contract whose runtime code hashes to
-        `codeHash`, the hash of this contract's current code — the same deployed code at
-        other addresses — by address ascending, with `contractCount`, the size of the
-        whole list. The same code does not mean the same owner or the same deployer: a
-        factory, a template or a copied contract produces identical code for unrelated
-        parties, and two contracts with the same code can hold different state.
-        Identical code is byte for byte; code that differs only in its metadata or
-        constructor-set values is not listed (compare `fingerprint` on the bytecode
-        method). For an account delegated by EIP-7702 the shared code is the delegation,
-        so the list is the accounts delegated to the same contract. The list is updated
-        once a day: a contract deployed, or whose code changed, since then — this one
-        included — is missing from it, or still listed under its earlier code, until the
-        next update. An address with no indexed code answers 404. Continue with
-        `nextCursor`.
+        Every contract whose runtime code hashes to `codeHash`, the hash of this
+        contract's current code — the same deployed code at other addresses — by address
+        ascending, with `contractCount`, the size of the whole list. The same code does
+        not mean the same owner or the same deployer: a factory, a template or a copied
+        contract produces identical code for unrelated parties, and two contracts with
+        the same code can hold different state. Identical code is byte for byte; code
+        that differs only in its metadata or constructor-set values is not listed
+        (compare `fingerprint` on the bytecode method). For an account delegated by
+        EIP-7702 the shared code is the delegation, so the list is the accounts
+        delegated to the same contract. The list is updated once a day: a contract
+        deployed, or whose code changed, since then — this one included — is missing
+        from it, or still listed under its earlier code, until the next update. An
+        address with no indexed code answers 404. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this code. Left as None, it is not sent.
+                method and this code.
+
+        Returns:
+            `ContractClonesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-clones
         """
@@ -1022,23 +1718,71 @@ class ContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractClonesResponse]:
-        """Every page of `contracts.clones`, following `data.nextCursor` to the end.
+        """Every page of `contracts.clones`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this code. Left as None, it is not sent.
+                method and this code.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractClonesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-clones
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/clones", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/clones", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def clones_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[CodeClone]:
+        """Every row of `data.contracts` of `contracts.clones`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The contract, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this code.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `CodeClone`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-clones
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/clones", {"limit": limit, "cursor": cursor}, "contracts", max_items)
 
     def control_history(
         self,
@@ -1047,26 +1791,34 @@ class ContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractControlHistoryResponse:
-        """Who changed a proxy's implementation or admin, and when
+        """Who changed a proxy's implementation or admin, and when.
 
-        TraceFast live Ethereum data: every write to a proxy's control slots — the
-        EIP-1967 implementation, admin and beacon slots and the older OpenZeppelin slot
-        — newest first, one row per write: the block and transaction, which slot, the
-        value before and after, who called the frame that wrote it and whose code ran in
-        it. `kind` is `upgrade` (a value written), `unset` (the slot written to zero) or
-        `cleared` (wiped with the account, pre-Cancun SELFDESTRUCT); other values may be
-        added. An `upgrade` whose previous value is all zeros means the slot was empty
-        before the write — not necessarily its first deployment. History of the OWNER
-        role is not here: only storage slots that proxies use for control.
-        `meta.asOfBlock` is how far the history is known. Continue with `nextCursor`.
+        Every write to a proxy's control slots — the EIP-1967 implementation, admin and
+        beacon slots and the older OpenZeppelin slot — newest first, one row per write:
+        the block and transaction, which slot, the value before and after, who called
+        the frame that wrote it and whose code ran in it. `kind` is `upgrade` (a value
+        written), `unset` (the slot written to zero) or `cleared` (wiped with the
+        account, pre-Cancun SELFDESTRUCT); other values may be added. An `upgrade` whose
+        previous value is all zeros means the slot was empty before the write — not
+        necessarily its first deployment. History of the OWNER role is not here: only
+        storage slots that proxies use for control. `meta.asOfBlock` is how far the
+        history is known. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The proxy, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `ContractControlHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-control-history
         """
@@ -1078,24 +1830,71 @@ class ContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractControlHistoryResponse]:
-        """Every page of `contracts.control_history`, following `data.nextCursor` to the
-        end.
+        """Every page of `contracts.control_history`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The proxy, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractControlHistoryResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-control-history
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/control-history", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/control-history", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def control_history_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ControlChange]:
+        """Every row of `data.changes` of `contracts.control_history`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The proxy, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ControlChange`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-control-history
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/control-history", {"limit": limit, "cursor": cursor}, "changes", max_items)
 
     def decompilation(
         self,
@@ -1107,36 +1906,39 @@ class ContractsApi:
         bodies: bool | None = None,
         cursor: str | None = None,
     ) -> ContractDecompilationResponse:
-        """Decompiled code of a contract
+        """Decompiled code of a contract.
 
-        TraceFast live Ethereum data: a contract's code reconstructed as readable
-        Solidity-like pseudocode, for contracts with or without published source. By
-        default the code that runs at the address — through a proxy, a beacon, a minimal
-        proxy or an EIP-7702 delegation — at the latest block, or at `block`. The answer
-        is a table of contents of the functions with their names where known; `selector`
-        returns one function's body, `bodies=true` the bodies in order, a page at a
-        time. Every answer carries a disclaimer: the reconstruction is best-effort. A
-        code not analysed yet is analysed on request: the answer is then 503
-        `decompilation_pending` with `Retry-After` — ask again after it, usually within
-        a minute. Each account starts a limited number of analyses per day; reading an
-        analysed code is not limited.
+        A contract's code reconstructed as readable Solidity-like pseudocode, for
+        contracts with or without published source. By default the code that runs at the
+        address — through a proxy, a beacon, a minimal proxy or an EIP-7702 delegation —
+        at the latest block, or at `block`. The answer is a table of contents of the
+        functions with their names where known; `selector` returns one function's body,
+        `bodies=true` the bodies in order, a page at a time. Every answer carries a
+        disclaimer: the reconstruction is best-effort. A code not analysed yet is
+        analysed on request: the answer is then 503 `decompilation_pending` with
+        `Retry-After` — ask again after it, usually within a minute. Each account starts
+        a limited number of analyses per day; reading an analysed code is not limited.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code (a proxy's own). Left as None,
-                it is not sent.
+                a proxy. `self`: the address's own code (a proxy's own).
             selector: One function's body: `0x` + 8 hex characters, or `fallback` /
-                `receive`. Not with `bodies` or `cursor`. Left as None, it is not sent.
-            bodies: `true`: the first page of bodies in table-of-contents order. Left as
-                None, it is not sent.
+                `receive`. Not with `bodies` or `cursor`.
+            bodies: `true`: the first page of bodies in table-of-contents order.
             cursor: `nextCursor` of the previous page of bodies. Opaque, and valid only
-                for this method with the same address, target and block. Left as None,
-                it is not sent.
+                for this method with the same address, target and block.
+
+        Returns:
+            `ContractDecompilationResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-decompilation
         """
@@ -1151,32 +1953,84 @@ class ContractsApi:
         selector: str | None = None,
         bodies: bool | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractDecompilationResponse]:
-        """Every page of `contracts.decompilation`, following `data.nextCursor` to the end.
+        """Every page of `contracts.decompilation`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code (a proxy's own). Left as None,
-                it is not sent.
+                a proxy. `self`: the address's own code (a proxy's own).
             selector: One function's body: `0x` + 8 hex characters, or `fallback` /
-                `receive`. Not with `bodies` or `cursor`. Left as None, it is not sent.
-            bodies: `true`: the first page of bodies in table-of-contents order. Left as
-                None, it is not sent.
+                `receive`. Not with `bodies` or `cursor`.
+            bodies: `true`: the first page of bodies in table-of-contents order.
             cursor: `nextCursor` of the previous page of bodies. Opaque, and valid only
-                for this method with the same address, target and block. Left as None,
-                it is not sent.
+                for this method with the same address, target and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractDecompilationResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-decompilation
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/decompilation", {"block": block, "target": target, "selector": selector, "bodies": bodies, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/decompilation", {"block": block, "target": target, "selector": selector, "bodies": bodies, "cursor": cursor}, max_pages)
+
+    def decompilation_items(
+        self,
+        address: str,
+        *,
+        block: int | None = None,
+        target: str | None = None,
+        selector: str | None = None,
+        bodies: bool | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[DecompiledBody]:
+        """Every row of `data.bodies` of `contracts.decompilation`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+            block: The block to resolve the code at. Default: the latest covered block.
+            target: `auto` (default): the code that runs at the address, one hop through
+                a proxy. `self`: the address's own code (a proxy's own).
+            selector: One function's body: `0x` + 8 hex characters, or `fallback` /
+                `receive`. Not with `bodies` or `cursor`.
+            bodies: `true`: the first page of bodies in table-of-contents order.
+            cursor: `nextCursor` of the previous page of bodies. Opaque, and valid only
+                for this method with the same address, target and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `DecompiledBody`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-decompilation
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/decompilation", {"block": block, "target": target, "selector": selector, "bodies": bodies, "cursor": cursor}, "bodies", max_items)
 
     def disassembly(
         self,
@@ -1187,29 +2041,33 @@ class ContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractDisassemblyResponse:
-        """Disassembly of a contract
+        """Disassembly of a contract.
 
-        TraceFast live Ethereum data: a contract's code as EVM instructions with their
-        byte offsets (pc), in order, a page at a time — the same pcs the decompiled view
-        refers to. By default the code that runs at the address, through a proxy, at the
-        latest block, or at `block`. The compiler's metadata at the end of the code is
-        named, and every instruction inside it is marked: it is data that happens to
-        decode as instructions. Paged by an opaque cursor: pass `nextCursor` back as
-        `cursor` until it is absent.
+        A contract's code as EVM instructions with their byte offsets (pc), in order, a
+        page at a time — the same pcs the decompiled view refers to. By default the code
+        that runs at the address, through a proxy, at the latest block, or at `block`.
+        The compiler's metadata at the end of the code is named, and every instruction
+        inside it is marked: it is data that happens to decode as instructions. Paged by
+        an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code. Left as None, it is not sent.
-            limit: Instructions per page, 1..=5000, default 1000. Left as None, it is
-                not sent.
+                a proxy. `self`: the address's own code.
+            limit: Instructions per page, 1 to 5000, default 1000.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same address, target and block. Left as None, it is not
-                sent.
+                method with the same address, target and block.
+
+        Returns:
+            `ContractDisassemblyResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-disassembly
         """
@@ -1223,29 +2081,79 @@ class ContractsApi:
         target: str | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractDisassemblyResponse]:
-        """Every page of `contracts.disassembly`, following `data.nextCursor` to the end.
+        """Every page of `contracts.disassembly`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code. Left as None, it is not sent.
-            limit: Instructions per page, 1..=5000, default 1000. Left as None, it is
-                not sent.
+                a proxy. `self`: the address's own code.
+            limit: Instructions per page, 1 to 5000, default 1000.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same address, target and block. Left as None, it is not
-                sent.
+                method with the same address, target and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractDisassemblyResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-disassembly
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/disassembly", {"block": block, "target": target, "limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/disassembly", {"block": block, "target": target, "limit": limit, "cursor": cursor}, max_pages)
+
+    def disassembly_items(
+        self,
+        address: str,
+        *,
+        block: int | None = None,
+        target: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[Instruction]:
+        """Every row of `data.instructions` of `contracts.disassembly`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+            block: The block to resolve the code at. Default: the latest covered block.
+            target: `auto` (default): the code that runs at the address, one hop through
+                a proxy. `self`: the address's own code.
+            limit: Instructions per page, 1 to 5000, default 1000.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with the same address, target and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `Instruction`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-disassembly
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/disassembly", {"block": block, "target": target, "limit": limit, "cursor": cursor}, "instructions", max_items)
 
     def events(
         self,
@@ -1257,30 +2165,35 @@ class ContractsApi:
         from_block: int | None = None,
         to_block: int | None = None,
     ) -> ContractEventsResponse:
-        """Events emitted by a contract
+        """Events emitted by a contract.
 
-        TraceFast live Ethereum data: the event logs a contract emitted, newest first,
-        each with its topics and data and, where the signature is known, the decoded
-        event and its arguments. Paged by an opaque cursor: pass `nextCursor` back as
-        `cursor` until it is absent. A page holds at most `limit` events and may hold
-        fewer when their `data` is large: the page is bounded by size, a log is never
-        cut. `topic0` narrows to one event signature; on a very active contract that
-        narrowing is answered only inside a block window, and the refusal names the
-        window it needs.
+        The event logs a contract emitted, newest first, each with its topics and data
+        and, where the signature is known, the decoded event and its arguments. Paged by
+        an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page
+        holds at most `limit` events and may hold fewer when their `data` is large: the
+        page is bounded by size, a log is never cut. `topic0` narrows to one event
+        signature; on a very active contract that narrowing is answered only inside a
+        block window, and the refusal names the window it needs.
 
         Plan: Investigation or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             topic0: The event signature hash to narrow to, `0x`-prefixed, 64 hex
-                characters. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+
+        Returns:
+            `ContractEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-events
         """
@@ -1295,90 +2208,158 @@ class ContractsApi:
         topic0: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractEventsResponse]:
-        """Every page of `contracts.events`, following `data.nextCursor` to the end.
+        """Every page of `contracts.events`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             topic0: The event signature hash to narrow to, `0x`-prefixed, 64 hex
-                characters. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/events", {"limit": limit, "cursor": cursor, "topic0": topic0, "fromBlock": from_block, "toBlock": to_block})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/events", {"limit": limit, "cursor": cursor, "topic0": topic0, "fromBlock": from_block, "toBlock": to_block}, max_pages)
+
+    def events_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        topic0: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[EventLog]:
+        """Every row of `data.events` of `contracts.events`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            topic0: The event signature hash to narrow to, `0x`-prefixed, 64 hex
+                characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `EventLog`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/events", {"limit": limit, "cursor": cursor, "topic0": topic0, "fromBlock": from_block, "toBlock": to_block}, "events", max_items)
 
     def function_calls(self, address: str) -> ContractFunctionCallsResponse:
-        """Calls per function of a contract
+        """Calls per function of a contract.
 
-        TraceFast live Ethereum data: how often each function of an address was called —
-        the transactions sent to it per 4-byte selector, most called first, with the
-        block of the last one and the function's name where known — plus the first and
-        the last block in which it received any call. The counts are top-level calls
-        only: a call made from inside another contract is not counted. A proxy's calls
-        are counted at the proxy. An address nobody called answers an empty list.
+        How often each function of an address was called — the transactions sent to it
+        per 4-byte selector, most called first, with the block of the last one and the
+        function's name where known — plus the first and the last block in which it
+        received any call. The counts are top-level calls only: a call made from inside
+        another contract is not counted. A proxy's calls are counted at the proxy. An
+        address nobody called answers an empty list.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
 
+        Returns:
+            `ContractFunctionCallsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/contract-function-calls
         """
         return cast("ContractFunctionCallsResponse", self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/function-calls", None))
 
     def identity(self, address: str) -> ContractIdentityResponse:
-        """Which code a contract runs, its hashes, and how it came to be
+        """Which code a contract runs, its hashes, and how it came to be.
 
-        TraceFast live Ethereum data: the identity of one contract — the Keccak-256 hash
-        of its current code, the SHA-256 of the same code (the hash Sourcify and other
-        verifiers key on), a structural fingerprint that is equal across contracts
-        sharing the same logic, the code's size and kind, and its lifecycle: deploying
-        account, signing account, creating transaction, code changes and
-        self-destruction. Fields that are not recorded are absent. For an account
-        delegated by EIP-7702 the stored bytes are the delegation, not code:
-        `runtimeSha256` and `fingerprint` are absent there. Other contracts with exactly
-        the same code are the clones method. An address with no indexed code answers
-        404.
+        The identity of one contract — the Keccak-256 hash of its current code, the
+        SHA-256 of the same code (the hash Sourcify and other verifiers key on), a
+        structural fingerprint that is equal across contracts sharing the same logic,
+        the code's size and kind, and its lifecycle: deploying account, signing account,
+        creating transaction, code changes and self-destruction. Fields that are not
+        recorded are absent. For an account delegated by EIP-7702 the stored bytes are
+        the delegation, not code: `runtimeSha256` and `fingerprint` are absent there.
+        Other contracts with exactly the same code are the clones method. An address
+        with no indexed code answers 404.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractIdentityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-identity
         """
         return cast("ContractIdentityResponse", self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/identity", None))
 
     def proxy(self, address: str) -> ProxyImplementationsResponse:
-        """Implementations of a proxy contract
+        """Implementations of a proxy contract.
 
-        TraceFast live Ethereum data: the implementations a proxy contract has been
-        observed delegating to — from its EIP-1167 bytecode, its EIP-1967 implementation
-        or beacon slot, or its OpenZeppelin v1 slot — newest first, each with the blocks
-        it was seen at and whether it has since been replaced. `supersededBy` has three
-        states: absent when storage cannot say (a code-embedded pointer, a beacon row,
-        or a slot value the proxy status does not name as current), `null` when the
-        pointer is current by the proxy status, an address when it was replaced. On a
-        beacon row the listed address is the beacon and `supersededBy` speaks only of
-        the proxy's beacon slot (an address when the proxy moved to another beacon);
-        changes of logic behind the beacon are in `beacon`, which carries what it handed
-        out: the logic contracts with `startBlock` and inclusive `endBlock`, newest
-        first, proven from `provenFromBlock` and complete at least through
-        `completeThroughBlock`, or `state: not_proven` when the beacon's implementation
-        could not be established — which says nothing about what it hands out. An empty
-        list means no pointer was observed, not that the address is not a proxy.
+        The implementations a proxy contract has been observed delegating to — from its
+        EIP-1167 bytecode, its EIP-1967 implementation or beacon slot, or its
+        OpenZeppelin v1 slot — newest first, each with the blocks it was seen at and
+        whether it has since been replaced. `supersededBy` has three states: absent when
+        storage cannot say (a code-embedded pointer, a beacon row, or a slot value the
+        proxy status does not name as current), `null` when the pointer is current by
+        the proxy status, an address when it was replaced. On a beacon row the listed
+        address is the beacon and `supersededBy` speaks only of the proxy's beacon slot
+        (an address when the proxy moved to another beacon); changes of logic behind the
+        beacon are in `beacon`, which carries what it handed out: the logic contracts
+        with `startBlock` and inclusive `endBlock`, newest first, proven from
+        `provenFromBlock` and complete at least through `completeThroughBlock`, or
+        `state: not_proven` when the beacon's implementation could not be established —
+        which says nothing about what it hands out. An empty list means no pointer was
+        observed, not that the address is not a proxy.
 
         Plan: Enriched Data or higher.
 
@@ -1386,48 +2367,70 @@ class ContractsApi:
             address: The proxy contract address, `0x`-prefixed, 40 hex characters, any
                 case.
 
+        Returns:
+            `ProxyImplementationsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/contract-proxy
         """
         return cast("ProxyImplementationsResponse", self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/proxy", None))
 
     def security(self, address: str) -> ContractSecurityResponse:
-        """How a contract's code is built and how it can change
+        """How a contract's code is built and how it can change.
 
-        TraceFast live Ethereum data: the security profile of one contract's current
-        code — the proxy pattern detected in it and its confidence, its opcode-level
-        features (DELEGATECALL, CALLCODE, a DELEGATECALL target read from storage), and
-        what the knowledge graph proves about how it is built (`architecture`: for
-        example immutable, an upgradeable proxy, a mutable implementation slot,
-        metamorphic). Only proven facts are stated: an absent one means "not proven",
-        never "no". Who changed a proxy's implementation and when is the control-history
-        method; what the contract can do is the capabilities method. An address with no
-        indexed code answers 404.
+        The security profile of one contract's current code — the proxy pattern detected
+        in it and its confidence, its opcode-level features (DELEGATECALL, CALLCODE, a
+        DELEGATECALL target read from storage), and what the knowledge graph proves
+        about how it is built (`architecture`: for example immutable, an upgradeable
+        proxy, a mutable implementation slot, metamorphic). Only proven facts are
+        stated: an absent one means "not proven", never "no". Who changed a proxy's
+        implementation and when is the control-history method; what the contract can do
+        is the capabilities method. An address with no indexed code answers 404.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractSecurityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-security
         """
         return cast("ContractSecurityResponse", self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/security", None))
 
     def selectors(self, address: str) -> ContractSelectorsResponse:
-        """Function selectors of a contract
+        """Function selectors of a contract.
 
-        TraceFast live Ethereum data: the 4-byte selectors found as constants in a
-        contract's bytecode, each resolved to a known signature and name where one
-        exists, with how many known signatures share the selector. `decodeStatus` says
-        how confident each resolution is. The list holds the contract's own functions
-        together with the selectors of functions it calls on other contracts and of its
-        custom errors, not told apart: a selector here is not proof the contract
-        implements that function, and `selectorCount` is not the number of its
-        functions. An address with no indexed code answers 404.
+        The 4-byte selectors found as constants in a contract's bytecode, each resolved
+        to a known signature and name where one exists, with how many known signatures
+        share the selector. `decodeStatus` says how confident each resolution is. The
+        list holds the contract's own functions together with the selectors of functions
+        it calls on other contracts and of its custom errors, not told apart: a selector
+        here is not proof the contract implements that function, and `selectorCount` is
+        not the number of its functions. An address with no indexed code answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `ContractSelectorsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-selectors
         """
@@ -1439,23 +2442,29 @@ class ContractsApi:
         *,
         days: int | None = None,
     ) -> ContractStorageActivityResponse:
-        """How a contract's storage was read and written, per day
+        """How a contract's storage was read and written, per day.
 
-        TraceFast live Ethereum data: for each UTC day of a window, oldest first, how
-        many transactions touched a contract's storage, read it, wrote it, or only read
-        it without writing (a dependency on its state); the SLOAD and SSTORE opcode
-        counts (reverted frames included — opcodes, not distinct slots); the transient
-        storage opcodes TLOAD and TSTORE (EIP-1153); and the slot touches (distinct
-        slots per transaction, summed). Only days with activity have a row: a missing
-        day is not a zero stated. The last day is partial — it holds the blocks through
-        `readThroughBlock`.
+        For each UTC day of a window, oldest first, how many transactions touched a
+        contract's storage, read it, wrote it, or only read it without writing (a
+        dependency on its state); the SLOAD and SSTORE opcode counts (reverted frames
+        included — opcodes, not distinct slots); the transient storage opcodes TLOAD and
+        TSTORE (EIP-1153); and the slot touches (distinct slots per transaction,
+        summed). Only days with activity have a row: a missing day is not a zero stated.
+        The last day is partial — it holds the blocks through `readThroughBlock`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            days: The window in UTC days, 1..=365, default 90. Left as None, it is not
-                sent.
+            days: The window in UTC days, 1 to 365, default 90.
+
+        Returns:
+            `ContractStorageActivityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-activity
         """
@@ -1467,26 +2476,32 @@ class ContractsApi:
         *,
         window_blocks: int | None = None,
     ) -> ContractHotSlotsResponse:
-        """The storage slots of a contract that changed most recently
+        """The storage slots of a contract that changed most recently.
 
-        TraceFast live Ethereum data: the 25 storage slots of a contract whose value
-        changed in the most blocks of a recent window, with how many blocks each changed
-        in and the last one, plus how many slots changed in the window in all. A change
-        is a block in which the value differs: several writes in one block are one
-        change, and a write of the value already held is none. A slot not listed changed
-        in fewer blocks than the 25 listed, or not at all: `totalSlotsInWindow` counts
-        every slot that changed. An empty window answers `slots: []` with
-        `lastChangeBlock`, the contract's newest change before the window, when it is
-        known. The window ends at the newest block known (`windowToBlock`). Pass a slot
-        to the slot history method for its values.
+        The 25 storage slots of a contract whose value changed in the most blocks of a
+        recent window, with how many blocks each changed in and the last one, plus how
+        many slots changed in the window in all. A change is a block in which the value
+        differs: several writes in one block are one change, and a write of the value
+        already held is none. A slot not listed changed in fewer blocks than the 25
+        listed, or not at all: `totalSlotsInWindow` counts every slot that changed. An
+        empty window answers `slots: []` with `lastChangeBlock`, the contract's newest
+        change before the window, when it is known. The window ends at the newest block
+        known (`windowToBlock`). Pass a slot to the slot history method for its values.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            window_blocks: The window's width in blocks, 1..=50400 (one week), default
-                7200 (about a day). Sent as ``windowBlocks``. Left as None, it is not
-                sent.
+            window_blocks: The window's width in blocks, 1 to 50400 (one week), default
+                7200 (about a day). Sent as `windowBlocks`.
+
+        Returns:
+            `ContractHotSlotsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-hot-slots
         """
@@ -1499,31 +2514,40 @@ class ContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractStorageParametersResponse:
-        """The direct storage slots of a contract (its declared variables) and their values
+        """The direct storage slots of a contract (its declared variables) and their
+        values.
 
-        TraceFast live Ethereum data: the DIRECT storage slots of a contract — the slots
-        below 2^64 that hold its declared variables, packed fields and fixed-array
-        elements (not mapping entries) — in slot order, each with how many blocks
-        changed its value, the first and last of them, and its current value.
-        `currentValueStatus` says whether the value can be stated: `observed` (then
-        `currentValue`), `system_writes` (a protocol system contract rewrites its
-        storage outside transactions), `ambiguous_order` (the last transaction wrote the
-        slot more than once with different values, in blocks old enough that the order
-        of writes inside a transaction is not recorded), `storage_cleared` (a
-        self-destruct wiped the storage after the last change), `no_transaction_write`
-        (no transaction wrote the slot in the block it last changed: a protocol system
-        call or a clearing), or `not_computed` (the newest blocks are not processed yet;
-        retry); `currentValue` is absent in every state but `observed`, never a zero.
-        Variable names are not stated. Only slots whose value ever changed are listed:
-        absence is not "no such variable". Continue with `nextCursor`.
+        The DIRECT storage slots of a contract — the slots below 2^64 that hold its
+        declared variables, packed fields and fixed-array elements (not mapping entries)
+        — in slot order, each with how many blocks changed its value, the first and last
+        of them, and its current value. `currentValueStatus` says whether the value can
+        be stated: `observed` (then `currentValue`), `system_writes` (a protocol system
+        contract rewrites its storage outside transactions), `ambiguous_order` (the last
+        transaction wrote the slot more than once with different values, in blocks old
+        enough that the order of writes inside a transaction is not recorded),
+        `storage_cleared` (a self-destruct wiped the storage after the last change),
+        `no_transaction_write` (no transaction wrote the slot in the block it last
+        changed: a protocol system call or a clearing), or `not_computed` (the newest
+        blocks are not processed yet; retry); `currentValue` is absent in every state
+        but `observed`, never a zero. Variable names are not stated. Only slots whose
+        value ever changed are listed: absence is not "no such variable". Continue with
+        `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=200, default 100. Left as None, it is not sent.
+            limit: 1 to 200, default 100.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this contract. Left as None, it is not sent.
+                method and this contract.
+
+        Returns:
+            `ContractStorageParametersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-parameters
         """
@@ -1535,41 +2559,96 @@ class ContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractStorageParametersResponse]:
-        """Every page of `contracts.storage_parameters`, following `data.nextCursor` to the
-        end.
+        """Every page of `contracts.storage_parameters`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=200, default 100. Left as None, it is not sent.
+            limit: 1 to 200, default 100.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this contract. Left as None, it is not sent.
+                method and this contract.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractStorageParametersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-parameters
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/parameters", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/parameters", {"limit": limit, "cursor": cursor}, max_pages)
 
-    def storage_profile(self, address: str) -> ContractStorageProfileResponse:
-        """Totals of a contract's storage writes
+    def storage_parameters_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[StorageParameterRow]:
+        """Every row of `data.slots` of `contracts.storage_parameters`, page after page.
 
-        TraceFast live Ethereum data: the totals of every write to a contract's storage
-        over its history — how many writes, how many distinct slots, callers and
-        executing code addresses (estimates on large contracts), the first and last
-        block written, how many writes ran through DELEGATECALL (code borrowed from
-        another contract, as in a proxy) and their share, and the deepest call depth a
-        write happened at. The totals are refreshed hourly: the newest writes are not
-        counted yet, and an address whose first write is that recent answers 404 like
-        one that never wrote. No names are stated.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+            limit: 1 to 200, default 100.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this contract.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `StorageParameterRow`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-storage-parameters
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/parameters", {"limit": limit, "cursor": cursor}, "slots", max_items)
+
+    def storage_profile(self, address: str) -> ContractStorageProfileResponse:
+        """Totals of a contract's storage writes.
+
+        The totals of every write to a contract's storage over its history — how many
+        writes, how many distinct slots, callers and executing code addresses (estimates
+        on large contracts), the first and last block written, how many writes ran
+        through DELEGATECALL (code borrowed from another contract, as in a proxy) and
+        their share, and the deepest call depth a write happened at. The totals are
+        refreshed hourly: the newest writes are not counted yet, and an address whose
+        first write is that recent answers 404 like one that never wrote. No names are
+        stated.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractStorageProfileResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-profile
         """
@@ -1581,24 +2660,31 @@ class ContractsApi:
         *,
         limit: int | None = None,
     ) -> ContractStorageWritersResponse:
-        """Who writes a contract's storage
+        """Who writes a contract's storage.
 
-        TraceFast live Ethereum data: the accounts that wrote a contract's storage,
-        ranked by the number of writes — each row a pair of the CALLER (who called the
-        frame that wrote) and the EXECUTION address (whose code ran in it: the contract
-        itself, or an implementation it delegated to) — with the writes, the
-        transactions (an estimate on large contracts), and the first and last block.
-        `totalPairs` counts every pair; the list is the top `limit` of them, not a page
-        of a feed, ties broken by caller and then execution address. The ranking and its
-        pairs are refreshed once a day: a pair that started writing, or overtook
-        another, since then is not reflected yet; the counts and blocks are refreshed
-        hourly. No names are stated.
+        The accounts that wrote a contract's storage, ranked by the number of writes —
+        each row a pair of the CALLER (who called the frame that wrote) and the
+        EXECUTION address (whose code ran in it: the contract itself, or an
+        implementation it delegated to) — with the writes, the transactions (an estimate
+        on large contracts), and the first and last block. `totalPairs` counts every
+        pair; the list is the top `limit` of them, not a page of a feed, ties broken by
+        caller and then execution address. The ranking and its pairs are refreshed once
+        a day: a pair that started writing, or overtook another, since then is not
+        reflected yet; the counts and blocks are refreshed hourly. No names are stated.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
+
+        Returns:
+            `ContractStorageWritersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-writers
         """
@@ -1612,27 +2698,35 @@ class ContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractSlotHistoryResponse:
-        """How one storage slot of a contract changed over time
+        """How one storage slot of a contract changed over time.
 
-        TraceFast live Ethereum data: every block in which one storage slot of a
-        contract CHANGED value, newest first — the value before and after the block, and
-        the transactions that wrote the slot in it. One entry per block: several writes
-        in one block are one change, and a write of the value already held is none.
-        `valueAfter` is absent on the newest change when it is not stated; it is never a
-        zero standing in. `writerTxs` is empty for a system write with no transaction,
-        and absent until the block is attributed (usually seconds after it lands).
-        `readThroughBlock` is the newest block the page was read through. A page can be
-        shorter than `limit` and still have a `nextCursor`: one request reads a bounded
-        span of history. Continue with `nextCursor`.
+        Every block in which one storage slot of a contract CHANGED value, newest first
+        — the value before and after the block, and the transactions that wrote the slot
+        in it. One entry per block: several writes in one block are one change, and a
+        write of the value already held is none. `valueAfter` is absent on the newest
+        change when it is not stated; it is never a zero standing in. `writerTxs` is
+        empty for a system write with no transaction, and absent until the block is
+        attributed (usually seconds after it lands). `readThroughBlock` is the newest
+        block the page was read through. A page can be shorter than `limit` and still
+        have a `nextCursor`: one request reads a bounded span of history. Continue with
+        `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
             key: The 32-byte slot key, `0x` + 64 hex.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method, this contract and this slot. Left as None, it is not sent.
+                method, this contract and this slot.
+
+        Returns:
+            `ContractSlotHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-slot-history
         """
@@ -1645,87 +2739,163 @@ class ContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[ContractSlotHistoryResponse]:
-        """Every page of `contracts.slot_history`, following `data.nextCursor` to the end.
+        """Every page of `contracts.slot_history`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
             key: The 32-byte slot key, `0x` + 64 hex.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method, this contract and this slot. Left as None, it is not sent.
+                method, this contract and this slot.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `ContractSlotHistoryResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-slot-history
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/{segment(key)}/history", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/{segment(key)}/history", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def slot_history_items(
+        self,
+        address: str,
+        key: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[SlotValueChange]:
+        """Every row of `data.changes` of `contracts.slot_history`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The contract, `0x` + 40 hex, any case.
+            key: The 32-byte slot key, `0x` + 64 hex.
+            limit: 1 to 100, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method, this contract and this slot.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `SlotValueChange`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-slot-history
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/{segment(key)}/history", {"limit": limit, "cursor": cursor}, "changes", max_items)
 
 
 class AddressesApi:
-    """`client.addresses` — the addresses methods of the TraceFast API."""
+    """`client.addresses`: the addresses methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def get(self, address: str) -> EntityOverviewResponse:
-        """One address
+        """One address.
 
-        TraceFast live Ethereum data: one address as the chain sees it now — how it
-        exists (an account whose state was touched, or an address only ever mentioned by
-        other operations), whether it holds code, for an account its EIP-7702 delegation
-        (`eip7702`: delegated now — to which contract and since which block — revoked,
-        never, or unknown), its native balance and nonce, when it was first mentioned
-        and last active in any form, and its direct-transaction counters. No names,
-        labels or prices: those are other methods. An address mentioned nowhere on chain
-        answers 404.
+        One address as the chain sees it now — how it exists (an account whose state was
+        touched, or an address only ever mentioned by other operations), whether it
+        holds code, for an account its EIP-7702 delegation (`eip7702`: delegated now —
+        to which contract and since which block — revoked, never, or unknown), its
+        native balance and nonce, when it was first mentioned and last active in any
+        form, and its direct-transaction counters. No names, labels or prices: those are
+        other methods. An address mentioned nowhere on chain answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `EntityOverviewResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address
         """
         return cast("EntityOverviewResponse", self._http.get(f"/chains/{self._http.chain_id}/entities/{segment(address)}", None))
 
     def activity(self, address: str) -> EntityActivityResponse:
-        """Activity of an address
+        """Activity of an address.
 
-        TraceFast live Ethereum data: three different questions about when an address
-        was active, each answered separately — when it was first mentioned anywhere on
-        chain; when its own account state last changed and how many times it changed;
-        and the newest block at which it took part in anything (a top-level transaction,
-        a token transfer, an emitted log, a value-bearing call), with the sources that
-        answer was computed over. Read `lastActivity` as "last active": a contract only
-        ever called by other contracts never changes its own state after deployment.
+        Three different questions about when an address was active, each answered
+        separately — when it was first mentioned anywhere on chain; when its own account
+        state last changed and how many times it changed; and the newest block at which
+        it took part in anything (a top-level transaction, a token transfer, an emitted
+        log, a value-bearing call), with the sources that answer was computed over. Read
+        `lastActivity` as "last active": a contract only ever called by other contracts
+        never changes its own state after deployment.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
 
+        Returns:
+            `EntityActivityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/address-activity
         """
         return cast("EntityActivityResponse", self._http.get(f"/chains/{self._http.chain_id}/entities/{segment(address)}/activity", None))
 
     def attributes(self, address: str) -> EntityAttributesResponse:
-        """Attributes of an address
+        """Attributes of an address.
 
-        TraceFast knowledge graph: the facts proven about one Ethereum address — what
-        kind of account it is, how it has been used, what it is known to be. Returns the
-        list of proven attribute ids (`family:name`), the evaluation detail of each
-        (result and the block height it was evaluated at), and, while the graph has not
-        yet reached the address, a provisional classification from on-chain evidence. An
-        attribute that is absent is not proven; absence never means the opposite.
+        The facts proven about one Ethereum address — what kind of account it is, how it
+        has been used, what it is known to be. Returns the list of proven attribute ids
+        (`family:name`), the evaluation detail of each (result and the block height it
+        was evaluated at), and, while the graph has not yet reached the address, a
+        provisional classification from on-chain evidence. An attribute that is absent
+        is not proven; absence never means the opposite.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `EntityAttributesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attributes
         """
@@ -1737,22 +2907,30 @@ class AddressesApi:
         *,
         block: int,
     ) -> AttributesAtBlockResponse:
-        """Attributes of an address at a block
+        """Attributes of an address at a block.
 
-        TraceFast knowledge graph: the attributes an address held at the end of one
-        block, each with the window it held for. Answered from the attribute history,
-        which covers the families named in `coveredFamilies` and the single ids named in
-        `coveredAttributeIds` — any other attribute is not listed whether or not it
-        held, so its absence is not a negative; compare with the current-attributes
-        method for those. `behavior` is named in `coveredFamilies` only when `block` is
-        at or below the height that family has been computed to. A block past the
-        covered history is refused with the highest answerable block.
+        The attributes an address held at the end of one block, each with the window it
+        held for. Answered from the attribute history, which covers the families named
+        in `coveredFamilies` and the single ids named in `coveredAttributeIds` — any
+        other attribute is not listed whether or not it held, so its absence is not a
+        negative; compare with the current-attributes method for those. `behavior` is
+        named in `coveredFamilies` only when `block` is at or below the height that
+        family has been computed to. A block past the covered history is refused with
+        the highest answerable block.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to answer about. Required.
+
+        Returns:
+            `AttributesAtBlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attributes-at-block
         """
@@ -1764,35 +2942,43 @@ class AddressesApi:
         *,
         limit: int | None = None,
     ) -> AttributeHistoryResponse:
-        """Attribute history of an address
+        """Attribute history of an address.
 
-        TraceFast knowledge graph: every attribute interval an address has held, oldest
-        first — when it became a contract, when its code was removed, when it first held
-        state. Covers the attribute families named in `coveredFamilies`; an empty or
-        short timeline says nothing about the other families. Intervals of the
-        `behavior` family state an observed pattern, not a verdict, and the most recent
-        of them are evaluated again as later blocks arrive: they may shorten or
-        disappear. `truncated` is `true` when the timeline was cut at `limit`.
+        Every attribute interval an address has held, oldest first — when it became a
+        contract, when its code was removed, when it first held state. Covers the
+        attribute families named in `coveredFamilies`; an empty or short timeline says
+        nothing about the other families. Intervals of the `behavior` family state an
+        observed pattern, not a verdict, and the most recent of them are evaluated again
+        as later blocks arrive: they may shorten or disappear. `truncated` is `true`
+        when the timeline was cut at `limit`.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            limit: 1 to 500, default 100.
+
+        Returns:
+            `AttributeHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attribute-history
         """
         return cast("AttributeHistoryResponse", self._http.get(f"/chains/{self._http.chain_id}/entities/{segment(address)}/attributes/history", {"limit": limit}))
 
     def attribute_proof(self, address: str, attribute_id: str) -> ProofResponse:
-        """Proof of one attribute of an address
+        """Proof of one attribute of an address.
 
-        TraceFast knowledge graph: the evidence behind one proven attribute of an
-        address — the facts that were checked with their expected and observed values,
-        the conditions that had to be false, the sources the evidence was read from, and
-        the block the evaluation was pinned to. Nothing is summarised: the record is the
-        evaluator's own, so the claim can be checked rather than trusted. An attribute
-        with no recorded proof answers 404.
+        The evidence behind one proven attribute of an address — the facts that were
+        checked with their expected and observed values, the conditions that had to be
+        false, the sources the evidence was read from, and the block the evaluation was
+        pinned to. Nothing is summarised: the record is the evaluator's own, so the
+        claim can be checked rather than trusted. An attribute with no recorded proof
+        answers 404.
 
         Plan: Intelligence or higher.
 
@@ -1800,6 +2986,14 @@ class AddressesApi:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             attribute_id: The attribute id, `family:name`, as listed by the attributes
                 method.
+
+        Returns:
+            `ProofResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attribute-proof
         """
@@ -1811,21 +3005,28 @@ class AddressesApi:
         *,
         limit: int | None = None,
     ) -> BalanceHistoryResponse:
-        """Native balance history of an address
+        """Native balance history of an address.
 
-        TraceFast live Ethereum data: the address's native balance at the end of each
-        day it changed, oldest first, with the net change and the number of
-        balance-changing events per day, the USD value at each closed day's last hour,
-        and totals over the window. Days without a balance change have no point; the
-        current, unfinished day carries no USD value. Daily granularity only, stated in
-        `granularity`.
+        The address's native balance at the end of each day it changed, oldest first,
+        with the net change and the number of balance-changing events per day, the USD
+        value at each closed day's last hour, and totals over the window. Days without a
+        balance change have no point; the current, unfinished day carries no USD value.
+        Daily granularity only, stated in `granularity`.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: Most recent days with a balance change to return, 1..=365, default
-                90. Left as None, it is not sent.
+            limit: Most recent days with a balance change to return, 1 to 365, default
+                90.
+
+        Returns:
+            `BalanceHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-balance-history
         """
@@ -1838,28 +3039,36 @@ class AddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityCallsReceivedResponse:
-        """Transactions that called an address
+        """Transactions that called an address.
 
-        TraceFast live Ethereum data: every transaction with a call frame in this
-        address's context — it was called, as the transaction's own target or from
-        inside another contract, reverted or not, with ETH or without — newest first:
-        the block, the transaction, its sender and whether it succeeded, how many frames
-        ran in the address's context and how many of them failed by themselves, their
-        kinds and whether any carried ETH. `txSender` sent the transaction; the direct
-        caller may be a contract it reached. A proxy's frames include the ones in which
-        it runs its implementation (`delegatecall`); an implementation behind a proxy is
-        therefore NOT listed for those runs — they happen in the proxy's context. A
-        contract's own deployment is not one of its calls. The list is known up to
-        `meta.asOfBlock`, which trails the chain head: a newer call is not listed yet,
-        and an empty list means no call up to that block. Continue with `nextCursor`.
+        Every transaction with a call frame in this address's context — it was called,
+        as the transaction's own target or from inside another contract, reverted or
+        not, with ETH or without — newest first: the block, the transaction, its sender
+        and whether it succeeded, how many frames ran in the address's context and how
+        many of them failed by themselves, their kinds and whether any carried ETH.
+        `txSender` sent the transaction; the direct caller may be a contract it reached.
+        A proxy's frames include the ones in which it runs its implementation
+        (`delegatecall`); an implementation behind a proxy is therefore NOT listed for
+        those runs — they happen in the proxy's context. A contract's own deployment is
+        not one of its calls. The list is known up to `meta.asOfBlock`, which trails the
+        chain head: a newer call is not listed yet, and an empty list means no call up
+        to that block. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+
+        Returns:
+            `EntityCallsReceivedResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-calls-received
         """
@@ -1871,24 +3080,71 @@ class AddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityCallsReceivedResponse]:
-        """Every page of `addresses.calls_received`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.calls_received`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityCallsReceivedResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-calls-received
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/calls-received", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/calls-received", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def calls_received_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ReceivedCall]:
+        """Every row of `data.calls` of `addresses.calls_received`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The address, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this address.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ReceivedCall`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-calls-received
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/calls-received", {"limit": limit, "cursor": cursor}, "calls", max_items)
 
     def counterparties(
         self,
@@ -1897,33 +3153,40 @@ class AddressesApi:
         block: int | None = None,
         limit: int | None = None,
     ) -> CounterpartyRankingResponse:
-        """Top counterparties of an address
+        """Top counterparties of an address.
 
-        TraceFast knowledge graph: the addresses one address has INTERACTED with most,
-        ranked by successful transactions. An interaction is any of three: a top-level
-        transaction between the two, whether or not it carried ETH (so a contract the
-        address called, such as a token contract it sent `transfer` to, is listed as a
-        counterparty); an internal ETH transfer; or a token `Transfer` event naming
-        both. Token events are counted as emitted: they are not checked against a
-        balance change and zero amounts are included, so events planted by
-        address-poisoning contracts appear as interactions. `sentTxCount` counts
-        transactions in which the address is the sending side of such an interaction,
-        not transactions it signed. A counterparty here is not proof that value moved
-        between the two. Returns up to 100 counterparties in ranking order, each with
-        its transaction counts, first and last block of interaction, the surfaces the
-        relation was seen on and the token classes involved, plus `corpus` — how many
-        counterparties the ranking covered. With `block`, the ranking as it stood at the
-        end of that block, reconstructed from the full history up to it; very large
-        addresses are refused for that question with the bound stated, never answered
-        with a narrowed set.
+        The addresses one address has INTERACTED with most, ranked by successful
+        transactions. An interaction is any of three: a top-level transaction between
+        the two, whether or not it carried ETH (so a contract the address called, such
+        as a token contract it sent `transfer` to, is listed as a counterparty); an
+        internal ETH transfer; or a token `Transfer` event naming both. Token events are
+        counted as emitted: they are not checked against a balance change and zero
+        amounts are included, so events planted by address-poisoning contracts appear as
+        interactions. `sentTxCount` counts transactions in which the address is the
+        sending side of such an interaction, not transactions it signed. A counterparty
+        here is not proof that value moved between the two. Returns up to 100
+        counterparties in ranking order, each with its transaction counts, first and
+        last block of interaction, the surfaces the relation was seen on and the token
+        classes involved, plus `corpus` — how many counterparties the ranking covered.
+        With `block`, the ranking as it stood at the end of that block, reconstructed
+        from the full history up to it; very large addresses are refused for that
+        question with the bound stated, never answered with a narrowed set.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             block: State at the end of this block (everything up to and including it).
-                Absent: the current all-time ranking. Left as None, it is not sent.
-            limit: 1..=100, default 100. Left as None, it is not sent.
+                Absent: the current all-time ranking.
+            limit: 1 to 100, default 100.
+
+        Returns:
+            `CounterpartyRankingResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-counterparties
         """
@@ -1935,20 +3198,27 @@ class AddressesApi:
         *,
         period: str | None = None,
     ) -> DailyActivityResponse:
-        """Daily activity of an address
+        """Daily activity of an address.
 
-        TraceFast live Ethereum data: for each day in a window, how many blocks changed
-        the address's own account state and which kind of change it was (balance, nonce,
-        code, creation). The window ends at the latest day the daily aggregate holds;
-        days without activity have no entry. Activity that does not touch the address's
-        own state (receiving a token, being called) is not counted here; see the
-        activity method for that.
+        For each day in a window, how many blocks changed the address's own account
+        state and which kind of change it was (balance, nonce, code, creation). The
+        window ends at the latest day the daily aggregate holds; days without activity
+        have no entry. Activity that does not touch the address's own state (receiving a
+        token, being called) is not counted here; see the activity method for that.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            period: `30d`, `90d` (default) or `365d`. Left as None, it is not sent.
+            period: `30d`, `90d` (default) or `365d`.
+
+        Returns:
+            `DailyActivityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-daily-activity
         """
@@ -1961,27 +3231,35 @@ class AddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityDeploymentsResponse:
-        """Contracts an address created
+        """Contracts an address created.
 
-        TraceFast live Ethereum data: every contract creation this address made — each
-        successful CREATE or CREATE2 frame it called — oldest first: the created
-        contract, the block, the transaction, CREATE or CREATE2, and the code it
-        deployed. The address is the DIRECT caller of the creation: for a factory that
-        is the factory, and the wallet that signed the transaction is `originAddress` on
-        each row; a wallet's deployments made through a factory are listed under the
-        factory, not here. A row is a creation event: `outcome: rolled_back` means the
-        transaction (or a frame above the creation) failed afterwards and no contract
-        came from it. An address can appear more than once — re-created after
-        self-destruction, or rolled-back attempts. An empty list means no creation is
-        recorded up to `meta.asOfBlock`. Continue with `nextCursor`.
+        Every contract creation this address made — each successful CREATE or CREATE2
+        frame it called — oldest first: the created contract, the block, the
+        transaction, CREATE or CREATE2, and the code it deployed. The address is the
+        DIRECT caller of the creation: for a factory that is the factory, and the wallet
+        that signed the transaction is `originAddress` on each row; a wallet's
+        deployments made through a factory are listed under the factory, not here. A row
+        is a creation event: `outcome: rolled_back` means the transaction (or a frame
+        above the creation) failed afterwards and no contract came from it. An address
+        can appear more than once — re-created after self-destruction, or rolled-back
+        attempts. An empty list means no creation is recorded up to `meta.asOfBlock`.
+        Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The creating address, `0x` + 40 hex, any case.
-            limit: 1..=50, default 25. Left as None, it is not sent.
+            limit: 1 to 50, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+
+        Returns:
+            `EntityDeploymentsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-deployments
         """
@@ -1993,23 +3271,71 @@ class AddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityDeploymentsResponse]:
-        """Every page of `addresses.deployments`, following `data.nextCursor` to the end.
+        """Every page of `addresses.deployments`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The creating address, `0x` + 40 hex, any case.
-            limit: 1..=50, default 25. Left as None, it is not sent.
+            limit: 1 to 50, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityDeploymentsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-deployments
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/deployments", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/deployments", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def deployments_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ContractCreation]:
+        """Every row of `data.deployments` of `addresses.deployments`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The creating address, `0x` + 40 hex, any case.
+            limit: 1 to 50, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this address.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ContractCreation`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-deployments
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/deployments", {"limit": limit, "cursor": cursor}, "deployments", max_items)
 
     def dex_trades(
         self,
@@ -2018,24 +3344,32 @@ class AddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityDexTradesResponse:
-        """DEX trades an address took part in
+        """DEX trades an address took part in.
 
-        TraceFast live Ethereum data: the swaps on DEX pools this address sent or
-        received the output of, newest first — the venue and its version, the pool, the
-        tokens sold and bought with their raw amounts, and an estimated USD value at the
-        hour of the trade. Coverage is what the DEX index holds: swaps on pools it has
-        not discovered are missing, and Balancer V2 swaps (whose event names no trader)
-        are not listed, so an empty list is not proof the address never traded. The
-        address is matched as the swap event's sender or recipient: a trade routed
-        through a contract is listed under the contract. Continue with `nextCursor`.
+        The swaps on DEX pools this address sent or received the output of, newest first
+        — the venue and its version, the pool, the tokens sold and bought with their raw
+        amounts, and an estimated USD value at the hour of the trade. Coverage is what
+        the DEX index holds: swaps on pools it has not discovered are missing, and
+        Balancer V2 swaps (whose event names no trader) are not listed, so an empty list
+        is not proof the address never traded. The address is matched as the swap
+        event's sender or recipient: a trade routed through a contract is listed under
+        the contract. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+
+        Returns:
+            `EntityDexTradesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-dex-trades
         """
@@ -2047,23 +3381,71 @@ class AddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityDexTradesResponse]:
-        """Every page of `addresses.dex_trades`, following `data.nextCursor` to the end.
+        """Every page of `addresses.dex_trades`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityDexTradesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-dex-trades
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/dex-trades", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/dex-trades", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def dex_trades_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[DexTrade]:
+        """Every row of `data.trades` of `addresses.dex_trades`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The address, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this address.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `DexTrade`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-dex-trades
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/dex-trades", {"limit": limit, "cursor": cursor}, "trades", max_items)
 
     def internal_transfers(
         self,
@@ -2076,30 +3458,36 @@ class AddressesApi:
         to_block: int | None = None,
         counterparty: str | None = None,
     ) -> EntityInternalTransfersResponse:
-        """Internal transfers of an address
+        """Internal transfers of an address.
 
-        TraceFast live Ethereum data: the value-carrying call frames an address sent or
-        received inside transactions, newest first — each with its position in the call
-        tree, its depth, the kind of call, the value it moved and its own outcome. The
-        transaction's own top-level call is NOT one of these; it is the transaction, and
-        it rides the transactions feed. Paged by an opaque cursor.
+        The value-carrying call frames an address sent or received inside transactions,
+        newest first — each with its position in the call tree, its depth, the kind of
+        call, the value it moved and its own outcome. The transaction's own top-level
+        call is NOT one of these; it is the transaction, and it rides the transactions
+        feed. Paged by an opaque cursor.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+
+        Returns:
+            `EntityInternalTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-internal-transfers
         """
@@ -2115,33 +3503,90 @@ class AddressesApi:
         from_block: int | None = None,
         to_block: int | None = None,
         counterparty: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityInternalTransfersResponse]:
-        """Every page of `addresses.internal_transfers`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.internal_transfers`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityInternalTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-internal-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/internal-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/internal-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, max_pages)
+
+    def internal_transfers_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        direction: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        counterparty: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[FeedInternalTransfer]:
+        """Every row of `data.transfers` of `addresses.internal_transfers`, page after
+        page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            direction: `sent` or `received`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
+                filter like the others: on a very active address it is answered only
+                inside a block window, and the refusal names the window it needs
+                (`filter_needs_block_window`).
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `FeedInternalTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-internal-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/internal-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, "transfers", max_items)
 
     def portfolio(
         self,
@@ -2150,28 +3595,35 @@ class AddressesApi:
         block: int | None = None,
         limit: int | None = None,
     ) -> PortfolioResponse:
-        """Portfolio of an address
+        """Portfolio of an address.
 
-        TraceFast live Ethereum data: everything an address holds, valued in USD — its
-        token balances and its native ETH, each with the balance, the hourly USD price,
-        the USD value and the share of the total. Returns up to 100 positions in
-        descending USD value, plus `totalUsd`, `pricedCount` and `hiddenCount` over the
-        whole holding. A position is listed only when it can be valued (a USD price for
-        the hour, known decimals, and a value within what that price can vouch for — a
-        thin-market price is not applied to an amount far beyond what its market
-        trades); anything else the address holds is counted in `hiddenCount`, never
-        listed. Token balances are served for the covered tokens (`coveredTokenCount`,
-        growing continuously); a balance in a token outside that set is absent, not
-        zero. No NFTs, no DeFi positions, no liquidity-pool shares. With `block`, the
-        exact state at the end of that block, priced at that block's hour.
+        Everything an address holds, valued in USD — its token balances and its native
+        ETH, each with the balance, the hourly USD price, the USD value and the share of
+        the total. Returns up to 100 positions in descending USD value, plus `totalUsd`,
+        `pricedCount` and `hiddenCount` over the whole holding. A position is listed
+        only when it can be valued (a USD price for the hour, known decimals, and a
+        value within what that price can vouch for — a thin-market price is not applied
+        to an amount far beyond what its market trades); anything else the address holds
+        is counted in `hiddenCount`, never listed. Token balances are served for the
+        covered tokens (`coveredTokenCount`, growing continuously); a balance in a token
+        outside that set is absent, not zero. No NFTs, no DeFi positions, no
+        liquidity-pool shares. With `block`, the exact state at the end of that block,
+        priced at that block's hour.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            block: State at the end of this block. Absent: the current state. Left as
-                None, it is not sent.
-            limit: 1..=100, default 100. Left as None, it is not sent.
+            block: State at the end of this block. Absent: the current state.
+            limit: 1 to 100, default 100.
+
+        Returns:
+            `PortfolioResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-portfolio
         """
@@ -2186,29 +3638,36 @@ class AddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> RelationsResponse:
-        """Relations of an address
+        """Relations of an address.
 
-        TraceFast knowledge graph: the relations an address holds now — which
-        implementation a proxy points at, which beacon it reads, who administers it,
-        where an account has delegated, which lending market lists a token — as the
-        subject (`direction=subject`: what it points at, default) or as the object
-        (`direction=object`: who points at it). One page per call, ordered by relation
-        id then counterpart; pass `nextCursor` back as `cursor` until it is absent. On
-        the object side one implementation can be pointed at by millions of proxies, so
-        the first page of `direction=object` also states `counts`: how many addresses
-        point at this one per relation id, as of the graph's latest hourly refresh.
+        The relations an address holds now — which implementation a proxy points at,
+        which beacon it reads, who administers it, where an account has delegated, which
+        lending market lists a token — as the subject (`direction=subject`: what it
+        points at, default) or as the object (`direction=object`: who points at it). One
+        page per call, ordered by relation id then counterpart; pass `nextCursor` back
+        as `cursor` until it is absent. On the object side one implementation can be
+        pointed at by millions of proxies, so the first page of `direction=object` also
+        states `counts`: how many addresses point at this one per relation id, as of the
+        graph's latest hourly refresh.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
             attribute_id: Narrow to one relation id, `relation:name`. Any id the graph
-                publishes is accepted. Sent as ``attributeId``. Left as None, it is not
-                sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                publishes is accepted. Sent as `attributeId`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with this direction and filter. Left as None, it is not sent.
+                method with this direction and filter.
+
+        Returns:
+            `RelationsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relations
         """
@@ -2222,27 +3681,79 @@ class AddressesApi:
         attribute_id: str | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[RelationsResponse]:
-        """Every page of `addresses.relations`, following `data.nextCursor` to the end.
+        """Every page of `addresses.relations`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
             attribute_id: Narrow to one relation id, `relation:name`. Any id the graph
-                publishes is accepted. Sent as ``attributeId``. Left as None, it is not
-                sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                publishes is accepted. Sent as `attributeId`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with this direction and filter. Left as None, it is not sent.
+                method with this direction and filter.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `RelationsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relations
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations", {"direction": direction, "attributeId": attribute_id, "limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations", {"direction": direction, "attributeId": attribute_id, "limit": limit, "cursor": cursor}, max_pages)
+
+    def relations_items(
+        self,
+        address: str,
+        *,
+        direction: str | None = None,
+        attribute_id: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[Relation]:
+        """Every row of `data.relations` of `addresses.relations`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            direction: `subject` (default) or `object`.
+            attribute_id: Narrow to one relation id, `relation:name`. Any id the graph
+                publishes is accepted. Sent as `attributeId`.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with this direction and filter.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `Relation`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/address-relations
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations", {"direction": direction, "attributeId": attribute_id, "limit": limit, "cursor": cursor}, "relations", max_items)
 
     def relations_at_block(
         self,
@@ -2250,20 +3761,27 @@ class AddressesApi:
         *,
         block: int,
     ) -> RelationsAtBlockResponse:
-        """Relations of an address at a block
+        """Relations of an address at a block.
 
-        TraceFast knowledge graph: the relations an address was the subject of at the
-        end of one block — which implementation a proxy pointed at, which beacon it
-        read, who administered it, where an account had delegated — each with the window
-        it held for. Answered from the relation history, which covers the relation ids
-        named in `coveredFamilies`. A block past the covered history is refused with the
-        highest answerable block.
+        The relations an address was the subject of at the end of one block — which
+        implementation a proxy pointed at, which beacon it read, who administered it,
+        where an account had delegated — each with the window it held for. Answered from
+        the relation history, which covers the relation ids named in `coveredFamilies`.
+        A block past the covered history is refused with the highest answerable block.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to answer about. Required.
+
+        Returns:
+            `RelationsAtBlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relations-at-block
         """
@@ -2279,34 +3797,39 @@ class AddressesApi:
         attribute_id: str | None = None,
         order: str | None = None,
     ) -> RelationHistoryResponse:
-        """Relation history of an address
+        """Relation history of an address.
 
-        TraceFast knowledge graph: every relation interval an address has held, oldest
-        first (`order=desc`: newest first) — as the subject (`direction=subject`: what
-        it pointed at, default) or as the object (`direction=object`: who pointed at
-        it). Covers the relation ids named in `coveredFamilies`; an empty or short
-        timeline says nothing about relations outside that list. Paged by an opaque
-        cursor: pass `nextCursor` back as `cursor` until it is absent (`truncated` is
-        `true` exactly when it is present). `total` counts the address's intervals as
-        the subject; there is no total on the object side, where one implementation can
-        be pointed at by millions of proxies.
+        Every relation interval an address has held, oldest first (`order=desc`: newest
+        first) — as the subject (`direction=subject`: what it pointed at, default) or as
+        the object (`direction=object`: who pointed at it). Covers the relation ids
+        named in `coveredFamilies`; an empty or short timeline says nothing about
+        relations outside that list. Paged by an opaque cursor: pass `nextCursor` back
+        as `cursor` until it is absent (`truncated` is `true` exactly when it is
+        present). `total` counts the address's intervals as the subject; there is no
+        total on the object side, where one implementation can be pointed at by millions
+        of proxies.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
+            limit: 1 to 500, default 100.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address, direction, `attributeId` and `order`. Left as None, it
-                is not sent.
+                method, address, direction, `attributeId` and `order`.
             attribute_id: Only this relation id, for example
                 `relation:eip7702_delegates_to` — every EIP-7702 delegation the account
-                signed, with `total` counting them. Sent as ``attributeId``. Left as
-                None, it is not sent.
+                signed, with `total` counting them. Sent as `attributeId`.
             order: `asc` (default): oldest interval first. `desc`: newest first — the
-                recent end of a long timeline on the first page. Left as None, it is not
-                sent.
+                recent end of a long timeline on the first page.
+
+        Returns:
+            `RelationHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relation-history
         """
@@ -2321,33 +3844,86 @@ class AddressesApi:
         cursor: str | None = None,
         attribute_id: str | None = None,
         order: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[RelationHistoryResponse]:
-        """Every page of `addresses.relation_history`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.relation_history`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
+            limit: 1 to 500, default 100.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address, direction, `attributeId` and `order`. Left as None, it
-                is not sent.
+                method, address, direction, `attributeId` and `order`.
             attribute_id: Only this relation id, for example
                 `relation:eip7702_delegates_to` — every EIP-7702 delegation the account
-                signed, with `total` counting them. Sent as ``attributeId``. Left as
-                None, it is not sent.
+                signed, with `total` counting them. Sent as `attributeId`.
             order: `asc` (default): oldest interval first. `desc`: newest first — the
-                recent end of a long timeline on the first page. Left as None, it is not
-                sent.
+                recent end of a long timeline on the first page.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `RelationHistoryResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relation-history
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations/history", {"direction": direction, "limit": limit, "cursor": cursor, "attributeId": attribute_id, "order": order})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations/history", {"direction": direction, "limit": limit, "cursor": cursor, "attributeId": attribute_id, "order": order}, max_pages)
+
+    def relation_history_items(
+        self,
+        address: str,
+        *,
+        direction: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        attribute_id: str | None = None,
+        order: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[RelationInterval]:
+        """Every row of `data.intervals` of `addresses.relation_history`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            direction: `subject` (default) or `object`.
+            limit: 1 to 500, default 100.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, address, direction, `attributeId` and `order`.
+            attribute_id: Only this relation id, for example
+                `relation:eip7702_delegates_to` — every EIP-7702 delegation the account
+                signed, with `total` counting them. Sent as `attributeId`.
+            order: `asc` (default): oldest interval first. `desc`: newest first — the
+                recent end of a long timeline on the first page.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `RelationInterval`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/address-relation-history
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations/history", {"direction": direction, "limit": limit, "cursor": cursor, "attributeId": attribute_id, "order": order}, "intervals", max_items)
 
     def relation_proof(
         self,
@@ -2355,13 +3931,12 @@ class AddressesApi:
         attribute_id: str,
         object: str,
     ) -> ProofResponse:
-        """Proof of one relation of an address
+        """Proof of one relation of an address.
 
-        TraceFast knowledge graph: the evidence behind one proven relation between two
-        addresses — the facts checked with their expected and observed values, the
-        conditions that had to be false, the sources read, and the block the evaluation
-        was pinned to. The record is the evaluator's own. A relation with no recorded
-        proof answers 404.
+        The evidence behind one proven relation between two addresses — the facts
+        checked with their expected and observed values, the conditions that had to be
+        false, the sources read, and the block the evaluation was pinned to. The record
+        is the evaluator's own. A relation with no recorded proof answers 404.
 
         Plan: Intelligence or higher.
 
@@ -2371,6 +3946,14 @@ class AddressesApi:
                 method.
             object: The object address of the relation, `0x`-prefixed, 40 hex
                 characters, any case.
+
+        Returns:
+            `ProofResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relation-proof
         """
@@ -2383,24 +3966,32 @@ class AddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityStateChangesResponse:
-        """Every block that changed an account's balance, nonce or code
+        """Every block that changed an account's balance, nonce or code.
 
-        TraceFast live Ethereum data: the history of one account's own state, newest
-        first — one entry per block that changed its balance, nonce or code, with the
-        values before and after the block (the net change over the whole block, not per
-        transaction) and whether the account came into existence in it. A change made by
-        someone else counts too: receiving ETH from a transaction or a validator
-        withdrawal, being self-destructed into. The list is known up to
-        `meta.asOfBlock`, which is published in steps and can trail the chain head by a
-        few minutes: a newer change is not listed yet. Continue with `nextCursor`.
+        The history of one account's own state, newest first — one entry per block that
+        changed its balance, nonce or code, with the values before and after the block
+        (the net change over the whole block, not per transaction) and whether the
+        account came into existence in it. A change made by someone else counts too:
+        receiving ETH from a transaction or a validator withdrawal, being
+        self-destructed into. The list is known up to `meta.asOfBlock`, which is
+        published in steps and can trail the chain head by a few minutes: a newer change
+        is not listed yet. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The account, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this account. Left as None, it is not sent.
+                method and this account.
+
+        Returns:
+            `EntityStateChangesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-state-changes
         """
@@ -2412,23 +4003,71 @@ class AddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityStateChangesResponse]:
-        """Every page of `addresses.state_changes`, following `data.nextCursor` to the end.
+        """Every page of `addresses.state_changes`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The account, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this account. Left as None, it is not sent.
+                method and this account.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityStateChangesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-state-changes
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/state-changes", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/state-changes", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def state_changes_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[AccountStateChange]:
+        """Every row of `data.changes` of `addresses.state_changes`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The account, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this account.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `AccountStateChange`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-state-changes
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/state-changes", {"limit": limit, "cursor": cursor}, "changes", max_items)
 
     def token_transfers(
         self,
@@ -2442,33 +4081,38 @@ class AddressesApi:
         to_block: int | None = None,
         counterparty: str | None = None,
     ) -> EntityTokenTransfersResponse:
-        """Token transfers of an address
+        """Token transfers of an address.
 
-        TraceFast live Ethereum data: the token transfers an address sent or received,
-        newest first — the token as its contract declares itself, the raw amount
-        (unscaled), the parties, the transaction that emitted it and who sent that
-        transaction, which on a router or a batch disburser is another party entirely.
-        Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor. A transfer the
-        address made to itself is shown once.
+        The token transfers an address sent or received, newest first — the token as its
+        contract declares itself, the raw amount (unscaled), the parties, the
+        transaction that emitted it and who sent that transaction, which on a router or
+        a batch disburser is another party entirely. Covers ERC-20, ERC-721 and
+        ERC-1155. Paged by an opaque cursor. A transfer the address made to itself is
+        shown once.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            token: One token contract, `0x`-prefixed, 40 hex characters. Left as None,
-                it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            token: One token contract, `0x`-prefixed, 40 hex characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+
+        Returns:
+            `EntityTokenTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-token-transfers
         """
@@ -2485,35 +4129,92 @@ class AddressesApi:
         from_block: int | None = None,
         to_block: int | None = None,
         counterparty: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityTokenTransfersResponse]:
-        """Every page of `addresses.token_transfers`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.token_transfers`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            token: One token contract, `0x`-prefixed, 40 hex characters. Left as None,
-                it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            token: One token contract, `0x`-prefixed, 40 hex characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityTokenTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-token-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/token-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "token": token, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/token-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "token": token, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, max_pages)
+
+    def token_transfers_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        direction: str | None = None,
+        token: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        counterparty: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[FeedTokenTransfer]:
+        """Every row of `data.transfers` of `addresses.token_transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            direction: `sent` or `received`.
+            token: One token contract, `0x`-prefixed, 40 hex characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
+                filter like the others: on a very active address it is answered only
+                inside a block window, and the refusal names the window it needs
+                (`filter_needs_block_window`).
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `FeedTokenTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-token-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/token-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "token": token, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, "transfers", max_items)
 
     def token_balance(
         self,
@@ -2522,11 +4223,11 @@ class AddressesApi:
         *,
         block: int | None = None,
     ) -> TokenBalanceResponse:
-        """Balance of one token on an address
+        """Balance of one token on an address.
 
-        TraceFast live Ethereum data: the balance of one token contract on one address —
-        the value `balanceOf(address)` returns at the end of a block. Served for the
-        covered token contracts (a growing set); a token outside it is refused with 422
+        The balance of one token contract on one address — the value
+        `balanceOf(address)` returns at the end of a block. Served for the covered token
+        contracts (a growing set); a token outside it is refused with 422
         `token_not_covered` rather than answered with a meaningless zero, so a `balance`
         of `"0"` is always a real zero. With `block`, the exact balance at the end of
         that block; a pair with no recorded balance at or before it is refused with 422
@@ -2538,8 +4239,15 @@ class AddressesApi:
             address: The holder address, `0x`-prefixed, 40 hex characters, any case.
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            block: State at the end of this block. Absent: the current balance. Left as
-                None, it is not sent.
+            block: State at the end of this block. Absent: the current balance.
+
+        Returns:
+            `TokenBalanceResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-token-balance
         """
@@ -2557,34 +4265,40 @@ class AddressesApi:
         to_block: int | None = None,
         counterparty: str | None = None,
     ) -> EntityTransactionsResponse:
-        """Transactions of an address
+        """Transactions of an address.
 
-        TraceFast live Ethereum data: the transactions an address sent or received,
-        newest first — each with sender, recipient, value, fee, the called function
-        where its selector is known, the receipt's outcome, and which side of it this
-        address is on (`sender`, `receiver`, or `self` when it is both). Paged by an
-        opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters
-        narrow the walk and are answered only inside a block window on a very active
-        address; the refusal names the window it needs.
+        The transactions an address sent or received, newest first — each with sender,
+        recipient, value, fee, the called function where its selector is known, the
+        receipt's outcome, and which side of it this address is on (`sender`,
+        `receiver`, or `self` when it is both). Paged by an opaque cursor: pass
+        `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and
+        are answered only inside a block window on a very active address; the refusal
+        names the window it needs.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             direction: `sent` or `received`. Absent: both, with a transaction the
-                address sent to itself shown once. Left as None, it is not sent.
-            status: `1` success, `0` failure. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                address sent to itself shown once.
+            status: `1` success, `0` failure.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+
+        Returns:
+            `EntityTransactionsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-transactions
         """
@@ -2601,58 +4315,127 @@ class AddressesApi:
         from_block: int | None = None,
         to_block: int | None = None,
         counterparty: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[EntityTransactionsResponse]:
-        """Every page of `addresses.transactions`, following `data.nextCursor` to the end.
+        """Every page of `addresses.transactions`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             direction: `sent` or `received`. Absent: both, with a transaction the
-                address sent to itself shown once. Left as None, it is not sent.
-            status: `1` success, `0` failure. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                address sent to itself shown once.
+            status: `1` success, `0` failure.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `EntityTransactionsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-transactions
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/transactions", {"limit": limit, "cursor": cursor, "direction": direction, "status": status, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/transactions", {"limit": limit, "cursor": cursor, "direction": direction, "status": status, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, max_pages)
+
+    def transactions_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        direction: str | None = None,
+        status: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        counterparty: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[FeedTransaction]:
+        """Every row of `data.transactions` of `addresses.transactions`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            direction: `sent` or `received`. Absent: both, with a transaction the
+                address sent to itself shown once.
+            status: `1` success, `0` failure.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
+                filter like the others: on a very active address it is answered only
+                inside a block window, and the refusal names the window it needs
+                (`filter_needs_block_window`).
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `FeedTransaction`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-transactions
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/transactions", {"limit": limit, "cursor": cursor, "direction": direction, "status": status, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, "transactions", max_items)
 
 
 class PoolsApi:
-    """`client.pools` — the pools methods of the TraceFast API."""
+    """`client.pools`: the pools methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def for_pair(self, *, token_a: str, token_b: str) -> PoolsForPairResponse:
-        """The DEX pools that hold two given tokens
+        """The DEX pools that hold two given tokens.
 
-        TraceFast live Ethereum data: every DEX pool whose tokens include both `tokenA`
-        and `tokenB` (in either order, and pools of three or more tokens that hold
-        both), newest created first — each with its protocol and version, fee tier where
-        the source records one, approximate creation block and its tokens. Uniswap v4
-        pools are included and named by their PoolId. At most 200 pools; `truncated`
-        says when more exist.
+        Every DEX pool whose tokens include both `tokenA` and `tokenB` (in either order,
+        and pools of three or more tokens that hold both), newest created first — each
+        with its protocol and version, fee tier where the source records one,
+        approximate creation block and its tokens. Uniswap v4 pools are included and
+        named by their PoolId. At most 200 pools; `truncated` says when more exist.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            token_a: One token contract, `0x` + 40 hex. Required. Sent as ``tokenA``.
+            token_a: One token contract, `0x` + 40 hex. Required. Sent as `tokenA`.
             token_b: The other token contract, `0x` + 40 hex. Required. Sent as
-                ``tokenB``.
+                `tokenB`.
+
+        Returns:
+            `PoolsForPairResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-by-pair
         """
@@ -2664,20 +4447,27 @@ class PoolsApi:
         window: str | None = None,
         limit: int | None = None,
     ) -> LiquidityRemovalsResponse:
-        """The largest liquidity removals from DEX pools
+        """The largest liquidity removals from DEX pools.
 
-        TraceFast live Ethereum data: the largest removals of liquidity from DEX pools
-        over the last 24 hours, 7 days or 30 days of blocks up to the events' reach, by
-        USD removed — each with the pool, its protocol, the provider, the transaction
-        and how many of its token legs could be priced. Only events with at least one
-        priced leg rank, and their USD covers the priced legs only. Uniswap v4 pools are
-        not covered: their liquidity events are not recorded.
+        The largest removals of liquidity from DEX pools over the last 24 hours, 7 days
+        or 30 days of blocks up to the events' reach, by USD removed — each with the
+        pool, its protocol, the provider, the transaction and how many of its token legs
+        could be priced. Only events with at least one priced leg rank, and their USD
+        covers the priced legs only. Uniswap v4 pools are not covered: their liquidity
+        events are not recorded.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
-            window: `24h`, `7d` (default) or `30d`. Left as None, it is not sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            window: `24h`, `7d` (default) or `30d`.
+            limit: 1 to 100, default 25.
+
+        Returns:
+            `LiquidityRemovalsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-liquidity-removals
         """
@@ -2689,22 +4479,28 @@ class PoolsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> NewPoolsResponse:
-        """The newest DEX pools, by their first swap
+        """The newest DEX pools, by their first swap.
 
-        TraceFast live Ethereum data: DEX pools in order of their first swap, newest
-        first — the pool (its address, or for a Uniswap v4 pool its PoolId), its
-        protocol and the first swap's block, time, transaction, tokens and amounts in
-        token units. A pool appears once it has swapped; one created but never traded is
-        not listed. No USD value is stated for the first swap: a new pool's price is the
-        least reliable one. Paged by an opaque cursor: pass `nextCursor` back as
-        `cursor` until it is absent.
+        DEX pools in order of their first swap, newest first — the pool (its address, or
+        for a Uniswap v4 pool its PoolId), its protocol and the first swap's block,
+        time, transaction, tokens and amounts in token units. A pool appears once it has
+        swapped; one created but never traded is not listed. No USD value is stated for
+        the first swap: a new pool's price is the least reliable one. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `NewPoolsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-new
         """
@@ -2715,42 +4511,93 @@ class PoolsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[NewPoolsResponse]:
-        """Every page of `pools.new_pools`, following `data.nextCursor` to the end.
+        """Every page of `pools.new_pools`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `NewPoolsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-new
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/pools/new", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/pools/new", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def new_pools_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[NewPool]:
+        """Every row of `data.pools` of `pools.new_pools`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `NewPool`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/pools-new
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/pools/new", {"limit": limit, "cursor": cursor}, "pools", max_items)
 
     def get(self, pool: str) -> PoolResponse:
-        """A DEX pool
+        """A DEX pool.
 
-        TraceFast live Ethereum data: one DEX pool — its protocol and version, its
-        tokens (address, the symbol, name and decimals the token contract declares —
-        verbatim, not verified — and role), the fee tier and tick spacing where the
-        source records them, the factory, hook, vault, gauge and LP token where the pool
-        has them, when it was created, and its USD volume and swap count over the last
-        24 hours and 7 days. A volume over days with swaps but no USD price is a partial
-        sum, and the unpriced days are counted beside it. A pool that trades but is not
-        in TraceFast's pool registry answers with what its swaps show (`registered:
-        false`). `{pool}` is the pool's address, or a Uniswap v4 PoolId. No names, no
-        verdicts.
+        One DEX pool — its protocol and version, its tokens (address, the symbol, name
+        and decimals the token contract declares — verbatim, not verified — and role),
+        the fee tier and tick spacing where the source records them, the factory, hook,
+        vault, gauge and LP token where the pool has them, when it was created, and its
+        USD volume and swap count over the last 24 hours and 7 days. A volume over days
+        with swaps but no USD price is a partial sum, and the unpriced days are counted
+        beside it. A pool that trades but is not in TraceFast's pool registry answers
+        with what its swaps show (`registered: false`). `{pool}` is the pool's address,
+        or a Uniswap v4 PoolId. No names, no verdicts.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64
                 hex); any case.
+
+        Returns:
+            `PoolResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool
         """
@@ -2765,32 +4612,39 @@ class PoolsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> PoolLiquidityEventsResponse:
-        """Who added and removed liquidity in a DEX pool
+        """Who added and removed liquidity in a DEX pool.
 
-        TraceFast live Ethereum data: every liquidity event of the pool in a block
-        window, newest first — the block, time and transaction, the provider, whether
-        liquidity was added or removed and the event as the pool names it, and the USD
-        value added or removed over the legs that could be priced (`pricedLegs` /
-        `unpricedLegs` say how many; absent when none could). The window is
-        `fromBlock`..`toBlock`, at most 30 days of blocks (216 000); by default the 7
-        days up to the events' reach. Uniswap v4 pools are not covered: their liquidity
-        events are not recorded, and such a pool answers 422 `pool_not_covered`. Paged
-        by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+        Every liquidity event of the pool in a block window, newest first — the block,
+        time and transaction, the provider, whether liquidity was added or removed and
+        the event as the pool names it, and the USD value added or removed over the legs
+        that could be priced (`pricedLegs` / `unpricedLegs` say how many; absent when
+        none could). The window is `fromBlock`..`toBlock`, at most 30 days of blocks
+        (216 000); by default the 7 days up to the events' reach. Uniswap v4 pools are
+        not covered: their liquidity events are not recorded, and such a pool answers
+        422 `pool_not_covered`. Paged by an opaque cursor: pass `nextCursor` back as
+        `cursor` until it is absent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
             from_block: The window's first block. Default: 7 days of blocks below
-                `toBlock`. Sent as ``fromBlock``. Left as None, it is not sent.
+                `toBlock`. Sent as `fromBlock`.
             to_block: The window's last block. Default: the last block the liquidity
-                events have reached (`meta.asOfBlock`). Sent as ``toBlock``. Left as
-                None, it is not sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                events have reached (`meta.asOfBlock`). Sent as `toBlock`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
                 method, pool and `fromBlock` / `toBlock` as passed; it keeps the window
-                the walk began under. Left as None, it is not sent.
+                the walk began under.
+
+        Returns:
+            `PoolLiquidityEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-liquidity-events
         """
@@ -2804,30 +4658,85 @@ class PoolsApi:
         to_block: int | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[PoolLiquidityEventsResponse]:
-        """Every page of `pools.liquidity_events`, following `data.nextCursor` to the end.
+        """Every page of `pools.liquidity_events`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
             from_block: The window's first block. Default: 7 days of blocks below
-                `toBlock`. Sent as ``fromBlock``. Left as None, it is not sent.
+                `toBlock`. Sent as `fromBlock`.
             to_block: The window's last block. Default: the last block the liquidity
-                events have reached (`meta.asOfBlock`). Sent as ``toBlock``. Left as
-                None, it is not sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                events have reached (`meta.asOfBlock`). Sent as `toBlock`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
                 method, pool and `fromBlock` / `toBlock` as passed; it keeps the window
-                the walk began under. Left as None, it is not sent.
+                the walk began under.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `PoolLiquidityEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-liquidity-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-events", {"fromBlock": from_block, "toBlock": to_block, "limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-events", {"fromBlock": from_block, "toBlock": to_block, "limit": limit, "cursor": cursor}, max_pages)
+
+    def liquidity_events_items(
+        self,
+        pool: str,
+        *,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[PoolLiquidityEvent]:
+        """Every row of `data.events` of `pools.liquidity_events`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
+                hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+            from_block: The window's first block. Default: 7 days of blocks below
+                `toBlock`. Sent as `fromBlock`.
+            to_block: The window's last block. Default: the last block the liquidity
+                events have reached (`meta.asOfBlock`). Sent as `toBlock`.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, pool and `fromBlock` / `toBlock` as passed; it keeps the window
+                the walk began under.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `PoolLiquidityEvent`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/pool-liquidity-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-events", {"fromBlock": from_block, "toBlock": to_block, "limit": limit, "cursor": cursor}, "events", max_items)
 
     def liquidity_flow(
         self,
@@ -2835,46 +4744,61 @@ class PoolsApi:
         *,
         days: int | None = None,
     ) -> PoolLiquidityFlowResponse:
-        """Liquidity added to and removed from a DEX pool per day
+        """Liquidity added to and removed from a DEX pool per day.
 
-        TraceFast live Ethereum data: per UTC day over the last `days` days (today
-        included), oldest first, the USD value of the liquidity added to and removed
-        from the pool and the net flow, how many add and remove events there were and
-        how many distinct providers made them, and how many of the events' token legs
-        could be priced (`pricedLegs` of `totalLegs`: below it the USD figures cover the
-        priced legs only). A day without liquidity events is absent. Uniswap v4 pools
-        are not covered: their liquidity events are not recorded, and such a pool
-        answers 422 `pool_not_covered` rather than an empty list.
+        Per UTC day over the last `days` days (today included), oldest first, the USD
+        value of the liquidity added to and removed from the pool and the net flow, how
+        many add and remove events there were and how many distinct providers made them,
+        and how many of the events' token legs could be priced (`pricedLegs` of
+        `totalLegs`: below it the USD figures cover the priced legs only). A day without
+        liquidity events is absent. Uniswap v4 pools are not covered: their liquidity
+        events are not recorded, and such a pool answers 422 `pool_not_covered` rather
+        than an empty list.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            days: 1..=365, default 30. Left as None, it is not sent.
+            days: 1 to 365, default 30.
+
+        Returns:
+            `PoolLiquidityFlowResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-liquidity-flow
         """
         return cast("PoolLiquidityFlowResponse", self._http.get(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-flow", {"days": days}))
 
     def reserves(self, pool: str) -> PoolReservesResponse:
-        """What a DEX pool holds now
+        """What a DEX pool holds now.
 
-        TraceFast live Ethereum data: the pool's current reserves, token by token — the
-        raw amount, the amount in token units where the decimals are known, and its USD
-        value where the token has a price TraceFast trusts at that size — and their USD
-        total over the trusted legs only (`totalTvlUsd`; absent when no leg can be
-        valued). The total comes with how far it can be relied on: `reserveStatus`,
-        `accuracyBand` and `accuracyDeltaBps` (how far the figure is off a direct read
-        of the pool), `isTvlTrusted`, and the block and age of the snapshot. It is an
-        estimate, not an accounting value. A pool outside the reserves TraceFast tracks
-        answers 404.
+        The pool's current reserves, token by token — the raw amount, the amount in
+        token units where the decimals are known, and its USD value where the token has
+        a price TraceFast trusts at that size — and their USD total over the trusted
+        legs only (`totalTvlUsd`; absent when no leg can be valued). The total comes
+        with how far it can be relied on: `reserveStatus`, `accuracyBand` and
+        `accuracyDeltaBps` (how far the figure is off a direct read of the pool),
+        `isTvlTrusted`, and the block and age of the snapshot. It is an estimate, not an
+        accounting value. A pool outside the reserves TraceFast tracks answers 404.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64
                 hex); any case.
+
+        Returns:
+            `PoolReservesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-reserves
         """
@@ -2887,26 +4811,34 @@ class PoolsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> PoolSwapsResponse:
-        """A DEX pool's swaps, newest first
+        """A DEX pool's swaps, newest first.
 
-        TraceFast live Ethereum data: every swap of the pool, newest first — the block,
-        time and transaction, the sender and recipient as the pool's event states them,
-        the token sold in and bought out with their raw amounts, decimals and declared
-        symbols, and an estimated USD value at the hour of the swap (the bought leg at
-        that hour's price, else the sold one; a leg larger than its price can vouch for
-        is left unvalued, never capped). The swaps are those of the pools TraceFast
-        decodes. `{pool}` is the pool's address, or the pool's own 32-byte id (a Uniswap
-        v4 PoolId, or a Balancer v2 poolId). Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        Every swap of the pool, newest first — the block, time and transaction, the
+        sender and recipient as the pool's event states them, the token sold in and
+        bought out with their raw amounts, decimals and declared symbols, and an
+        estimated USD value at the hour of the swap (the bought leg at that hour's
+        price, else the sold one; a leg larger than its price can vouch for is left
+        unvalued, never capped). The swaps are those of the pools TraceFast decodes.
+        `{pool}` is the pool's address, or the pool's own 32-byte id (a Uniswap v4
+        PoolId, or a Balancer v2 poolId). Paged by an opaque cursor: pass `nextCursor`
+        back as `cursor` until it is absent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and pool. Left as None, it is not sent.
+                method and pool.
+
+        Returns:
+            `PoolSwapsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-swaps
         """
@@ -2918,44 +4850,101 @@ class PoolsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[PoolSwapsResponse]:
-        """Every page of `pools.swaps`, following `data.nextCursor` to the end.
+        """Every page of `pools.swaps`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and pool. Left as None, it is not sent.
+                method and pool.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `PoolSwapsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-swaps
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/swaps", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/swaps", {"limit": limit, "cursor": cursor}, max_pages)
 
-    def volume(self, pool: str, *, days: int | None = None) -> PoolVolumeResponse:
-        """A DEX pool's daily volume
+    def swaps_items(
+        self,
+        pool: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[PoolSwap]:
+        """Every row of `data.swaps` of `pools.swaps`, page after page.
 
-        TraceFast live Ethereum data: the pool's trading per UTC day over the last
-        `days` days (today included), oldest first — USD volume, swaps, the volume of
-        each of its two tokens in token units and how many distinct addresses sent swaps
-        — with the totals. Today's row is still being counted. A day's USD volume adds
-        the hours that could be priced: a day with swaps but no priced hour has no
-        `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial
-        sum); a day priced only in part is not marked. A day without swaps is absent.
-        The pool must be in TraceFast's pool registry. `{pool}` is the pool's address,
-        or a Uniswap v4 PoolId.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            days: 1..=365, default 30. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and pool.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `PoolSwap`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/pool-swaps
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/swaps", {"limit": limit, "cursor": cursor}, "swaps", max_items)
+
+    def volume(self, pool: str, *, days: int | None = None) -> PoolVolumeResponse:
+        """A DEX pool's daily volume.
+
+        The pool's trading per UTC day over the last `days` days (today included),
+        oldest first — USD volume, swaps, the volume of each of its two tokens in token
+        units and how many distinct addresses sent swaps — with the totals. Today's row
+        is still being counted. A day's USD volume adds the hours that could be priced:
+        a day with swaps but no priced hour has no `volumeUsd` and is counted in
+        `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in
+        part is not marked. A day without swaps is absent. The pool must be in
+        TraceFast's pool registry. `{pool}` is the pool's address, or a Uniswap v4
+        PoolId.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
+                hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+            days: 1 to 365, default 30.
+
+        Returns:
+            `PoolVolumeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-volume
         """
@@ -2963,7 +4952,10 @@ class PoolsApi:
 
 
 class RiskApi:
-    """`client.risk` — the risk methods of the TraceFast API."""
+    """`client.risk`: the risk methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
@@ -2976,27 +4968,33 @@ class RiskApi:
         issuer_contract: str | None = None,
         action: str | None = None,
     ) -> BlacklistFeedResponse:
-        """Every blacklist event on the chain, newest first
+        """Every blacklist event on the chain, newest first.
 
-        TraceFast live Ethereum data: every blacklist event any issuer contract recorded
-        on the chain — an address listed (`add`), unlisted (`remove`) or enforced
-        against (`enforce`: funds destroyed or frozen) — newest first, with the address,
-        the issuer and its weight. Facts recorded on-chain by the issuer contracts
-        themselves; no external sanctions lists, no names. Optionally narrowed to one
-        issuer or one kind of event. To see what changed since an earlier read, page
-        until the events reach the block you last saw. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        Every blacklist event any issuer contract recorded on the chain — an address
+        listed (`add`), unlisted (`remove`) or enforced against (`enforce`: funds
+        destroyed or frozen) — newest first, with the address, the issuer and its
+        weight. Facts recorded on-chain by the issuer contracts themselves; no external
+        sanctions lists, no names. Optionally narrowed to one issuer or one kind of
+        event. To see what changed since an earlier read, page until the events reach
+        the block you last saw. Paged by an opaque cursor: pass `nextCursor` back as
+        `cursor` until it is absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filters. Left as None, it is not sent.
+                method and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+
+        Returns:
+            `BlacklistFeedResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-feed
         """
@@ -3009,47 +5007,101 @@ class RiskApi:
         cursor: str | None = None,
         issuer_contract: str | None = None,
         action: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlacklistFeedResponse]:
-        """Every page of `risk.blacklist_feed`, following `data.nextCursor` to the end.
+        """Every page of `risk.blacklist_feed`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filters. Left as None, it is not sent.
+                method and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlacklistFeedResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-feed
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklist-events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action})
+        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklist-events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, max_pages)
+
+    def blacklist_feed_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        issuer_contract: str | None = None,
+        action: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlacklistFeedEvent]:
+        """Every row of `data.events` of `risk.blacklist_feed`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and filters.
+            issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlacklistFeedEvent`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/risk-blacklist-feed
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/risk/blacklist-events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, "events", max_items)
 
     def blacklist_issuers(
         self,
         *,
         limit: int | None = None,
     ) -> BlacklistIssuersResponse:
-        """The issuer contracts that keep blacklists
+        """The issuer contracts that keep blacklists.
 
-        TraceFast live Ethereum data: every contract that ever recorded a blacklist
-        event, with its weight and token symbol where it has one, and how many addresses
-        it lists now, has a recorded listing of and enforced against — the top `limit`
-        by addresses listed now, ties by contract address. Also the totals: issuers,
-        listed (address, issuer) pairs and distinct listed addresses. The counts are
-        refreshed a few minutes behind the newest events; `meta.asOfBlock` states the
-        block they reach. Facts recorded on-chain by the issuer contracts themselves; no
-        names.
+        Every contract that ever recorded a blacklist event, with its weight and token
+        symbol where it has one, and how many addresses it lists now, has a recorded
+        listing of and enforced against — the top `limit` by addresses listed now, ties
+        by contract address. Also the totals: issuers, listed (address, issuer) pairs
+        and distinct listed addresses. The counts are refreshed a few minutes behind the
+        newest events; `meta.asOfBlock` states the block they reach. Facts recorded
+        on-chain by the issuer contracts themselves; no names.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=1000, default 100. Left as None, it is not sent.
+            limit: 1 to 1000, default 100.
+
+        Returns:
+            `BlacklistIssuersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-issuers
         """
@@ -3062,26 +5114,33 @@ class RiskApi:
         cursor: str | None = None,
         issuer_contract: str | None = None,
     ) -> BlacklistedPairsResponse:
-        """The addresses issuer contracts list now
+        """The addresses issuer contracts list now.
 
-        TraceFast live Ethereum data: every (address, issuer contract) pair where the
-        issuer's blacklist holds the address now — with the issuer's weight, the block
-        it first listed the address and its latest event about it. An address listed by
-        two issuers appears twice. Facts recorded on-chain by the issuer contracts
-        themselves; no external sanctions lists, no names. In address order, optionally
-        narrowed to one issuer. The listings are refreshed a few minutes behind the
-        newest events, which `getBlacklistFeed` shows first; `meta.asOfBlock` states the
-        block they reach. Paged by an opaque cursor: pass `nextCursor` back as `cursor`
-        until it is absent.
+        Every (address, issuer contract) pair where the issuer's blacklist holds the
+        address now — with the issuer's weight, the block it first listed the address
+        and its latest event about it. An address listed by two issuers appears twice.
+        Facts recorded on-chain by the issuer contracts themselves; no external
+        sanctions lists, no names. In address order, optionally narrowed to one issuer.
+        The listings are refreshed a few minutes behind the newest events, which
+        `getBlacklistFeed` shows first; `meta.asOfBlock` states the block they reach.
+        Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is
+        absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filter. Left as None, it is not sent.
+                method and filter.
             issuer_contract: Only the addresses this issuer contract lists,
-                `0x`-prefixed. Sent as ``issuerContract``. Left as None, it is not sent.
+                `0x`-prefixed. Sent as `issuerContract`.
+
+        Returns:
+            `BlacklistedPairsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklisted
         """
@@ -3093,42 +5152,96 @@ class RiskApi:
         limit: int | None = None,
         cursor: str | None = None,
         issuer_contract: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlacklistedPairsResponse]:
-        """Every page of `risk.blacklisted_addresses`, following `data.nextCursor` to the
-        end.
+        """Every page of `risk.blacklisted_addresses`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filter. Left as None, it is not sent.
+                method and filter.
             issuer_contract: Only the addresses this issuer contract lists,
-                `0x`-prefixed. Sent as ``issuerContract``. Left as None, it is not sent.
+                `0x`-prefixed. Sent as `issuerContract`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlacklistedPairsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklisted
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklisted", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract})
+        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklisted", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract}, max_pages)
+
+    def blacklisted_addresses_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        issuer_contract: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlacklistedPair]:
+        """Every row of `data.pairs` of `risk.blacklisted_addresses`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and filter.
+            issuer_contract: Only the addresses this issuer contract lists,
+                `0x`-prefixed. Sent as `issuerContract`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlacklistedPair`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/risk-blacklisted
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/risk/blacklisted", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract}, "pairs", max_items)
 
     def blacklist_status(self, address: str) -> BlacklistStatusResponse:
-        """Which issuer contracts list one address
+        """Which issuer contracts list one address.
 
-        TraceFast live Ethereum data: every issuer contract that ever placed the address
-        on its on-chain blacklist — one row each, currently listed or not, with the
-        issuer's weight (`authorityTier`), the first and latest events and the
-        transition counts — plus, as a separate fact, the issuers that enforced against
-        it (funds destroyed or frozen). Facts recorded on-chain by the issuer contracts
-        themselves (blacklist / unblacklist / enforcement events); no external sanctions
-        lists. There is no single verdict: a listing is one issuer's decision. Empty
-        lists mean no issuer recorded anything about the address as of `meta.asOfBlock`.
+        Every issuer contract that ever placed the address on its on-chain blacklist —
+        one row each, currently listed or not, with the issuer's weight
+        (`authorityTier`), the first and latest events and the transition counts — plus,
+        as a separate fact, the issuers that enforced against it (funds destroyed or
+        frozen). Facts recorded on-chain by the issuer contracts themselves (blacklist /
+        unblacklist / enforcement events); no external sanctions lists. There is no
+        single verdict: a listing is one issuer's decision. Empty lists mean no issuer
+        recorded anything about the address as of `meta.asOfBlock`.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, any case.
+
+        Returns:
+            `BlacklistStatusResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-status
         """
@@ -3143,27 +5256,34 @@ class RiskApi:
         issuer_contract: str | None = None,
         action: str | None = None,
     ) -> BlacklistEventsResponse:
-        """Blacklist events about one address
+        """Blacklist events about one address.
 
-        TraceFast live Ethereum data: every blacklist event any issuer contract recorded
-        about the address — listed (`add`), unlisted (`remove`) or enforced against
-        (`enforce`: funds destroyed or frozen) — newest first, with the issuer and its
-        weight. Facts recorded on-chain by the issuer contracts themselves (blacklist /
-        unblacklist / enforcement events); no external sanctions lists. Optionally
-        narrowed to one issuer or one kind of event. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        Every blacklist event any issuer contract recorded about the address — listed
+        (`add`), unlisted (`remove`) or enforced against (`enforce`: funds destroyed or
+        frozen) — newest first, with the issuer and its weight. Facts recorded on-chain
+        by the issuer contracts themselves (blacklist / unblacklist / enforcement
+        events); no external sanctions lists. Optionally narrowed to one issuer or one
+        kind of event. Paged by an opaque cursor: pass `nextCursor` back as `cursor`
+        until it is absent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address and filters. Left as None, it is not sent.
+                method, address and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+
+        Returns:
+            `BlacklistEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-events
         """
@@ -3177,57 +5297,119 @@ class RiskApi:
         cursor: str | None = None,
         issuer_contract: str | None = None,
         action: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[BlacklistEventsResponse]:
-        """Every page of `risk.blacklist_events`, following `data.nextCursor` to the end.
+        """Every page of `risk.blacklist_events`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address and filters. Left as None, it is not sent.
+                method, address and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `BlacklistEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklists/{segment(address)}/events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action})
+        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklists/{segment(address)}/events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, max_pages)
+
+    def blacklist_events_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        issuer_contract: str | None = None,
+        action: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[BlacklistEvent]:
+        """Every row of `data.events` of `risk.blacklist_events`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, address and filters.
+            issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `BlacklistEvent`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/risk-blacklist-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/risk/blacklists/{segment(address)}/events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, "events", max_items)
 
 
 class TokensApi:
-    """`client.tokens` — the tokens methods of the TraceFast API."""
+    """`client.tokens`: the tokens methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def stats(self) -> TokenStatsResponse:
-        """Token statistics of the network
+        """Token statistics of the network.
 
-        TraceFast live Ethereum data: how many token contracts, transfer events and
-        holder positions the chain holds, in total and per standard (ERC-20, ERC-721,
-        ERC-1155, ERC-777, ERC-4626). A holder position is one address holding one
-        token, so `holderCount` is not a number of distinct addresses. Recomputed daily.
+        How many token contracts, transfer events and holder positions the chain holds,
+        in total and per standard (ERC-20, ERC-721, ERC-1155, ERC-777, ERC-4626). A
+        holder position is one address holding one token, so `holderCount` is not a
+        number of distinct addresses. Recomputed daily.
 
         Plan: Enriched Data or higher.
+
+        Returns:
+            `TokenStatsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/token-stats
         """
         return cast("TokenStatsResponse", self._http.get(f"/chains/{self._http.chain_id}/tokens/stats", None))
 
     def get(self, token: str) -> TokenResponse:
-        """One token contract
+        """One token contract.
 
-        TraceFast live Ethereum data: one token contract — its standard as observed from
-        its events (`erc20`, `erc721`, `erc1155`), the symbol, name and decimals it
-        declares (verbatim, not verified), its all-time transfer count, how many
-        addresses hold it now (`holderCount`, the holders method's number; absent where
-        holders are not covered, such as NFT collections) and how many ever held it
+        One token contract — its standard as observed from its events (`erc20`,
+        `erc721`, `erc1155`), the symbol, name and decimals it declares (verbatim, not
+        verified), its all-time transfer count, how many addresses hold it now
+        (`holderCount`, the holders method's number; absent where holders are not
+        covered, such as NFT collections) and how many ever held it
         (`holderCountAllTime`, where indexed). A contract with no transfer events
         answers 404. No price: prices are served with the portfolio, where they carry
         their own source and time.
@@ -3237,6 +5419,14 @@ class TokensApi:
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
+
+        Returns:
+            `TokenResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token
         """
@@ -3248,43 +5438,58 @@ class TokensApi:
         *,
         days: int | None = None,
     ) -> TokenDexVolumeResponse:
-        """A token's daily DEX volume
+        """A token's daily DEX volume.
 
-        TraceFast live Ethereum data: the token's DEX trading per UTC day over the last
-        `days` days (today included), oldest first — the USD volume and how many swaps
-        sold the token into a pool and bought it out of one — with the totals. Today's
-        row is still being counted and grows through the day. A day's USD volume adds
-        the hours that could be priced: a day with swaps but no priced hour has no
-        `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial
-        sum); a day priced only in part is not marked. A day without swaps is absent.
-        The volume counts the pools TraceFast has decoded, which may lag a newly created
-        pool.
+        The token's DEX trading per UTC day over the last `days` days (today included),
+        oldest first — the USD volume and how many swaps sold the token into a pool and
+        bought it out of one — with the totals. Today's row is still being counted and
+        grows through the day. A day's USD volume adds the hours that could be priced: a
+        day with swaps but no priced hour has no `volumeUsd` and is counted in
+        `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in
+        part is not marked. A day without swaps is absent. The volume counts the pools
+        TraceFast has decoded, which may lag a newly created pool.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
-            days: 1..=365, default 30. Left as None, it is not sent.
+            days: 1 to 365, default 30.
+
+        Returns:
+            `TokenDexVolumeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-dex-volume
         """
         return cast("TokenDexVolumeResponse", self._http.get(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/dex-volume", {"days": days}))
 
     def holders(self, token: str, *, limit: int | None = None) -> TokenHoldersResponse:
-        """Top holders of a token
+        """Top holders of a token.
 
-        TraceFast live Ethereum data: the largest current holders of a token contract.
-        Returns up to 100 holders in descending balance order with the balance in the
-        token's smallest unit, plus `holderCount` — how many addresses hold a positive
-        balance now — the same balances the balance method answers. Only the current
-        ranking is served — a past block is refused.
+        The largest current holders of a token contract. Returns up to 100 holders in
+        descending balance order with the balance in the token's smallest unit, plus
+        `holderCount` — how many addresses hold a positive balance now — the same
+        balances the balance method answers. Only the current ranking is served — a past
+        block is refused.
 
         Plan: Intelligence or higher.
 
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            limit: 1..=100, default 100. Left as None, it is not sent.
+            limit: 1 to 100, default 100.
+
+        Returns:
+            `TokenHoldersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-holders
         """
@@ -3297,24 +5502,32 @@ class TokensApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> TokenPoolsResponse:
-        """The DEX pools holding a token
+        """The DEX pools holding a token.
 
-        TraceFast live Ethereum data: the DEX pools that hold the token, newest created
-        first — each with its protocol and version, fee tier, approximate creation
-        block, its tokens (address, symbol, decimals, role, weight where the pool
-        declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no
-        address of its own and is named by its `poolId`, the PoolId the protocol's
-        events use. TraceFast ranks at most the 10 000 most recently created pools of a
-        token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        The DEX pools that hold the token, newest created first — each with its protocol
+        and version, fee tier, approximate creation block, its tokens (address, symbol,
+        decimals, role, weight where the pool declares one) and its USD volume over the
+        last 7 days. A Uniswap v4 pool has no address of its own and is named by its
+        `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10
+        000 most recently created pools of a token; `rankedPools` says how many are
+        ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it
+        is absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and token. Left as None, it is not sent.
+                method and token.
+
+        Returns:
+            `TokenPoolsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-pools
         """
@@ -3326,23 +5539,71 @@ class TokensApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[TokenPoolsResponse]:
-        """Every page of `tokens.pools`, following `data.nextCursor` to the end.
+        """Every page of `tokens.pools`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and token. Left as None, it is not sent.
+                method and token.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `TokenPoolsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-pools
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/pools", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/pools", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def pools_items(
+        self,
+        token: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[TokenPoolEntry]:
+        """Every row of `data.pools` of `tokens.pools`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            token: The token contract, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and token.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `TokenPoolEntry`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/token-pools
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/pools", {"limit": limit, "cursor": cursor}, "pools", max_items)
 
     def price(
         self,
@@ -3351,26 +5612,34 @@ class TokensApi:
         timestamp: int | None = None,
         block: int | None = None,
     ) -> TokenPriceResponse:
-        """A token's USD price, now or as of a past time or block
+        """A token's USD price, now or as of a past time or block.
 
-        TraceFast live Ethereum data: the USD price of a token for one hour — the newest
-        hour by default, or the hour holding `timestamp` or the block's time. The answer
-        is the newest priced hour at or before that time (`hour`), what the price is
-        (`priceSource`: an oracle reading, a DEX observation, a peg, or one carried over
-        from an earlier hour — `observedHour` says which hour it was observed in), and
-        the largest USD value it may vouch for (`maxTrustedValueUsd`; absent means no
-        bound): an amount worth more at this price is not valued by it. The DEX and the
-        oracle side it was chosen from are separate blocks, with how far they disagree.
-        TraceFast prices a selected set of tokens; any other answers 404.
+        The USD price of a token for one hour — the newest hour by default, or the hour
+        holding `timestamp` or the block's time. The answer is the newest priced hour at
+        or before that time (`hour`), what the price is (`priceSource`: an oracle
+        reading, a DEX observation, a peg, or one carried over from an earlier hour —
+        `observedHour` says which hour it was observed in), and the largest USD value it
+        may vouch for (`maxTrustedValueUsd`; absent means no bound): an amount worth
+        more at this price is not valued by it. The DEX and the oracle side it was
+        chosen from are separate blocks, with how far they disagree. TraceFast prices a
+        selected set of tokens; any other answers 404.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
             timestamp: Unix time, seconds: the price as of the hour holding it. Not with
-                `block`. Left as None, it is not sent.
+                `block`.
             block: A block: the price as of the hour holding its time. Not with
-                `timestamp`. Left as None, it is not sent.
+                `timestamp`.
+
+        Returns:
+            `TokenPriceResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-price
         """
@@ -3383,24 +5652,31 @@ class TokensApi:
         from_: int | None = None,
         to: int | None = None,
     ) -> TokenPriceHistoryResponse:
-        """A token's hourly USD prices over a window
+        """A token's hourly USD prices over a window.
 
-        TraceFast live Ethereum data: the token's USD price for every priced hour in
-        `[from, to]` (Unix seconds; the last 7 days by default, at most 90 days), oldest
-        first — each with what the price is (`priceSource`), whether it was carried over
-        from an earlier hour (`carried`), the largest USD value it may vouch for
-        (`maxTrustedValueUsd`; absent means no bound) and the DEX and oracle prices of
-        the hour where they exist. An hour without a price is absent, not zero.
-        TraceFast prices a selected set of tokens; any other answers an empty list.
+        The token's USD price for every priced hour in `[from, to]` (Unix seconds; the
+        last 7 days by default, at most 90 days), oldest first — each with what the
+        price is (`priceSource`), whether it was carried over from an earlier hour
+        (`carried`), the largest USD value it may vouch for (`maxTrustedValueUsd`;
+        absent means no bound) and the DEX and oracle prices of the hour where they
+        exist. An hour without a price is absent, not zero. TraceFast prices a selected
+        set of tokens; any other answers an empty list.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
             from_: Unix time, seconds: the window's start (its hour included). Default:
-                7 days before `to`. Sent as ``from``. Left as None, it is not sent.
+                7 days before `to`. Sent as `from`.
             to: Unix time, seconds: the window's end (its hour included). Default: now.
-                Left as None, it is not sent.
+
+        Returns:
+            `TokenPriceHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-price-history
         """
@@ -3418,37 +5694,41 @@ class TokensApi:
         from_block: int | None = None,
         to_block: int | None = None,
     ) -> TokenTransfersResponse:
-        """Transfers of a token
+        """Transfers of a token.
 
-        TraceFast live Ethereum data: the transfer events of one token contract, newest
-        first — the parties, the raw amount (unscaled) or token id, the event kind, the
-        transaction that emitted it and who sent that transaction, which on a router or
-        a batch disburser is another party entirely. Covers ERC-20, ERC-721 and
-        ERC-1155. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it
-        is absent. Filters narrow the walk and are answered only inside a block window
-        on a very active token; the refusal names the window it needs.
+        The transfer events of one token contract, newest first — the parties, the raw
+        amount (unscaled) or token id, the event kind, the transaction that emitted it
+        and who sent that transaction, which on a router or a batch disburser is another
+        party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor:
+        pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk
+        and are answered only inside a block window on a very active token; the refusal
+        names the window it needs.
 
         Plan: Enriched Data or higher.
 
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            from_: Only transfers sent by this address, `0x`-prefixed. Sent as ``from``.
-                Left as None, it is not sent.
-            to: Only transfers received by this address, `0x`-prefixed. Left as None, it
-                is not sent.
+                method with these filters.
+            from_: Only transfers sent by this address, `0x`-prefixed. Sent as `from`.
+            to: Only transfers received by this address, `0x`-prefixed.
             event_type: One event kind: `transfer`, `transfer_single`, `transfer_batch`,
                 `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap`, `unwrap`.
                 `deposit` and `withdraw` are vault (ERC-4626) events; wrapping and
                 unwrapping ether (WETH) are `wrap` (no sender) and `unwrap` (no
-                recipient). Sent as ``eventType``. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                recipient). Sent as `eventType`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+
+        Returns:
+            `TokenTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-transfers
         """
@@ -3465,41 +5745,103 @@ class TokensApi:
         event_type: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[TokenTransfersResponse]:
-        """Every page of `tokens.transfers`, following `data.nextCursor` to the end.
+        """Every page of `tokens.transfers`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            from_: Only transfers sent by this address, `0x`-prefixed. Sent as ``from``.
-                Left as None, it is not sent.
-            to: Only transfers received by this address, `0x`-prefixed. Left as None, it
-                is not sent.
+                method with these filters.
+            from_: Only transfers sent by this address, `0x`-prefixed. Sent as `from`.
+            to: Only transfers received by this address, `0x`-prefixed.
             event_type: One event kind: `transfer`, `transfer_single`, `transfer_batch`,
                 `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap`, `unwrap`.
                 `deposit` and `withdraw` are vault (ERC-4626) events; wrapping and
                 unwrapping ether (WETH) are `wrap` (no sender) and `unwrap` (no
-                recipient). Sent as ``eventType``. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                recipient). Sent as `eventType`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `TokenTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/transfers", {"limit": limit, "cursor": cursor, "from": from_, "to": to, "eventType": event_type, "fromBlock": from_block, "toBlock": to_block})
+        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/transfers", {"limit": limit, "cursor": cursor, "from": from_, "to": to, "eventType": event_type, "fromBlock": from_block, "toBlock": to_block}, max_pages)
+
+    def transfers_items(
+        self,
+        token: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        from_: str | None = None,
+        to: str | None = None,
+        event_type: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[TokenTransfer]:
+        """Every row of `data.transfers` of `tokens.transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            token: The token contract address, `0x`-prefixed, 40 hex characters, any
+                case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            from_: Only transfers sent by this address, `0x`-prefixed. Sent as `from`.
+            to: Only transfers received by this address, `0x`-prefixed.
+            event_type: One event kind: `transfer`, `transfer_single`, `transfer_batch`,
+                `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap`, `unwrap`.
+                `deposit` and `withdraw` are vault (ERC-4626) events; wrapping and
+                unwrapping ether (WETH) are `wrap` (no sender) and `unwrap` (no
+                recipient). Sent as `eventType`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `TokenTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/token-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/transfers", {"limit": limit, "cursor": cursor, "from": from_, "to": to, "eventType": event_type, "fromBlock": from_block, "toBlock": to_block}, "transfers", max_items)
 
 
 class TracesApi:
-    """`client.traces` — the traces methods of the TraceFast API."""
+    """`client.traces`: the traces methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
@@ -3511,16 +5853,16 @@ class TracesApi:
         include_calldata: bool | None = None,
         limit: int | None = None,
     ) -> TransactionTraceResponse:
-        """Execution trace of a transaction
+        """Execution trace of a transaction.
 
-        TraceFast live Ethereum data: every call frame a transaction executed, the order
-        it ran — the caller and target of each, the kind of call, the value and gas it
-        moved, its own outcome, and why it reverted where it did. A `delegatecall` names
-        both the storage context and the address whose code ran, which is what makes a
-        proxy call readable. `create` and `create2` frames name the address they
-        deployed. Calldata and output heads are opt-in. At most `limit` frames in the
-        order they ran (default and maximum 1 000), with `framesTruncated` saying when
-        the tree is larger; the frame-level method pages the whole tree.
+        Every call frame a transaction executed, the order it ran — the caller and
+        target of each, the kind of call, the value and gas it moved, its own outcome,
+        and why it reverted where it did. A `delegatecall` names both the storage
+        context and the address whose code ran, which is what makes a proxy call
+        readable. `create` and `create2` frames name the address they deployed. Calldata
+        and output heads are opt-in. At most `limit` frames in the order they ran
+        (default and maximum 1 000), with `framesTruncated` saying when the tree is
+        larger; the frame-level method pages the whole tree.
 
         Plan: Investigation or higher.
 
@@ -3528,10 +5870,17 @@ class TracesApi:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
             include_calldata: `true` adds each frame's calldata and output heads (first
                 260 bytes) with their full sizes. Default `false`. Sent as
-                ``includeCalldata``. Left as None, it is not sent.
-            limit: 1..=1000, default 1000: at most this many frames, the first ones in
+                `includeCalldata`.
+            limit: 1 to 1000, default 1000: at most this many frames, the first ones in
                 the order they ran; `framesTruncated` says when the tree holds more.
-                Left as None, it is not sent.
+
+        Returns:
+            `TransactionTraceResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/trace
         """
@@ -3544,26 +5893,33 @@ class TracesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> TransactionFramesResponse:
-        """Call frames of a transaction, paged
+        """Call frames of a transaction, paged.
 
-        TraceFast live Ethereum data: the whole call tree of a transaction, frame by
-        frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what
-        the trace summary carries plus, always, the first 260 bytes of its calldata and
-        output with their full sizes, and the positions of the event logs it emitted.
-        Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is
-        absent; a page may hold fewer frames than `limit` when their calldata is large,
-        and continues from the last frame served. `meta.coverage` names the first block
-        from which the frame schema (`framesFromBlock`) and the event attribution
-        (`eventAttributionFromBlock`) are computed; both bounds move as history is
-        filled in.
+        The whole call tree of a transaction, frame by frame in the order it ran, paged
+        — no 1 000-frame cap. Each frame carries what the trace summary carries plus,
+        always, the first 260 bytes of its calldata and output with their full sizes,
+        and the positions of the event logs it emitted. Paged by an opaque cursor: pass
+        `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames
+        than `limit` when their calldata is large, and continues from the last frame
+        served. `meta.coverage` names the first block from which the frame schema
+        (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are
+        computed; both bounds move as history is filled in.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+
+        Returns:
+            `TransactionFramesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/trace-frames
         """
@@ -3575,65 +5931,130 @@ class TracesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[TransactionFramesResponse]:
-        """Every page of `traces.frames`, following `data.nextCursor` to the end.
+        """Every page of `traces.frames`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `TransactionFramesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/trace-frames
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/traces/{segment(hash)}/frames", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/traces/{segment(hash)}/frames", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def frames_items(
+        self,
+        hash: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[ExecutionFrame]:
+        """Every row of `data.frames` of `traces.frames`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+            limit: 1 to 100, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this transaction.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `ExecutionFrame`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/trace-frames
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/traces/{segment(hash)}/frames", {"limit": limit, "cursor": cursor}, "frames", max_items)
 
 
 class TransactionsApi:
-    """`client.transactions` — the transactions methods of the TraceFast API."""
+    """`client.transactions`: the transactions methods of the TraceFast API.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: SyncHttp) -> None:
         self._http = http
 
     def get(self, hash: str) -> TransactionResponse:
-        """One transaction
+        """One transaction.
 
-        TraceFast live Ethereum data: one transaction by hash — sender, recipient,
-        value, nonce, type, gas limit and gas used, the fee fields of its type and the
-        price actually paid per gas, the receipt's outcome and log count, and its
-        position (block and index). Served from seconds after inclusion; a hash that is
-        not known answers 404.
+        One transaction by hash — sender, recipient, value, nonce, type, gas limit and
+        gas used, the fee fields of its type and the price actually paid per gas, the
+        receipt's outcome and log count, and its position (block and index). Served from
+        seconds after inclusion; a hash that is not known answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
 
+        Returns:
+            `TransactionResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/transaction
         """
         return cast("TransactionResponse", self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}", None))
 
     def account_changes(self, hash: str) -> TransactionAccountChangesResponse:
-        """Accounts a transaction changed
+        """Accounts a transaction changed.
 
-        TraceFast live Ethereum data: every account one transaction changed, with its
-        balance, nonce and code hash before and after, whether it existed before, still
-        exists after, and whether its storage was wiped — the net effect of the whole
-        transaction, inner calls included, ETH and gas fee included. Two rules of the
-        source: the fee recipient has no row when its only change is the priority fee,
-        and an account created and destroyed within the transaction has no row. A
-        transaction whose execution is not computed yet (usually minutes) answers 422,
-        never an empty list.
+        Every account one transaction changed, with its balance, nonce and code hash
+        before and after, whether it existed before, still exists after, and whether its
+        storage was wiped — the net effect of the whole transaction, inner calls
+        included, ETH and gas fee included. Two rules of the source: the fee recipient
+        has no row when its only change is the priority fee, and an account created and
+        destroyed within the transaction has no row. A transaction whose execution is
+        not computed yet (usually minutes) answers 422, never an empty list.
 
-        Plan: Enriched Data or higher. **Beta** — the shape may still change.
+        Plan: Enriched Data or higher. **Beta**: the shape may still change.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionAccountChangesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-account-changes
         """
@@ -3648,31 +6069,39 @@ class TransactionsApi:
         event_name: str | None = None,
         topic0: str | None = None,
     ) -> TransactionEventsResponse:
-        """Event logs of a transaction
+        """Event logs of a transaction.
 
-        TraceFast live Ethereum data: the event logs a transaction emitted, in emission
-        order, each with the emitting contract, topics and data, and — when the event
-        signature is known — the decoded event name and arguments with a stated
-        confidence. Decoding covers the common token, DeFi and protocol events; an
-        unknown signature is returned raw with `decodeStatus: abi_missing`, and a known
-        one whose layout does not fit the log with `failed` — raw as well, without
-        `decoded`. Paged by an opaque cursor; a page holds at most `limit` logs and may
-        hold fewer when their `data` is large — the page is bounded by size, a log is
-        never cut. A hash that is not known answers 404.
+        The event logs a transaction emitted, in emission order, each with the emitting
+        contract, topics and data, and — when the event signature is known — the decoded
+        event name and arguments with a stated confidence. Decoding covers the common
+        token, DeFi and protocol events; an unknown signature is returned raw with
+        `decodeStatus: abi_missing`, and a known one whose layout does not fit the log
+        with `failed` — raw as well, without `decoded`. Paged by an opaque cursor; a
+        page holds at most `limit` logs and may hold fewer when their `data` is large —
+        the page is bounded by size, a log is never cut. A hash that is not known
+        answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, transaction and filters. Left as None, it is not sent.
+                method, transaction and filters.
             event_name: Only events whose name, as TraceFast's event index records it,
                 is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores.
                 Case-sensitive. An event the index holds no name for is not matched.
-                Sent as ``eventName``. Left as None, it is not sent.
+                Sent as `eventName`.
             topic0: Only events whose first topic (the event signature hash) is this
-                value: `0x` + 64 hex characters. Left as None, it is not sent.
+                value: `0x` + 64 hex characters.
+
+        Returns:
+            `TransactionEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-events
         """
@@ -3686,131 +6115,224 @@ class TransactionsApi:
         cursor: str | None = None,
         event_name: str | None = None,
         topic0: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[TransactionEventsResponse]:
-        """Every page of `transactions.events`, following `data.nextCursor` to the end.
+        """Every page of `transactions.events`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, transaction and filters. Left as None, it is not sent.
+                method, transaction and filters.
             event_name: Only events whose name, as TraceFast's event index records it,
                 is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores.
                 Case-sensitive. An event the index holds no name for is not matched.
-                Sent as ``eventName``. Left as None, it is not sent.
+                Sent as `eventName`.
             topic0: Only events whose first topic (the event signature hash) is this
-                value: `0x` + 64 hex characters. Left as None, it is not sent.
+                value: `0x` + 64 hex characters.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `TransactionEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/events", {"limit": limit, "cursor": cursor, "eventName": event_name, "topic0": topic0})
+        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/events", {"limit": limit, "cursor": cursor, "eventName": event_name, "topic0": topic0}, max_pages)
 
-    def execution_profile(self, hash: str) -> TransactionExecutionProfileResponse:
-        """How heavy a transaction was inside the EVM
+    def events_items(
+        self,
+        hash: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        event_name: str | None = None,
+        topic0: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[EventLog]:
+        """Every row of `data.events` of `transactions.events`, page after page.
 
-        TraceFast live Ethereum data: opcode counts of one transaction over every frame,
-        the reverted ones included — SLOAD / SSTORE / TLOAD / TSTORE / KECCAK256
-        executions, precompile calls, CREATE and SELFDESTRUCT, whether a DELEGATECALL
-        ran, distinct contracts whose storage it touched, and the gas spent in frames
-        that reverted. Executions, not committed effects: `sstoreTotal` is not the
-        number of committed writes. A transaction whose execution is not computed yet
-        (usually minutes) answers 422.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, transaction and filters.
+            event_name: Only events whose name, as TraceFast's event index records it,
+                is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores.
+                Case-sensitive. An event the index holds no name for is not matched.
+                Sent as `eventName`.
+            topic0: Only events whose first topic (the event signature hash) is this
+                value: `0x` + 64 hex characters.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `EventLog`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/transaction-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/events", {"limit": limit, "cursor": cursor, "eventName": event_name, "topic0": topic0}, "events", max_items)
+
+    def execution_profile(self, hash: str) -> TransactionExecutionProfileResponse:
+        """How heavy a transaction was inside the EVM.
+
+        Opcode counts of one transaction over every frame, the reverted ones included —
+        SLOAD / SSTORE / TLOAD / TSTORE / KECCAK256 executions, precompile calls, CREATE
+        and SELFDESTRUCT, whether a DELEGATECALL ran, distinct contracts whose storage
+        it touched, and the gas spent in frames that reverted. Executions, not committed
+        effects: `sstoreTotal` is not the number of committed writes. A transaction
+        whose execution is not computed yet (usually minutes) answers 422.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionExecutionProfileResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-execution-profile
         """
         return cast("TransactionExecutionProfileResponse", self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/execution-profile", None))
 
     def failures(self, hash: str) -> TransactionFailuresResponse:
-        """Why a transaction reverted
+        """Why a transaction reverted.
 
-        TraceFast live Ethereum data: the failed call frames of a reverted transaction —
-        for each, its position in the call tree, caller and target, the kind of failure
-        (revert, panic, custom error, out of gas, …), the revert payload with its
-        selector, and the error name when the selector is known. Root frame first, then
-        nested frames in tree order, at most 100 (`framesTruncated` says when there are
-        more). A successful transaction, and one that is not known, answer an empty
-        list: absence of a recorded failure is not a statement of success. A transaction
-        whose block the failure classification has not reached yet answers 422 — an
-        empty list there would read as success.
+        The failed call frames of a reverted transaction — for each, its position in the
+        call tree, caller and target, the kind of failure (revert, panic, custom error,
+        out of gas, …), the revert payload with its selector, and the error name when
+        the selector is known. Root frame first, then nested frames in tree order, at
+        most 100 (`framesTruncated` says when there are more). A successful transaction,
+        and one that is not known, answer an empty list: absence of a recorded failure
+        is not a statement of success. A transaction whose block the failure
+        classification has not reached yet answers 422 — an empty list there would read
+        as success.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
 
+        Returns:
+            `TransactionFailuresResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/transaction-failures
         """
         return cast("TransactionFailuresResponse", self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/failures", None))
 
     def flash_loans(self, hash: str) -> TransactionFlashLoansResponse:
-        """Flash loans taken inside a transaction
+        """Flash loans taken inside a transaction.
 
-        TraceFast live Ethereum data: the flash loans taken inside one transaction from
-        the lenders TraceFast indexes — Aave V2 and V3 (its official markets), Balancer
-        V2 and Uniswap V3 flash — in log order: the protocol, the lending contract, the
-        borrower and initiator where the event states them, the token and the raw
-        amount. Some Aave V2 forks are listed too, under their own name (`radiant`,
-        `aave_fork`): they are not Aave. An empty list means none FROM THESE LENDERS (a
-        Uniswap V2 flash swap, a Maker, Morpho, Euler or Balancer V3 flash loan is not
-        covered), and is stated only once the index has reached the transaction's block;
-        before that (usually under half an hour) the method answers 422 `coverage_gap`
-        with the bound, never an empty list. Pass `tokenAddress` to get_token for the
-        decimals.
+        The flash loans taken inside one transaction from the lenders TraceFast indexes
+        — Aave V2 and V3 (its official markets), Balancer V2 and Uniswap V3 flash — in
+        log order: the protocol, the lending contract, the borrower and initiator where
+        the event states them, the token and the raw amount. Some Aave V2 forks are
+        listed too, under their own name (`radiant`, `aave_fork`): they are not Aave. An
+        empty list means none FROM THESE LENDERS (a Uniswap V2 flash swap, a Maker,
+        Morpho, Euler or Balancer V3 flash loan is not covered), and is stated only once
+        the index has reached the transaction's block; before that (usually under half
+        an hour) the method answers 422 `coverage_gap` with the bound, never an empty
+        list. Pass `tokenAddress` to get_token for the decimals.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionFlashLoansResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-flash-loans
         """
         return cast("TransactionFlashLoansResponse", self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/flash-loans", None))
 
     def liquidity_events(self, hash: str) -> TransactionLiquidityEventsResponse:
-        """The DEX liquidity added and removed in a transaction
+        """The DEX liquidity added and removed in a transaction.
 
-        TraceFast live Ethereum data: every liquidity event in the transaction, in log
-        order — the pool, its protocol, the provider, whether liquidity was added or
-        removed, and each token leg: the token with its declared symbol and decimals
-        (verbatim, not verified), the raw amount and in token units, and its USD value
-        with the price and how it was valued, as the source states them. An empty list
-        means no liquidity event happened in the transaction. A transaction past the
-        events' reach answers 422 rather than an empty list. Uniswap v4 liquidity events
-        are not recorded.
+        Every liquidity event in the transaction, in log order — the pool, its protocol,
+        the provider, whether liquidity was added or removed, and each token leg: the
+        token with its declared symbol and decimals (verbatim, not verified), the raw
+        amount and in token units, and its USD value with the price and how it was
+        valued, as the source states them. An empty list means no liquidity event
+        happened in the transaction. A transaction past the events' reach answers 422
+        rather than an empty list. Uniswap v4 liquidity events are not recorded.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             hash: The transaction hash, `0x` + 64 hex, any case.
+
+        Returns:
+            `TransactionLiquidityEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-liquidity-events
         """
         return cast("TransactionLiquidityEventsResponse", self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/liquidity-events", None))
 
     def state_dependencies(self, hash: str) -> TransactionStateDependenciesResponse:
-        """Transactions of the same block it depends on
+        """Transactions of the same block it depends on.
 
-        TraceFast live Ethereum data: the read-after-write edges between one transaction
-        and the other transactions of its block — slots it read that an earlier
-        transaction had written (`role: reader`), and slots it wrote that a later one
-        read (`role: writer`) — edge by edge and folded per pair of transactions. Facts
-        of execution order only: no statement about intent. An empty answer for a
-        computed transaction means no dependency. Not computed yet answers 422.
+        The read-after-write edges between one transaction and the other transactions of
+        its block — slots it read that an earlier transaction had written (`role:
+        reader`), and slots it wrote that a later one read (`role: writer`) — edge by
+        edge and folded per pair of transactions. Facts of execution order only: no
+        statement about intent. An empty answer for a computed transaction means no
+        dependency. Not computed yet answers 422.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionStateDependenciesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-state-dependencies
         """
@@ -3823,26 +6345,33 @@ class TransactionsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> TransactionStorageWritesResponse:
-        """Storage writes of a transaction
+        """Storage writes of a transaction.
 
-        TraceFast live Ethereum data: every contract storage slot a transaction wrote,
-        in execution order — which contract's storage, which frame wrote it (with the
-        address whose code ran, which on a `delegatecall` is not the storage owner), the
-        slot, the value written, and the value the slot held before where that can be
-        established. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until
-        it is absent. `meta.coverage` names the first block writes are computed from
-        (`storageWritesFromBlock`) and the last block they have reached
-        (`storageWritesThroughBlock`); a write whose prior value has not been computed
-        yet says so per row (`valueBeforeStatus: not_computed`), which is not a
-        statement that the slot was empty.
+        Every contract storage slot a transaction wrote, in execution order — which
+        contract's storage, which frame wrote it (with the address whose code ran, which
+        on a `delegatecall` is not the storage owner), the slot, the value written, and
+        the value the slot held before where that can be established. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent. `meta.coverage`
+        names the first block writes are computed from (`storageWritesFromBlock`) and
+        the last block they have reached (`storageWritesThroughBlock`); a write whose
+        prior value has not been computed yet says so per row (`valueBeforeStatus:
+        not_computed`), which is not a statement that the slot was empty.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+
+        Returns:
+            `TransactionStorageWritesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-storage-writes
         """
@@ -3854,39 +6383,94 @@ class TransactionsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> Iterator[TransactionStorageWritesResponse]:
-        """Every page of `transactions.storage_writes`, following `data.nextCursor` to the
-        end.
+        """Every page of `transactions.storage_writes`, one whole response at a time.
 
-        A generator of whole responses; the cursor goes back unchanged with the same
-        other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An iterator of `TransactionStorageWritesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-storage-writes
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/storage-writes", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/storage-writes", {"limit": limit, "cursor": cursor}, max_pages)
 
-    def transient_writes(self, hash: str) -> TransactionTransientWritesResponse:
-        """Transient storage a transaction wrote
+    def storage_writes_items(
+        self,
+        hash: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> Iterator[StorageWrite]:
+        """Every row of `data.writes` of `transactions.storage_writes`, page after page.
 
-        TraceFast live Ethereum data: the committed TSTORE writes (EIP-1153) of one
-        transaction in execution order — the contract, the code that executed the write,
-        its caller, slot, value, frame path and depth. Transient storage lives for one
-        transaction; none exists before block 19 426 976. An empty list for a computed
-        transaction means no transient writes. At most 5 000 (`truncated` says when
-        there are more). Not computed yet answers 422.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+            limit: 1 to 200, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this transaction.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An iterator of `StorageWrite`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/transaction-storage-writes
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/storage-writes", {"limit": limit, "cursor": cursor}, "writes", max_items)
+
+    def transient_writes(self, hash: str) -> TransactionTransientWritesResponse:
+        """Transient storage a transaction wrote.
+
+        The committed TSTORE writes (EIP-1153) of one transaction in execution order —
+        the contract, the code that executed the write, its caller, slot, value, frame
+        path and depth. Transient storage lives for one transaction; none exists before
+        block 19 426 976. An empty list for a computed transaction means no transient
+        writes. At most 5 000 (`truncated` says when there are more). Not computed yet
+        answers 422.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionTransientWritesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-transient-writes
         """
@@ -3894,58 +6478,81 @@ class TransactionsApi:
 
 
 class AsyncBlocksApi:
-    """`client.blocks` — the blocks methods of the TraceFast API (async)."""
+    """`client.blocks`: the blocks methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def at_time(self, *, timestamp: int) -> BlockAtTimeResponse:
-        """Which block was the chain's at a given time
+        """Which block was the chain's at a given time.
 
-        TraceFast live Ethereum data: the last block whose time is at or before a Unix
-        time, and the first block after it — the bracket around the moment. Block times
-        rise strictly with the number, so the answer is exact. `final: false` means the
-        time is after the newest block: a later block may still land at or before it, so
-        ask again later; `nextBlock` is then absent. If blocks around the time are
-        temporarily unavailable, the method answers `422 coverage_gap` rather than a
-        pair across the gap. Pass a block's number to the block methods for its
-        contents.
+        The last block whose time is at or before a Unix time, and the first block after
+        it — the bracket around the moment. Block times rise strictly with the number,
+        so the answer is exact. `final: false` means the time is after the newest block:
+        a later block may still land at or before it, so ask again later; `nextBlock` is
+        then absent. If blocks around the time are temporarily unavailable, the method
+        answers `422 coverage_gap` rather than a pair across the gap. Pass a block's
+        number to the block methods for its contents.
 
-        Plan: Enriched Data or higher. **Beta** — the shape may still change.
+        Plan: Enriched Data or higher. **Beta**: the shape may still change.
 
         Args:
             timestamp: Unix time, seconds. Required.
+
+        Returns:
+            `BlockAtTimeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/block-at-time
         """
         return cast("BlockAtTimeResponse", await self._http.get(f"/chains/{self._http.chain_id}/blocks/at-time", {"timestamp": timestamp}))
 
     async def latest(self) -> BlockResponse:
-        """The latest block
+        """The latest block.
 
-        TraceFast live Ethereum data: the most recent block, with its header and the
-        totals of what it contains — transaction counts by outcome, gas, fees, value
-        moved, withdrawals. The same shape as `blocks/{number}`.
+        The most recent block, with its header and the totals of what it contains —
+        transaction counts by outcome, gas, fees, value moved, withdrawals. The same
+        shape as `blocks/{number}`.
 
         Plan: Enriched Data or higher.
+
+        Returns:
+            `BlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/block-latest
         """
         return cast("BlockResponse", await self._http.get(f"/chains/{self._http.chain_id}/blocks/latest", None))
 
-    async def get(self, number: int | str) -> BlockResponse:
-        """One block
+    async def get(self, number: int) -> BlockResponse:
+        """One block.
 
-        TraceFast live Ethereum data: one block by height — its header (hash, parent,
-        roots, fee recipient, gas, base fee, blob gas) and the totals of what it
-        contains: transactions by outcome, contract creations, blob transactions, logs,
-        withdrawals, value moved, fees burnt and paid. A block that is not known yet
-        answers 404.
+        One block by height — its header (hash, parent, roots, fee recipient, gas, base
+        fee, blob gas) and the totals of what it contains: transactions by outcome,
+        contract creations, blob transactions, logs, withdrawals, value moved, fees
+        burnt and paid. A block that is not known yet answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
+
+        Returns:
+            `BlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block
         """
@@ -3953,29 +6560,36 @@ class AsyncBlocksApi:
 
     async def addresses(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockAddressesResponse:
-        """Accounts touched by one block
+        """Accounts touched by one block.
 
-        TraceFast live Ethereum data: every account whose own state — native balance,
-        nonce or code — changed in one block, with what changed and the balance before
-        and after, in address order. Accounts only mentioned by the block's activity
-        without a state change are not listed. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent. Account changes are served to
-        the chain head: a block with no account change answers an empty list, which is a
-        statement about that block and not a gap. A block above the chain head does not
-        exist yet and answers 404.
+        Every account whose own state — native balance, nonce or code — changed in one
+        block, with what changed and the balance before and after, in address order.
+        Accounts only mentioned by the block's activity without a state change are not
+        listed. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it
+        is absent. Account changes are served to the chain head: a block with no account
+        change answers an empty list, which is a statement about that block and not a
+        gap. A block above the chain head does not exist yet and answers 404.
 
         Plan: Intelligence or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+
+        Returns:
+            `BlockAddressesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-addresses
         """
@@ -3983,56 +6597,111 @@ class AsyncBlocksApi:
 
     def addresses_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockAddressesResponse]:
-        """Every page of `blocks.addresses`, following `data.nextCursor` to the end.
+        """Every page of `blocks.addresses`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockAddressesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-addresses
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/addresses", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/addresses", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def addresses_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlockAddress]:
+        """Every row of `data.addresses` of `blocks.addresses`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlockAddress`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-addresses
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/addresses", {"limit": limit, "cursor": cursor}, "addresses", max_items)
 
     async def authorizations(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockAuthorizationsResponse:
-        """EIP-7702 authorizations of one block
+        """EIP-7702 authorizations of one block.
 
-        TraceFast live Ethereum data: every EIP-7702 authorization-list entry carried by
-        the transactions of one block — the delegation target, the account that signed
-        it (`authority`), the chain id and nonce it was signed for, the signature, and
-        the carrying transaction's hash and position — in transaction order and then
-        list order. `authorityStatus` says whether the signer is known: `recovered`,
-        `recovery_failed` (an invalid signature — the authorization has no signer) or
-        `not_available` (not determined yet). Empty when the block carries no type-4
-        transaction. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until
-        it is absent. A block the authorization history has not reached yet answers 422
-        with the highest block it can answer; a block above the chain head does not
-        exist yet and answers 404.
+        Every EIP-7702 authorization-list entry carried by the transactions of one block
+        — the delegation target, the account that signed it (`authority`), the chain id
+        and nonce it was signed for, the signature, and the carrying transaction's hash
+        and position — in transaction order and then list order. `authorityStatus` says
+        whether the signer is known: `recovered`, `recovery_failed` (an invalid
+        signature — the authorization has no signer) or `not_available` (not determined
+        yet). Empty when the block carries no type-4 transaction. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent. A block the
+        authorization history has not reached yet answers 422 with the highest block it
+        can answer; a block above the chain head does not exist yet and answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+
+        Returns:
+            `BlockAuthorizationsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-authorizations
         """
@@ -4040,55 +6709,110 @@ class AsyncBlocksApi:
 
     def authorizations_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockAuthorizationsResponse]:
-        """Every page of `blocks.authorizations`, following `data.nextCursor` to the end.
+        """Every page of `blocks.authorizations`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockAuthorizationsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-authorizations
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/authorizations", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/authorizations", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def authorizations_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[Authorization]:
+        """Every row of `data.authorizations` of `blocks.authorizations`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `Authorization`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-authorizations
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/authorizations", {"limit": limit, "cursor": cursor}, "authorizations", max_items)
 
     async def internal_transfers(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockInternalTransfersResponse:
-        """Every internal ETH transfer of a block
+        """Every internal ETH transfer of a block.
 
-        TraceFast live Ethereum data: every call frame of one block that moved ETH below
-        the transaction's own top level — sends from contracts, value carried by
-        internal calls, self-destruct payouts, contract creations with value — in
-        transaction order: the transaction and its sender, the frame's depth (2 = called
-        by the transaction's target), its kind, from, to, the amount in wei and whether
-        the frame succeeded. A frame that succeeded inside a reverted transaction, or
-        under a reverted parent frame, moved nothing in the end. `total` counts the
-        block's rows. A block the traces have not reached yet is refused (`422
-        coverage_gap` with the bound), never answered with an empty list. Continue with
-        `nextCursor`.
+        Every call frame of one block that moved ETH below the transaction's own top
+        level — sends from contracts, value carried by internal calls, self-destruct
+        payouts, contract creations with value — in transaction order: the transaction
+        and its sender, the frame's depth (2 = called by the transaction's target), its
+        kind, from, to, the amount in wei and whether the frame succeeded. A frame that
+        succeeded inside a reverted transaction, or under a reverted parent frame, moved
+        nothing in the end. `total` counts the block's rows. A block the traces have not
+        reached yet is refused (`422 coverage_gap` with the bound), never answered with
+        an empty list. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+
+        Returns:
+            `BlockInternalTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-internal-transfers
         """
@@ -4096,58 +6820,112 @@ class AsyncBlocksApi:
 
     def internal_transfers_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockInternalTransfersResponse]:
-        """Every page of `blocks.internal_transfers`, following `data.nextCursor` to the
-        end.
+        """Every page of `blocks.internal_transfers`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockInternalTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-internal-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/internal-transfers", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/internal-transfers", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def internal_transfers_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlockInternalTransferRow]:
+        """Every row of `data.transfers` of `blocks.internal_transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            number: The block height.
+            limit: 1 to 200, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlockInternalTransferRow`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-internal-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/internal-transfers", {"limit": limit, "cursor": cursor}, "transfers", max_items)
 
     async def participants(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockParticipantsResponse:
-        """Every address a block touched, and how
+        """Every address a block touched, and how.
 
-        TraceFast live Ethereum data: every address that took part in one block, in the
-        block's order (the system calls before the first transaction, then by first
-        transaction, then the rest — withdrawals, the fee recipient), with its roles
-        (transaction sender or recipient, caller or callee, token party, created, named
-        in an event, …), its primary class, how many of the block's transactions it took
-        part in, whether its own account changed — the balance before and after and the
-        signed ETH delta — its token transfers in the block summed per token (raw units;
-        transfers, not balance changes), and what the knowledge graph says the address
-        was at that block (`nature`, stated only when `natureState` is `known`). The
-        block's counts come with every page. A block whose participants are not computed
-        yet is refused (`422 coverage_gap`), never answered empty. Continue with
-        `nextCursor`.
+        Every address that took part in one block, in the block's order (the system
+        calls before the first transaction, then by first transaction, then the rest —
+        withdrawals, the fee recipient), with its roles (transaction sender or
+        recipient, caller or callee, token party, created, named in an event, …), its
+        primary class, how many of the block's transactions it took part in, whether its
+        own account changed — the balance before and after and the signed ETH delta —
+        its token transfers in the block summed per token (raw units; transfers, not
+        balance changes), and what the knowledge graph says the address was at that
+        block (`nature`, stated only when `natureState` is `known`). The block's counts
+        come with every page. A block whose participants are not computed yet is refused
+        (`422 coverage_gap`), never answered empty. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+
+        Returns:
+            `BlockParticipantsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-participants
         """
@@ -4155,52 +6933,107 @@ class AsyncBlocksApi:
 
     def participants_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockParticipantsResponse]:
-        """Every page of `blocks.participants`, following `data.nextCursor` to the end.
+        """Every page of `blocks.participants`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockParticipantsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-participants
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/participants", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/participants", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def participants_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlockParticipantRow]:
+        """Every row of `data.participants` of `blocks.participants`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            number: The block height.
+            limit: 1 to 100, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlockParticipantRow`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-participants
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/participants", {"limit": limit, "cursor": cursor}, "participants", max_items)
 
     async def token_transfers(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockTokenTransfersResponse:
-        """Every token transfer of a block
+        """Every token transfer of a block.
 
-        TraceFast live Ethereum data: every token transfer event of one block — ERC-20,
-        ERC-721 and ERC-1155 transfers, mints, burns, vault deposits and withdrawals,
-        WETH wraps and unwraps — in transaction and log order: the token and its
-        standard, the event, from, to, the raw amount or token id, and the transaction
-        with its sender and target. Amounts are in each token's smallest unit; pass the
-        token to the token method for its decimals. `total` counts the block's rows.
-        Continue with `nextCursor`.
+        Every token transfer event of one block — ERC-20, ERC-721 and ERC-1155
+        transfers, mints, burns, vault deposits and withdrawals, WETH wraps and unwraps
+        — in transaction and log order: the token and its standard, the event, from, to,
+        the raw amount or token id, and the transaction with its sender and target.
+        Amounts are in each token's smallest unit; pass the token to the token method
+        for its decimals. `total` counts the block's rows. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+
+        Returns:
+            `BlockTokenTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-token-transfers
         """
@@ -4208,51 +7041,106 @@ class AsyncBlocksApi:
 
     def token_transfers_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockTokenTransfersResponse]:
-        """Every page of `blocks.token_transfers`, following `data.nextCursor` to the end.
+        """Every page of `blocks.token_transfers`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             number: The block height.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this block. Left as None, it is not sent.
+                method and this block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockTokenTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-token-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/token-transfers", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/token-transfers", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def token_transfers_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlockTokenTransfer]:
+        """Every row of `data.transfers` of `blocks.token_transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            number: The block height.
+            limit: 1 to 200, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlockTokenTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-token-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/token-transfers", {"limit": limit, "cursor": cursor}, "transfers", max_items)
 
     async def transactions(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
     ) -> BlockTransactionsResponse:
-        """Transactions of one block
+        """Transactions of one block.
 
-        TraceFast live Ethereum data: the transactions of one block in their order
-        within the block, each with sender, recipient, value, gas, fee fields and the
-        receipt's outcome. Paged by an opaque cursor: pass `nextCursor` back as `cursor`
-        until it is absent. `txCount` is the block's whole count. A block that is not
-        known yet answers 404; a block this API cannot see right now answers 422 like
-        `blocks/{number}` does.
+        The transactions of one block in their order within the block, each with sender,
+        recipient, value, gas, fee fields and the receipt's outcome. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent. `txCount` is the
+        block's whole count. A block that is not known yet answers 404; a block this API
+        cannot see right now answers 422 like `blocks/{number}` does.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+
+        Returns:
+            `BlockTransactionsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-transactions
         """
@@ -4260,58 +7148,113 @@ class AsyncBlocksApi:
 
     def transactions_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockTransactionsResponse]:
-        """Every page of `blocks.transactions`, following `data.nextCursor` to the end.
+        """Every page of `blocks.transactions`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and block. Left as None, it is not sent.
+                method and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockTransactionsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-transactions
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/transactions", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/transactions", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def transactions_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[Transaction]:
+        """Every row of `data.transactions` of `blocks.transactions`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `Transaction`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-transactions
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/transactions", {"limit": limit, "cursor": cursor}, "transactions", max_items)
 
     async def withdrawals(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         validator_index: int | None = None,
         address: str | None = None,
     ) -> BlockWithdrawalsResponse:
-        """Validator withdrawals of one block
+        """Validator withdrawals of one block.
 
-        TraceFast live Ethereum data: the validator withdrawals paid out in one block —
-        index, validator, recipient and amount — in withdrawal-index order. A block
-        holds at most 16. Optionally narrowed to one validator or one recipient. Paged
-        by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
-        Withdrawals are served to the chain head: a block with no withdrawals answers an
-        empty list, which is a statement about that block and not a gap. A block above
-        the chain head does not exist yet and answers 404.
+        The validator withdrawals paid out in one block — index, validator, recipient
+        and amount — in withdrawal-index order. A block holds at most 16. Optionally
+        narrowed to one validator or one recipient. Paged by an opaque cursor: pass
+        `nextCursor` back as `cursor` until it is absent. Withdrawals are served to the
+        chain head: a block with no withdrawals answers an empty list, which is a
+        statement about that block and not a gap. A block above the chain head does not
+        exist yet and answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, block and filters. Left as None, it is not sent.
+                method, block and filters.
             validator_index: Only withdrawals of this validator index. Sent as
-                ``validatorIndex``. Left as None, it is not sent.
-            address: Only withdrawals paid to this address, `0x`-prefixed. Left as None,
-                it is not sent.
+                `validatorIndex`.
+            address: Only withdrawals paid to this address, `0x`-prefixed.
+
+        Returns:
+            `BlockWithdrawalsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-withdrawals
         """
@@ -4319,56 +7262,117 @@ class AsyncBlocksApi:
 
     def withdrawals_pages(
         self,
-        number: int | str,
+        number: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         validator_index: int | None = None,
         address: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlockWithdrawalsResponse]:
-        """Every page of `blocks.withdrawals`, following `data.nextCursor` to the end.
+        """Every page of `blocks.withdrawals`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             number: Block height.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, block and filters. Left as None, it is not sent.
+                method, block and filters.
             validator_index: Only withdrawals of this validator index. Sent as
-                ``validatorIndex``. Left as None, it is not sent.
-            address: Only withdrawals paid to this address, `0x`-prefixed. Left as None,
-                it is not sent.
+                `validatorIndex`.
+            address: Only withdrawals paid to this address, `0x`-prefixed.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlockWithdrawalsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/block-withdrawals
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/withdrawals", {"limit": limit, "cursor": cursor, "validatorIndex": validator_index, "address": address})
+        return self._http.pages(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/withdrawals", {"limit": limit, "cursor": cursor, "validatorIndex": validator_index, "address": address}, max_pages)
+
+    def withdrawals_items(
+        self,
+        number: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        validator_index: int | None = None,
+        address: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlockWithdrawal]:
+        """Every row of `data.withdrawals` of `blocks.withdrawals`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            number: Block height.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, block and filters.
+            validator_index: Only withdrawals of this validator index. Sent as
+                `validatorIndex`.
+            address: Only withdrawals paid to this address, `0x`-prefixed.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlockWithdrawal`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/block-withdrawals
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/blocks/{segment(number)}/withdrawals", {"limit": limit, "cursor": cursor, "validatorIndex": validator_index, "address": address}, "withdrawals", max_items)
 
 
 class AsyncConsensusApi:
-    """`client.consensus` — the consensus methods of the TraceFast API (async)."""
+    """`client.consensus`: the consensus methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def current(self) -> ConsensusCurrentResponse:
-        """Validator queues now
+        """Validator queues now.
 
-        TraceFast live Ethereum data: the validator queues by the Electra rules as of
-        the newest sampled epoch, under `queues` — the deposit queue (new validators and
-        top-ups), the exit queue, consolidations, partial withdrawals and validators
-        awaiting withdrawal, each as a count and a balance; the active set; the
-        per-epoch churn limits; and wait ESTIMATES (queue balance over churn, entry also
-        bounded by 16 deposits an epoch; for the queue as a whole, not a promise to one
-        validator). Beside them: recent exit and deposit flow, and validator counts by
-        STATUS under `status`, which since Electra are not the queues. Observed facts
-        and arithmetic over them only; no score or verdict. Values not yet sampled are
-        `null`, never zero.
+        The validator queues by the Electra rules as of the newest sampled epoch, under
+        `queues` — the deposit queue (new validators and top-ups), the exit queue,
+        consolidations, partial withdrawals and validators awaiting withdrawal, each as
+        a count and a balance; the active set; the per-epoch churn limits; and wait
+        ESTIMATES (queue balance over churn, entry also bounded by 16 deposits an epoch;
+        for the queue as a whole, not a promise to one validator). Beside them: recent
+        exit and deposit flow, and validator counts by STATUS under `status`, which
+        since Electra are not the queues. Observed facts and arithmetic over them only;
+        no score or verdict. Values not yet sampled are `null`, never zero.
 
         Plan: Intelligence or higher.
+
+        Returns:
+            `ConsensusCurrentResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-current
         """
@@ -4380,21 +7384,28 @@ class AsyncConsensusApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ConsensusEpochsResponse:
-        """Epoch health
+        """Epoch health.
 
-        TraceFast live Ethereum data: complete epochs (32 slots), newest first —
-        proposed and missed slots, sync committee participation, attestations, blob
-        commitments, deposits, exits, slashings, execution-layer requests and execution
-        gas. The epoch in progress is absent until it is complete; a field that the
-        epoch's fork had not introduced yet is absent. `publishedThroughEpoch` is the
-        newest complete epoch. Continue with `nextCursor`.
+        Complete epochs (32 slots), newest first — proposed and missed slots, sync
+        committee participation, attestations, blob commitments, deposits, exits,
+        slashings, execution-layer requests and execution gas. The epoch in progress is
+        absent until it is complete; a field that the epoch's fork had not introduced
+        yet is absent. `publishedThroughEpoch` is the newest complete epoch. Continue
+        with `nextCursor`.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `ConsensusEpochsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-epochs
         """
@@ -4405,36 +7416,86 @@ class AsyncConsensusApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ConsensusEpochsResponse]:
-        """Every page of `consensus.epochs`, following `data.nextCursor` to the end.
+        """Every page of `consensus.epochs`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ConsensusEpochsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-epochs
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/epochs", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/epochs", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def epochs_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ConsensusEpoch]:
+        """Every row of `data.epochs` of `consensus.epochs`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ConsensusEpoch`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/consensus-epochs
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/consensus/epochs", {"limit": limit, "cursor": cursor}, "epochs", max_items)
 
     async def health(self) -> ConsensusHealthResponse:
-        """Consensus liveness
+        """Consensus liveness.
 
-        TraceFast live Ethereum data: the newest head and finalized slot TraceFast saw
-        and when, the distance between them, the newest published slot, missed slots and
-        reorgs over the last 24 hours (the reorgs and the newest missed slots as rows),
-        and `observation24h` — how completely the head was seen over the window. A reorg
-        count is a statement about what was SEEN: read it next to `observation24h` and
-        `ages.headSeconds`. A missed slot names its assigned validator only when
-        `dutyStatus` is `recorded`. The facts are refreshed every minute; `ages` is
-        computed for each request.
+        The newest head and finalized slot TraceFast saw and when, the distance between
+        them, the newest published slot, missed slots and reorgs over the last 24 hours
+        (the reorgs and the newest missed slots as rows), and `observation24h` — how
+        completely the head was seen over the window. A reorg count is a statement about
+        what was SEEN: read it next to `observation24h` and `ages.headSeconds`. A missed
+        slot names its assigned validator only when `dutyStatus` is `recorded`. The
+        facts are refreshed every minute; `ages` is computed for each request.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Returns:
+            `ConsensusHealthResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-health
         """
@@ -4446,21 +7507,27 @@ class AsyncConsensusApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ConsensusMissedSlotsResponse:
-        """Missed slots
+        """Missed slots.
 
-        TraceFast live Ethereum data: beacon slots in which no block was proposed,
-        newest first. Each names the validator that was assigned to it when `dutyStatus`
-        is `recorded`; below slot 14 971 296 assignments were never captured and the
-        status is `not_recorded`, permanently. Slots are published once finalised, 13-19
-        minutes behind the chain head; `publishedThroughSlot` is the newest one.
-        Continue with `nextCursor`.
+        Beacon slots in which no block was proposed, newest first. Each names the
+        validator that was assigned to it when `dutyStatus` is `recorded`; below slot 14
+        971 296 assignments were never captured and the status is `not_recorded`,
+        permanently. Slots are published once finalised, 13-19 minutes behind the chain
+        head; `publishedThroughSlot` is the newest one. Continue with `nextCursor`.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `ConsensusMissedSlotsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-missed-slots
         """
@@ -4471,22 +7538,66 @@ class AsyncConsensusApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ConsensusMissedSlotsResponse]:
-        """Every page of `consensus.missed_slots`, following `data.nextCursor` to the end.
+        """Every page of `consensus.missed_slots`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ConsensusMissedSlotsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-missed-slots
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/missed-slots", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/missed-slots", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def missed_slots_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ConsensusMissedSlot]:
+        """Every row of `data.missedSlots` of `consensus.missed_slots`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ConsensusMissedSlot`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/consensus-missed-slots
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/consensus/missed-slots", {"limit": limit, "cursor": cursor}, "missedSlots", max_items)
 
     async def proposers(
         self,
@@ -4495,86 +7606,111 @@ class AsyncConsensusApi:
         group_by: str | None = None,
         limit: int | None = None,
     ) -> ConsensusProposersResponse:
-        """Block-proposal leaderboard
+        """Block-proposal leaderboard.
 
-        TraceFast live Ethereum data: which validators proposed the most blocks over a
-        window, or — grouped by withdrawal address — which payout addresses their
-        proposals sum to. The proposer is the validator whose duty the slot was, never
-        the block's fee recipient (usually a builder or relay). A withdrawal address is
-        a payout destination, not an operator. The two groupings rank different sets;
-        ask for the one you need.
+        Which validators proposed the most blocks over a window, or — grouped by
+        withdrawal address — which payout addresses their proposals sum to. The proposer
+        is the validator whose duty the slot was, never the block's fee recipient
+        (usually a builder or relay). A withdrawal address is a payout destination, not
+        an operator. The two groupings rank different sets; ask for the one you need.
 
         Plan: Intelligence or higher.
 
         Args:
-            period: `7d` (default), `30d`, `90d`, `1y` or `all`. Left as None, it is not
-                sent.
-            group_by: `validator` (default) or `address`. Sent as ``groupBy``. Left as
-                None, it is not sent.
-            limit: Rows to return, 1..=100, default 20. Left as None, it is not sent.
+            period: `7d` (default), `30d`, `90d`, `1y` or `all`.
+            group_by: `validator` (default) or `address`. Sent as `groupBy`.
+            limit: Rows to return, 1 to 100, default 20.
+
+        Returns:
+            `ConsensusProposersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-proposers
         """
         return cast("ConsensusProposersResponse", await self._http.get(f"/chains/{self._http.chain_id}/consensus/proposers", {"period": period, "groupBy": group_by, "limit": limit}))
 
     async def queues(self, *, limit: int | None = None) -> ConsensusQueuesResponse:
-        """Validator queues over time
+        """Validator queues over time.
 
-        TraceFast live Ethereum data: the validator queues now, plus one closing point
-        per UTC day for the most recent `limit` days (up to 90), newest first. Each
-        point carries the queues by the Electra rules under `queues` (deposit, exit and
-        consolidation queues with wait estimates in epochs; `null` on days before they
-        were sampled) and the validator counts by STATUS under `status`. The span
-        between the end of the reconstruction and the start of sampling is listed in
-        `gaps` — draw a break there, not a zero. Daily granularity only, stated in
-        `granularity`.
+        The validator queues now, plus one closing point per UTC day for the most recent
+        `limit` days (up to 90), newest first. Each point carries the queues by the
+        Electra rules under `queues` (deposit, exit and consolidation queues with wait
+        estimates in epochs; `null` on days before they were sampled) and the validator
+        counts by STATUS under `status`. The span between the end of the reconstruction
+        and the start of sampling is listed in `gaps` — draw a break there, not a zero.
+        Daily granularity only, stated in `granularity`.
 
         Plan: Intelligence or higher.
 
         Args:
-            limit: Most recent daily points to return, 1..=90, default 30. Left as None,
-                it is not sent.
+            limit: Most recent daily points to return, 1 to 90, default 30.
+
+        Returns:
+            `ConsensusQueuesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/consensus-queues
         """
         return cast("ConsensusQueuesResponse", await self._http.get(f"/chains/{self._http.chain_id}/consensus/queues", {"limit": limit}))
 
-    async def slot(self, slot: int | str) -> ConsensusSlotResponse:
-        """One beacon slot
+    async def slot(self, slot: int) -> ConsensusSlotResponse:
+        """One beacon slot.
 
-        TraceFast live Ethereum data: one beacon slot — whether a block was proposed and
-        by which validator, the validator that was ASSIGNED to it (`duty`; known from
-        slot 14 971 296 on, `not_recorded` below, permanently), and the execution block
-        with its fee recipient (who was paid for the block — under MEV-Boost usually the
-        builder, not the validator). A missed slot carries no block fields.
-        `graffitiHex` is the proposer's free 32-byte field, raw and undecoded. Slots are
-        published once finalised, 13-19 minutes behind the chain head;
-        `publishedThroughSlot` is the newest one.
+        One beacon slot — whether a block was proposed and by which validator, the
+        validator that was ASSIGNED to it (`duty`; known from slot 14 971 296 on,
+        `not_recorded` below, permanently), and the execution block with its fee
+        recipient (who was paid for the block — under MEV-Boost usually the builder, not
+        the validator). A missed slot carries no block fields. `graffitiHex` is the
+        proposer's free 32-byte field, raw and undecoded. Slots are published once
+        finalised, 13-19 minutes behind the chain head; `publishedThroughSlot` is the
+        newest one.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             slot: The beacon slot.
+
+        Returns:
+            `ConsensusSlotResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/consensus-slot
         """
         return cast("ConsensusSlotResponse", await self._http.get(f"/chains/{self._http.chain_id}/consensus/slots/{segment(slot)}", None))
 
-    async def validator(self, index: int | str) -> ConsensusValidatorResponse:
-        """One validator
+    async def validator(self, index: int) -> ConsensusValidatorResponse:
+        """One validator.
 
-        TraceFast live Ethereum data: one validator as of the validator snapshot (taken
-        about once a day; `snapshotEpoch`) — status, slashed, lifecycle epochs (an
-        absent epoch is not scheduled), effective balance, public key, credential type,
-        withdrawal credentials and `withdrawalAddress`, the execution address its
-        payouts go to. That address is a DESTINATION, not the owner or the operator; a
-        validator with BLS credentials has none. A validator index is never answered
-        'not found': a snapshot cannot prove that a validator does not exist.
+        One validator as of the validator snapshot (taken about once a day;
+        `snapshotEpoch`) — status, slashed, lifecycle epochs (an absent epoch is not
+        scheduled), effective balance, public key, credential type, withdrawal
+        credentials and `withdrawalAddress`, the execution address its payouts go to.
+        That address is a DESTINATION, not the owner or the operator; a validator with
+        BLS credentials has none. A validator index is never answered 'not found': a
+        snapshot cannot prove that a validator does not exist.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             index: The validator's index in the consensus registry.
+
+        Returns:
+            `ConsensusValidatorResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/consensus-validator
         """
@@ -4582,25 +7718,32 @@ class AsyncConsensusApi:
 
     async def validator_slots(
         self,
-        index: int | str,
+        index: int,
         *,
         limit: int | None = None,
     ) -> ConsensusValidatorSlotsResponse:
-        """A validator's proposal history
+        """A validator's proposal history.
 
-        TraceFast live Ethereum data: a validator's proposal history over EVERY
-        published slot (not a recent window), newest first — each slot it proposed
-        (`outcome: proposed`, with its execution block) and each slot it was assigned
-        and no block was proposed in (`outcome: missed`). Proposals are complete; misses
-        are a lower bound: assignments are recorded from slot 14 971 296 on. An index
-        that proposed nothing answers an empty list — a fact up to
-        `publishedThroughSlot`.
+        A validator's proposal history over EVERY published slot (not a recent window),
+        newest first — each slot it proposed (`outcome: proposed`, with its execution
+        block) and each slot it was assigned and no block was proposed in (`outcome:
+        missed`). Proposals are complete; misses are a lower bound: assignments are
+        recorded from slot 14 971 296 on. An index that proposed nothing answers an
+        empty list — a fact up to `publishedThroughSlot`.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             index: The validator's index in the consensus registry.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
+
+        Returns:
+            `ConsensusValidatorSlotsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/consensus-validator-slots
         """
@@ -4608,35 +7751,42 @@ class AsyncConsensusApi:
 
     async def validator_withdrawals(
         self,
-        index: int | str,
+        index: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
     ) -> ValidatorWithdrawalsResponse:
-        """Withdrawals of a validator
+        """Withdrawals of a validator.
 
-        TraceFast live Ethereum data: the withdrawals paid out for one validator —
-        block, global withdrawal index, the address paid and the amount — newest first,
-        inside a block window of at most 216 000 blocks (about 30 days). Without
-        `fromBlock` / `toBlock` the newest window is answered; the window used is echoed
-        in `window`, and older history is read by asking again with `toBlock` set to
-        `window.fromBlock - 1`. Paged inside the window by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent. A wider window is refused with
-        the bound, never narrowed.
+        The withdrawals paid out for one validator — block, global withdrawal index, the
+        address paid and the amount — newest first, inside a block window of at most 216
+        000 blocks (about 30 days). Without `fromBlock` / `toBlock` the newest window is
+        answered; the window used is echoed in `window`, and older history is read by
+        asking again with `toBlock` set to `window.fromBlock - 1`. Paged inside the
+        window by an opaque cursor: pass `nextCursor` back as `cursor` until it is
+        absent. A wider window is refused with the bound, never narrowed.
 
         Plan: Intelligence or higher.
 
         Args:
             index: The validator's index in the consensus registry.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same window. Left as None, it is not sent.
+                method with the same window.
             from_block: Inclusive lower block bound. Default: `toBlock - 215999`. Sent
-                as ``fromBlock``. Left as None, it is not sent.
+                as `fromBlock`.
             to_block: Inclusive upper block bound. Default: the newest covered block.
-                Sent as ``toBlock``. Left as None, it is not sent.
+                Sent as `toBlock`.
+
+        Returns:
+            `ValidatorWithdrawalsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/validator-withdrawals
         """
@@ -4644,34 +7794,88 @@ class AsyncConsensusApi:
 
     def validator_withdrawals_pages(
         self,
-        index: int | str,
+        index: int,
         *,
         limit: int | None = None,
         cursor: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ValidatorWithdrawalsResponse]:
-        """Every page of `consensus.validator_withdrawals`, following `data.nextCursor` to
-        the end.
+        """Every page of `consensus.validator_withdrawals`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             index: The validator's index in the consensus registry.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same window. Left as None, it is not sent.
+                method with the same window.
             from_block: Inclusive lower block bound. Default: `toBlock - 215999`. Sent
-                as ``fromBlock``. Left as None, it is not sent.
+                as `fromBlock`.
             to_block: Inclusive upper block bound. Default: the newest covered block.
-                Sent as ``toBlock``. Left as None, it is not sent.
+                Sent as `toBlock`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ValidatorWithdrawalsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/validator-withdrawals
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/validators/{segment(index)}/withdrawals", {"limit": limit, "cursor": cursor, "fromBlock": from_block, "toBlock": to_block})
+        return self._http.pages(f"/chains/{self._http.chain_id}/consensus/validators/{segment(index)}/withdrawals", {"limit": limit, "cursor": cursor, "fromBlock": from_block, "toBlock": to_block}, max_pages)
+
+    def validator_withdrawals_items(
+        self,
+        index: int,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ValidatorWithdrawal]:
+        """Every row of `data.withdrawals` of `consensus.validator_withdrawals`, page after
+        page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            index: The validator's index in the consensus registry.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with the same window.
+            from_block: Inclusive lower block bound. Default: `toBlock - 215999`. Sent
+                as `fromBlock`.
+            to_block: Inclusive upper block bound. Default: the newest covered block.
+                Sent as `toBlock`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ValidatorWithdrawal`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/validator-withdrawals
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/consensus/validators/{segment(index)}/withdrawals", {"limit": limit, "cursor": cursor, "fromBlock": from_block, "toBlock": to_block}, "withdrawals", max_items)
 
     async def entity_validators(
         self,
@@ -4679,21 +7883,28 @@ class AsyncConsensusApi:
         *,
         limit: int | None = None,
     ) -> ConsensusAddressValidatorsResponse:
-        """Validators paying out to an address
+        """Validators paying out to an address.
 
-        TraceFast live Ethereum data: the validators that direct their withdrawals to an
-        address, as of the validator snapshot (about once a day; `snapshotEpoch`) —
-        counts over all of them (active, withdrawn, slashed, by credential type, total
-        effective balance) and the validators themselves, lowest index first. The
-        address is where the payouts GO — not the owner or the operator. An address with
-        no validator answers zeros: the snapshot covers every validator with an
-        execution address.
+        The validators that direct their withdrawals to an address, as of the validator
+        snapshot (about once a day; `snapshotEpoch`) — counts over all of them (active,
+        withdrawn, slashed, by credential type, total effective balance) and the
+        validators themselves, lowest index first. The address is where the payouts GO —
+        not the owner or the operator. An address with no validator answers zeros: the
+        snapshot covers every validator with an execution address.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            limit: 1 to 500, default 100.
+
+        Returns:
+            `ConsensusAddressValidatorsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-validators
         """
@@ -4701,64 +7912,90 @@ class AsyncConsensusApi:
 
 
 class AsyncContractsApi:
-    """`client.contracts` — the contracts methods of the TraceFast API (async)."""
+    """`client.contracts`: the contracts methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def get(self, address: str) -> ContractResponse:
-        """One contract
+        """One contract.
 
-        TraceFast live Ethereum data: one deployed contract — the hash and size of its
-        current code, what the code exposes (ERC-20 view functions, ERC-165, an EIP-1167
-        minimal proxy and its target), the proxy pattern detected in it, and its
-        lifecycle: the deploying account, the origin account, the creating transaction,
-        code changes and self-destruction. An address with no indexed code answers 404.
+        One deployed contract — the hash and size of its current code, what the code
+        exposes (ERC-20 view functions, ERC-165, an EIP-1167 minimal proxy and its
+        target), the proxy pattern detected in it, and its lifecycle: the deploying
+        account, the origin account, the creating transaction, code changes and
+        self-destruction. An address with no indexed code answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `ContractResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract
         """
         return cast("ContractResponse", await self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}", None))
 
     async def bytecode(self, address: str) -> ContractBytecodeResponse:
-        """Bytecode of a contract
+        """Bytecode of a contract.
 
-        TraceFast live Ethereum data: the current runtime bytecode of a contract as hex,
-        with its code hash and a structural fingerprint that is equal across contracts
-        sharing the same logic. Up to 24 576 bytes of code. An address with no indexed
-        code answers 404.
+        The current runtime bytecode of a contract as hex, with its code hash and a
+        structural fingerprint that is equal across contracts sharing the same logic. Up
+        to 24 576 bytes of code. An address with no indexed code answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
 
+        Returns:
+            `ContractBytecodeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/contract-bytecode
         """
         return cast("ContractBytecodeResponse", await self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/bytecode", None))
 
     async def capabilities(self, address: str) -> ContractCapabilitiesResponse:
-        """What a contract can do: mint, pause, blacklist, upgrade
+        """What a contract can do: mint, pause, blacklist, upgrade.
 
-        TraceFast knowledge graph: the powers of one contract, each with three questions
-        — `inCode` (the code exposes it), `availableNow` (it can be used right now) and
-        `usedBefore` (it has been used on chain) — and the block each answer was
-        evaluated at. Powers include `mint`, `burn`, `pause`, `blacklist`, `freeze`,
-        `seize`, `upgrade` and `emergency_withdraw`; others may appear. An answer is
-        present only when it is proven: an absent answer means "not proven", never "no".
-        `otherFacts` lists the remaining proven capability facts as they are named (for
-        example `capability:currently_paused`). `graphReached: false` means the graph
-        has not reached the address yet, and nothing here is an answer about it. The
-        same facts appear among the address's attributes.
+        The powers of one contract, each with three questions — `inCode` (the code
+        exposes it), `availableNow` (it can be used right now) and `usedBefore` (it has
+        been used on chain) — and the block each answer was evaluated at. Powers include
+        `mint`, `burn`, `pause`, `blacklist`, `freeze`, `seize`, `upgrade` and
+        `emergency_withdraw`; others may appear. An answer is present only when it is
+        proven: an absent answer means "not proven", never "no". `otherFacts` lists the
+        remaining proven capability facts as they are named (for example
+        `capability:currently_paused`). `graphReached: false` means the graph has not
+        reached the address yet, and nothing here is an answer about it. The same facts
+        appear among the address's attributes.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractCapabilitiesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-capabilities
         """
@@ -4771,30 +8008,37 @@ class AsyncContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractClonesResponse:
-        """Contracts running exactly the same code
+        """Contracts running exactly the same code.
 
-        TraceFast live Ethereum data: every contract whose runtime code hashes to
-        `codeHash`, the hash of this contract's current code — the same deployed code at
-        other addresses — by address ascending, with `contractCount`, the size of the
-        whole list. The same code does not mean the same owner or the same deployer: a
-        factory, a template or a copied contract produces identical code for unrelated
-        parties, and two contracts with the same code can hold different state.
-        Identical code is byte for byte; code that differs only in its metadata or
-        constructor-set values is not listed (compare `fingerprint` on the bytecode
-        method). For an account delegated by EIP-7702 the shared code is the delegation,
-        so the list is the accounts delegated to the same contract. The list is updated
-        once a day: a contract deployed, or whose code changed, since then — this one
-        included — is missing from it, or still listed under its earlier code, until the
-        next update. An address with no indexed code answers 404. Continue with
-        `nextCursor`.
+        Every contract whose runtime code hashes to `codeHash`, the hash of this
+        contract's current code — the same deployed code at other addresses — by address
+        ascending, with `contractCount`, the size of the whole list. The same code does
+        not mean the same owner or the same deployer: a factory, a template or a copied
+        contract produces identical code for unrelated parties, and two contracts with
+        the same code can hold different state. Identical code is byte for byte; code
+        that differs only in its metadata or constructor-set values is not listed
+        (compare `fingerprint` on the bytecode method). For an account delegated by
+        EIP-7702 the shared code is the delegation, so the list is the accounts
+        delegated to the same contract. The list is updated once a day: a contract
+        deployed, or whose code changed, since then — this one included — is missing
+        from it, or still listed under its earlier code, until the next update. An
+        address with no indexed code answers 404. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this code. Left as None, it is not sent.
+                method and this code.
+
+        Returns:
+            `ContractClonesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-clones
         """
@@ -4806,23 +8050,71 @@ class AsyncContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractClonesResponse]:
-        """Every page of `contracts.clones`, following `data.nextCursor` to the end.
+        """Every page of `contracts.clones`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this code. Left as None, it is not sent.
+                method and this code.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractClonesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-clones
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/clones", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/clones", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def clones_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[CodeClone]:
+        """Every row of `data.contracts` of `contracts.clones`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The contract, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this code.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `CodeClone`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-clones
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/clones", {"limit": limit, "cursor": cursor}, "contracts", max_items)
 
     async def control_history(
         self,
@@ -4831,26 +8123,34 @@ class AsyncContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractControlHistoryResponse:
-        """Who changed a proxy's implementation or admin, and when
+        """Who changed a proxy's implementation or admin, and when.
 
-        TraceFast live Ethereum data: every write to a proxy's control slots — the
-        EIP-1967 implementation, admin and beacon slots and the older OpenZeppelin slot
-        — newest first, one row per write: the block and transaction, which slot, the
-        value before and after, who called the frame that wrote it and whose code ran in
-        it. `kind` is `upgrade` (a value written), `unset` (the slot written to zero) or
-        `cleared` (wiped with the account, pre-Cancun SELFDESTRUCT); other values may be
-        added. An `upgrade` whose previous value is all zeros means the slot was empty
-        before the write — not necessarily its first deployment. History of the OWNER
-        role is not here: only storage slots that proxies use for control.
-        `meta.asOfBlock` is how far the history is known. Continue with `nextCursor`.
+        Every write to a proxy's control slots — the EIP-1967 implementation, admin and
+        beacon slots and the older OpenZeppelin slot — newest first, one row per write:
+        the block and transaction, which slot, the value before and after, who called
+        the frame that wrote it and whose code ran in it. `kind` is `upgrade` (a value
+        written), `unset` (the slot written to zero) or `cleared` (wiped with the
+        account, pre-Cancun SELFDESTRUCT); other values may be added. An `upgrade` whose
+        previous value is all zeros means the slot was empty before the write — not
+        necessarily its first deployment. History of the OWNER role is not here: only
+        storage slots that proxies use for control. `meta.asOfBlock` is how far the
+        history is known. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The proxy, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `ContractControlHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-control-history
         """
@@ -4862,24 +8162,71 @@ class AsyncContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractControlHistoryResponse]:
-        """Every page of `contracts.control_history`, following `data.nextCursor` to the
-        end.
+        """Every page of `contracts.control_history`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The proxy, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractControlHistoryResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-control-history
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/control-history", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/control-history", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def control_history_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ControlChange]:
+        """Every row of `data.changes` of `contracts.control_history`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The proxy, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ControlChange`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-control-history
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/control-history", {"limit": limit, "cursor": cursor}, "changes", max_items)
 
     async def decompilation(
         self,
@@ -4891,36 +8238,39 @@ class AsyncContractsApi:
         bodies: bool | None = None,
         cursor: str | None = None,
     ) -> ContractDecompilationResponse:
-        """Decompiled code of a contract
+        """Decompiled code of a contract.
 
-        TraceFast live Ethereum data: a contract's code reconstructed as readable
-        Solidity-like pseudocode, for contracts with or without published source. By
-        default the code that runs at the address — through a proxy, a beacon, a minimal
-        proxy or an EIP-7702 delegation — at the latest block, or at `block`. The answer
-        is a table of contents of the functions with their names where known; `selector`
-        returns one function's body, `bodies=true` the bodies in order, a page at a
-        time. Every answer carries a disclaimer: the reconstruction is best-effort. A
-        code not analysed yet is analysed on request: the answer is then 503
-        `decompilation_pending` with `Retry-After` — ask again after it, usually within
-        a minute. Each account starts a limited number of analyses per day; reading an
-        analysed code is not limited.
+        A contract's code reconstructed as readable Solidity-like pseudocode, for
+        contracts with or without published source. By default the code that runs at the
+        address — through a proxy, a beacon, a minimal proxy or an EIP-7702 delegation —
+        at the latest block, or at `block`. The answer is a table of contents of the
+        functions with their names where known; `selector` returns one function's body,
+        `bodies=true` the bodies in order, a page at a time. Every answer carries a
+        disclaimer: the reconstruction is best-effort. A code not analysed yet is
+        analysed on request: the answer is then 503 `decompilation_pending` with
+        `Retry-After` — ask again after it, usually within a minute. Each account starts
+        a limited number of analyses per day; reading an analysed code is not limited.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code (a proxy's own). Left as None,
-                it is not sent.
+                a proxy. `self`: the address's own code (a proxy's own).
             selector: One function's body: `0x` + 8 hex characters, or `fallback` /
-                `receive`. Not with `bodies` or `cursor`. Left as None, it is not sent.
-            bodies: `true`: the first page of bodies in table-of-contents order. Left as
-                None, it is not sent.
+                `receive`. Not with `bodies` or `cursor`.
+            bodies: `true`: the first page of bodies in table-of-contents order.
             cursor: `nextCursor` of the previous page of bodies. Opaque, and valid only
-                for this method with the same address, target and block. Left as None,
-                it is not sent.
+                for this method with the same address, target and block.
+
+        Returns:
+            `ContractDecompilationResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-decompilation
         """
@@ -4935,32 +8285,84 @@ class AsyncContractsApi:
         selector: str | None = None,
         bodies: bool | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractDecompilationResponse]:
-        """Every page of `contracts.decompilation`, following `data.nextCursor` to the end.
+        """Every page of `contracts.decompilation`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code (a proxy's own). Left as None,
-                it is not sent.
+                a proxy. `self`: the address's own code (a proxy's own).
             selector: One function's body: `0x` + 8 hex characters, or `fallback` /
-                `receive`. Not with `bodies` or `cursor`. Left as None, it is not sent.
-            bodies: `true`: the first page of bodies in table-of-contents order. Left as
-                None, it is not sent.
+                `receive`. Not with `bodies` or `cursor`.
+            bodies: `true`: the first page of bodies in table-of-contents order.
             cursor: `nextCursor` of the previous page of bodies. Opaque, and valid only
-                for this method with the same address, target and block. Left as None,
-                it is not sent.
+                for this method with the same address, target and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractDecompilationResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-decompilation
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/decompilation", {"block": block, "target": target, "selector": selector, "bodies": bodies, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/decompilation", {"block": block, "target": target, "selector": selector, "bodies": bodies, "cursor": cursor}, max_pages)
+
+    def decompilation_items(
+        self,
+        address: str,
+        *,
+        block: int | None = None,
+        target: str | None = None,
+        selector: str | None = None,
+        bodies: bool | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[DecompiledBody]:
+        """Every row of `data.bodies` of `contracts.decompilation`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+            block: The block to resolve the code at. Default: the latest covered block.
+            target: `auto` (default): the code that runs at the address, one hop through
+                a proxy. `self`: the address's own code (a proxy's own).
+            selector: One function's body: `0x` + 8 hex characters, or `fallback` /
+                `receive`. Not with `bodies` or `cursor`.
+            bodies: `true`: the first page of bodies in table-of-contents order.
+            cursor: `nextCursor` of the previous page of bodies. Opaque, and valid only
+                for this method with the same address, target and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `DecompiledBody`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-decompilation
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/decompilation", {"block": block, "target": target, "selector": selector, "bodies": bodies, "cursor": cursor}, "bodies", max_items)
 
     async def disassembly(
         self,
@@ -4971,29 +8373,33 @@ class AsyncContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractDisassemblyResponse:
-        """Disassembly of a contract
+        """Disassembly of a contract.
 
-        TraceFast live Ethereum data: a contract's code as EVM instructions with their
-        byte offsets (pc), in order, a page at a time — the same pcs the decompiled view
-        refers to. By default the code that runs at the address, through a proxy, at the
-        latest block, or at `block`. The compiler's metadata at the end of the code is
-        named, and every instruction inside it is marked: it is data that happens to
-        decode as instructions. Paged by an opaque cursor: pass `nextCursor` back as
-        `cursor` until it is absent.
+        A contract's code as EVM instructions with their byte offsets (pc), in order, a
+        page at a time — the same pcs the decompiled view refers to. By default the code
+        that runs at the address, through a proxy, at the latest block, or at `block`.
+        The compiler's metadata at the end of the code is named, and every instruction
+        inside it is marked: it is data that happens to decode as instructions. Paged by
+        an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code. Left as None, it is not sent.
-            limit: Instructions per page, 1..=5000, default 1000. Left as None, it is
-                not sent.
+                a proxy. `self`: the address's own code.
+            limit: Instructions per page, 1 to 5000, default 1000.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same address, target and block. Left as None, it is not
-                sent.
+                method with the same address, target and block.
+
+        Returns:
+            `ContractDisassemblyResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-disassembly
         """
@@ -5007,29 +8413,79 @@ class AsyncContractsApi:
         target: str | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractDisassemblyResponse]:
-        """Every page of `contracts.disassembly`, following `data.nextCursor` to the end.
+        """Every page of `contracts.disassembly`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to resolve the code at. Default: the latest covered block.
-                Left as None, it is not sent.
             target: `auto` (default): the code that runs at the address, one hop through
-                a proxy. `self`: the address's own code. Left as None, it is not sent.
-            limit: Instructions per page, 1..=5000, default 1000. Left as None, it is
-                not sent.
+                a proxy. `self`: the address's own code.
+            limit: Instructions per page, 1 to 5000, default 1000.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with the same address, target and block. Left as None, it is not
-                sent.
+                method with the same address, target and block.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractDisassemblyResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-disassembly
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/disassembly", {"block": block, "target": target, "limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/disassembly", {"block": block, "target": target, "limit": limit, "cursor": cursor}, max_pages)
+
+    def disassembly_items(
+        self,
+        address: str,
+        *,
+        block: int | None = None,
+        target: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[Instruction]:
+        """Every row of `data.instructions` of `contracts.disassembly`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+            block: The block to resolve the code at. Default: the latest covered block.
+            target: `auto` (default): the code that runs at the address, one hop through
+                a proxy. `self`: the address's own code.
+            limit: Instructions per page, 1 to 5000, default 1000.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with the same address, target and block.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `Instruction`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-disassembly
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/disassembly", {"block": block, "target": target, "limit": limit, "cursor": cursor}, "instructions", max_items)
 
     async def events(
         self,
@@ -5041,30 +8497,35 @@ class AsyncContractsApi:
         from_block: int | None = None,
         to_block: int | None = None,
     ) -> ContractEventsResponse:
-        """Events emitted by a contract
+        """Events emitted by a contract.
 
-        TraceFast live Ethereum data: the event logs a contract emitted, newest first,
-        each with its topics and data and, where the signature is known, the decoded
-        event and its arguments. Paged by an opaque cursor: pass `nextCursor` back as
-        `cursor` until it is absent. A page holds at most `limit` events and may hold
-        fewer when their `data` is large: the page is bounded by size, a log is never
-        cut. `topic0` narrows to one event signature; on a very active contract that
-        narrowing is answered only inside a block window, and the refusal names the
-        window it needs.
+        The event logs a contract emitted, newest first, each with its topics and data
+        and, where the signature is known, the decoded event and its arguments. Paged by
+        an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page
+        holds at most `limit` events and may hold fewer when their `data` is large: the
+        page is bounded by size, a log is never cut. `topic0` narrows to one event
+        signature; on a very active contract that narrowing is answered only inside a
+        block window, and the refusal names the window it needs.
 
         Plan: Investigation or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             topic0: The event signature hash to narrow to, `0x`-prefixed, 64 hex
-                characters. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+
+        Returns:
+            `ContractEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-events
         """
@@ -5079,90 +8540,158 @@ class AsyncContractsApi:
         topic0: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractEventsResponse]:
-        """Every page of `contracts.events`, following `data.nextCursor` to the end.
+        """Every page of `contracts.events`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             topic0: The event signature hash to narrow to, `0x`-prefixed, 64 hex
-                characters. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/events", {"limit": limit, "cursor": cursor, "topic0": topic0, "fromBlock": from_block, "toBlock": to_block})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/events", {"limit": limit, "cursor": cursor, "topic0": topic0, "fromBlock": from_block, "toBlock": to_block}, max_pages)
+
+    def events_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        topic0: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[EventLog]:
+        """Every row of `data.events` of `contracts.events`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            topic0: The event signature hash to narrow to, `0x`-prefixed, 64 hex
+                characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `EventLog`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/events", {"limit": limit, "cursor": cursor, "topic0": topic0, "fromBlock": from_block, "toBlock": to_block}, "events", max_items)
 
     async def function_calls(self, address: str) -> ContractFunctionCallsResponse:
-        """Calls per function of a contract
+        """Calls per function of a contract.
 
-        TraceFast live Ethereum data: how often each function of an address was called —
-        the transactions sent to it per 4-byte selector, most called first, with the
-        block of the last one and the function's name where known — plus the first and
-        the last block in which it received any call. The counts are top-level calls
-        only: a call made from inside another contract is not counted. A proxy's calls
-        are counted at the proxy. An address nobody called answers an empty list.
+        How often each function of an address was called — the transactions sent to it
+        per 4-byte selector, most called first, with the block of the last one and the
+        function's name where known — plus the first and the last block in which it
+        received any call. The counts are top-level calls only: a call made from inside
+        another contract is not counted. A proxy's calls are counted at the proxy. An
+        address nobody called answers an empty list.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
 
+        Returns:
+            `ContractFunctionCallsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/contract-function-calls
         """
         return cast("ContractFunctionCallsResponse", await self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/function-calls", None))
 
     async def identity(self, address: str) -> ContractIdentityResponse:
-        """Which code a contract runs, its hashes, and how it came to be
+        """Which code a contract runs, its hashes, and how it came to be.
 
-        TraceFast live Ethereum data: the identity of one contract — the Keccak-256 hash
-        of its current code, the SHA-256 of the same code (the hash Sourcify and other
-        verifiers key on), a structural fingerprint that is equal across contracts
-        sharing the same logic, the code's size and kind, and its lifecycle: deploying
-        account, signing account, creating transaction, code changes and
-        self-destruction. Fields that are not recorded are absent. For an account
-        delegated by EIP-7702 the stored bytes are the delegation, not code:
-        `runtimeSha256` and `fingerprint` are absent there. Other contracts with exactly
-        the same code are the clones method. An address with no indexed code answers
-        404.
+        The identity of one contract — the Keccak-256 hash of its current code, the
+        SHA-256 of the same code (the hash Sourcify and other verifiers key on), a
+        structural fingerprint that is equal across contracts sharing the same logic,
+        the code's size and kind, and its lifecycle: deploying account, signing account,
+        creating transaction, code changes and self-destruction. Fields that are not
+        recorded are absent. For an account delegated by EIP-7702 the stored bytes are
+        the delegation, not code: `runtimeSha256` and `fingerprint` are absent there.
+        Other contracts with exactly the same code are the clones method. An address
+        with no indexed code answers 404.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractIdentityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-identity
         """
         return cast("ContractIdentityResponse", await self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/identity", None))
 
     async def proxy(self, address: str) -> ProxyImplementationsResponse:
-        """Implementations of a proxy contract
+        """Implementations of a proxy contract.
 
-        TraceFast live Ethereum data: the implementations a proxy contract has been
-        observed delegating to — from its EIP-1167 bytecode, its EIP-1967 implementation
-        or beacon slot, or its OpenZeppelin v1 slot — newest first, each with the blocks
-        it was seen at and whether it has since been replaced. `supersededBy` has three
-        states: absent when storage cannot say (a code-embedded pointer, a beacon row,
-        or a slot value the proxy status does not name as current), `null` when the
-        pointer is current by the proxy status, an address when it was replaced. On a
-        beacon row the listed address is the beacon and `supersededBy` speaks only of
-        the proxy's beacon slot (an address when the proxy moved to another beacon);
-        changes of logic behind the beacon are in `beacon`, which carries what it handed
-        out: the logic contracts with `startBlock` and inclusive `endBlock`, newest
-        first, proven from `provenFromBlock` and complete at least through
-        `completeThroughBlock`, or `state: not_proven` when the beacon's implementation
-        could not be established — which says nothing about what it hands out. An empty
-        list means no pointer was observed, not that the address is not a proxy.
+        The implementations a proxy contract has been observed delegating to — from its
+        EIP-1167 bytecode, its EIP-1967 implementation or beacon slot, or its
+        OpenZeppelin v1 slot — newest first, each with the blocks it was seen at and
+        whether it has since been replaced. `supersededBy` has three states: absent when
+        storage cannot say (a code-embedded pointer, a beacon row, or a slot value the
+        proxy status does not name as current), `null` when the pointer is current by
+        the proxy status, an address when it was replaced. On a beacon row the listed
+        address is the beacon and `supersededBy` speaks only of the proxy's beacon slot
+        (an address when the proxy moved to another beacon); changes of logic behind the
+        beacon are in `beacon`, which carries what it handed out: the logic contracts
+        with `startBlock` and inclusive `endBlock`, newest first, proven from
+        `provenFromBlock` and complete at least through `completeThroughBlock`, or
+        `state: not_proven` when the beacon's implementation could not be established —
+        which says nothing about what it hands out. An empty list means no pointer was
+        observed, not that the address is not a proxy.
 
         Plan: Enriched Data or higher.
 
@@ -5170,48 +8699,70 @@ class AsyncContractsApi:
             address: The proxy contract address, `0x`-prefixed, 40 hex characters, any
                 case.
 
+        Returns:
+            `ProxyImplementationsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/contract-proxy
         """
         return cast("ProxyImplementationsResponse", await self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/proxy", None))
 
     async def security(self, address: str) -> ContractSecurityResponse:
-        """How a contract's code is built and how it can change
+        """How a contract's code is built and how it can change.
 
-        TraceFast live Ethereum data: the security profile of one contract's current
-        code — the proxy pattern detected in it and its confidence, its opcode-level
-        features (DELEGATECALL, CALLCODE, a DELEGATECALL target read from storage), and
-        what the knowledge graph proves about how it is built (`architecture`: for
-        example immutable, an upgradeable proxy, a mutable implementation slot,
-        metamorphic). Only proven facts are stated: an absent one means "not proven",
-        never "no". Who changed a proxy's implementation and when is the control-history
-        method; what the contract can do is the capabilities method. An address with no
-        indexed code answers 404.
+        The security profile of one contract's current code — the proxy pattern detected
+        in it and its confidence, its opcode-level features (DELEGATECALL, CALLCODE, a
+        DELEGATECALL target read from storage), and what the knowledge graph proves
+        about how it is built (`architecture`: for example immutable, an upgradeable
+        proxy, a mutable implementation slot, metamorphic). Only proven facts are
+        stated: an absent one means "not proven", never "no". Who changed a proxy's
+        implementation and when is the control-history method; what the contract can do
+        is the capabilities method. An address with no indexed code answers 404.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractSecurityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-security
         """
         return cast("ContractSecurityResponse", await self._http.get(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/security", None))
 
     async def selectors(self, address: str) -> ContractSelectorsResponse:
-        """Function selectors of a contract
+        """Function selectors of a contract.
 
-        TraceFast live Ethereum data: the 4-byte selectors found as constants in a
-        contract's bytecode, each resolved to a known signature and name where one
-        exists, with how many known signatures share the selector. `decodeStatus` says
-        how confident each resolution is. The list holds the contract's own functions
-        together with the selectors of functions it calls on other contracts and of its
-        custom errors, not told apart: a selector here is not proof the contract
-        implements that function, and `selectorCount` is not the number of its
-        functions. An address with no indexed code answers 404.
+        The 4-byte selectors found as constants in a contract's bytecode, each resolved
+        to a known signature and name where one exists, with how many known signatures
+        share the selector. `decodeStatus` says how confident each resolution is. The
+        list holds the contract's own functions together with the selectors of functions
+        it calls on other contracts and of its custom errors, not told apart: a selector
+        here is not proof the contract implements that function, and `selectorCount` is
+        not the number of its functions. An address with no indexed code answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The contract address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `ContractSelectorsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-selectors
         """
@@ -5223,23 +8774,29 @@ class AsyncContractsApi:
         *,
         days: int | None = None,
     ) -> ContractStorageActivityResponse:
-        """How a contract's storage was read and written, per day
+        """How a contract's storage was read and written, per day.
 
-        TraceFast live Ethereum data: for each UTC day of a window, oldest first, how
-        many transactions touched a contract's storage, read it, wrote it, or only read
-        it without writing (a dependency on its state); the SLOAD and SSTORE opcode
-        counts (reverted frames included — opcodes, not distinct slots); the transient
-        storage opcodes TLOAD and TSTORE (EIP-1153); and the slot touches (distinct
-        slots per transaction, summed). Only days with activity have a row: a missing
-        day is not a zero stated. The last day is partial — it holds the blocks through
-        `readThroughBlock`.
+        For each UTC day of a window, oldest first, how many transactions touched a
+        contract's storage, read it, wrote it, or only read it without writing (a
+        dependency on its state); the SLOAD and SSTORE opcode counts (reverted frames
+        included — opcodes, not distinct slots); the transient storage opcodes TLOAD and
+        TSTORE (EIP-1153); and the slot touches (distinct slots per transaction,
+        summed). Only days with activity have a row: a missing day is not a zero stated.
+        The last day is partial — it holds the blocks through `readThroughBlock`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            days: The window in UTC days, 1..=365, default 90. Left as None, it is not
-                sent.
+            days: The window in UTC days, 1 to 365, default 90.
+
+        Returns:
+            `ContractStorageActivityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-activity
         """
@@ -5251,26 +8808,32 @@ class AsyncContractsApi:
         *,
         window_blocks: int | None = None,
     ) -> ContractHotSlotsResponse:
-        """The storage slots of a contract that changed most recently
+        """The storage slots of a contract that changed most recently.
 
-        TraceFast live Ethereum data: the 25 storage slots of a contract whose value
-        changed in the most blocks of a recent window, with how many blocks each changed
-        in and the last one, plus how many slots changed in the window in all. A change
-        is a block in which the value differs: several writes in one block are one
-        change, and a write of the value already held is none. A slot not listed changed
-        in fewer blocks than the 25 listed, or not at all: `totalSlotsInWindow` counts
-        every slot that changed. An empty window answers `slots: []` with
-        `lastChangeBlock`, the contract's newest change before the window, when it is
-        known. The window ends at the newest block known (`windowToBlock`). Pass a slot
-        to the slot history method for its values.
+        The 25 storage slots of a contract whose value changed in the most blocks of a
+        recent window, with how many blocks each changed in and the last one, plus how
+        many slots changed in the window in all. A change is a block in which the value
+        differs: several writes in one block are one change, and a write of the value
+        already held is none. A slot not listed changed in fewer blocks than the 25
+        listed, or not at all: `totalSlotsInWindow` counts every slot that changed. An
+        empty window answers `slots: []` with `lastChangeBlock`, the contract's newest
+        change before the window, when it is known. The window ends at the newest block
+        known (`windowToBlock`). Pass a slot to the slot history method for its values.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            window_blocks: The window's width in blocks, 1..=50400 (one week), default
-                7200 (about a day). Sent as ``windowBlocks``. Left as None, it is not
-                sent.
+            window_blocks: The window's width in blocks, 1 to 50400 (one week), default
+                7200 (about a day). Sent as `windowBlocks`.
+
+        Returns:
+            `ContractHotSlotsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-hot-slots
         """
@@ -5283,31 +8846,40 @@ class AsyncContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractStorageParametersResponse:
-        """The direct storage slots of a contract (its declared variables) and their values
+        """The direct storage slots of a contract (its declared variables) and their
+        values.
 
-        TraceFast live Ethereum data: the DIRECT storage slots of a contract — the slots
-        below 2^64 that hold its declared variables, packed fields and fixed-array
-        elements (not mapping entries) — in slot order, each with how many blocks
-        changed its value, the first and last of them, and its current value.
-        `currentValueStatus` says whether the value can be stated: `observed` (then
-        `currentValue`), `system_writes` (a protocol system contract rewrites its
-        storage outside transactions), `ambiguous_order` (the last transaction wrote the
-        slot more than once with different values, in blocks old enough that the order
-        of writes inside a transaction is not recorded), `storage_cleared` (a
-        self-destruct wiped the storage after the last change), `no_transaction_write`
-        (no transaction wrote the slot in the block it last changed: a protocol system
-        call or a clearing), or `not_computed` (the newest blocks are not processed yet;
-        retry); `currentValue` is absent in every state but `observed`, never a zero.
-        Variable names are not stated. Only slots whose value ever changed are listed:
-        absence is not "no such variable". Continue with `nextCursor`.
+        The DIRECT storage slots of a contract — the slots below 2^64 that hold its
+        declared variables, packed fields and fixed-array elements (not mapping entries)
+        — in slot order, each with how many blocks changed its value, the first and last
+        of them, and its current value. `currentValueStatus` says whether the value can
+        be stated: `observed` (then `currentValue`), `system_writes` (a protocol system
+        contract rewrites its storage outside transactions), `ambiguous_order` (the last
+        transaction wrote the slot more than once with different values, in blocks old
+        enough that the order of writes inside a transaction is not recorded),
+        `storage_cleared` (a self-destruct wiped the storage after the last change),
+        `no_transaction_write` (no transaction wrote the slot in the block it last
+        changed: a protocol system call or a clearing), or `not_computed` (the newest
+        blocks are not processed yet; retry); `currentValue` is absent in every state
+        but `observed`, never a zero. Variable names are not stated. Only slots whose
+        value ever changed are listed: absence is not "no such variable". Continue with
+        `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=200, default 100. Left as None, it is not sent.
+            limit: 1 to 200, default 100.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this contract. Left as None, it is not sent.
+                method and this contract.
+
+        Returns:
+            `ContractStorageParametersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-parameters
         """
@@ -5319,41 +8891,96 @@ class AsyncContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractStorageParametersResponse]:
-        """Every page of `contracts.storage_parameters`, following `data.nextCursor` to the
-        end.
+        """Every page of `contracts.storage_parameters`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=200, default 100. Left as None, it is not sent.
+            limit: 1 to 200, default 100.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this contract. Left as None, it is not sent.
+                method and this contract.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractStorageParametersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-parameters
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/parameters", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/parameters", {"limit": limit, "cursor": cursor}, max_pages)
 
-    async def storage_profile(self, address: str) -> ContractStorageProfileResponse:
-        """Totals of a contract's storage writes
+    def storage_parameters_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[StorageParameterRow]:
+        """Every row of `data.slots` of `contracts.storage_parameters`, page after page.
 
-        TraceFast live Ethereum data: the totals of every write to a contract's storage
-        over its history — how many writes, how many distinct slots, callers and
-        executing code addresses (estimates on large contracts), the first and last
-        block written, how many writes ran through DELEGATECALL (code borrowed from
-        another contract, as in a proxy) and their share, and the deepest call depth a
-        write happened at. The totals are refreshed hourly: the newest writes are not
-        counted yet, and an address whose first write is that recent answers 404 like
-        one that never wrote. No names are stated.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
+            limit: 1 to 200, default 100.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this contract.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `StorageParameterRow`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-storage-parameters
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/parameters", {"limit": limit, "cursor": cursor}, "slots", max_items)
+
+    async def storage_profile(self, address: str) -> ContractStorageProfileResponse:
+        """Totals of a contract's storage writes.
+
+        The totals of every write to a contract's storage over its history — how many
+        writes, how many distinct slots, callers and executing code addresses (estimates
+        on large contracts), the first and last block written, how many writes ran
+        through DELEGATECALL (code borrowed from another contract, as in a proxy) and
+        their share, and the deepest call depth a write happened at. The totals are
+        refreshed hourly: the newest writes are not counted yet, and an address whose
+        first write is that recent answers 404 like one that never wrote. No names are
+        stated.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The contract, `0x` + 40 hex, any case.
+
+        Returns:
+            `ContractStorageProfileResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-profile
         """
@@ -5365,24 +8992,31 @@ class AsyncContractsApi:
         *,
         limit: int | None = None,
     ) -> ContractStorageWritersResponse:
-        """Who writes a contract's storage
+        """Who writes a contract's storage.
 
-        TraceFast live Ethereum data: the accounts that wrote a contract's storage,
-        ranked by the number of writes — each row a pair of the CALLER (who called the
-        frame that wrote) and the EXECUTION address (whose code ran in it: the contract
-        itself, or an implementation it delegated to) — with the writes, the
-        transactions (an estimate on large contracts), and the first and last block.
-        `totalPairs` counts every pair; the list is the top `limit` of them, not a page
-        of a feed, ties broken by caller and then execution address. The ranking and its
-        pairs are refreshed once a day: a pair that started writing, or overtook
-        another, since then is not reflected yet; the counts and blocks are refreshed
-        hourly. No names are stated.
+        The accounts that wrote a contract's storage, ranked by the number of writes —
+        each row a pair of the CALLER (who called the frame that wrote) and the
+        EXECUTION address (whose code ran in it: the contract itself, or an
+        implementation it delegated to) — with the writes, the transactions (an estimate
+        on large contracts), and the first and last block. `totalPairs` counts every
+        pair; the list is the top `limit` of them, not a page of a feed, ties broken by
+        caller and then execution address. The ranking and its pairs are refreshed once
+        a day: a pair that started writing, or overtook another, since then is not
+        reflected yet; the counts and blocks are refreshed hourly. No names are stated.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
+
+        Returns:
+            `ContractStorageWritersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-storage-writers
         """
@@ -5396,27 +9030,35 @@ class AsyncContractsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> ContractSlotHistoryResponse:
-        """How one storage slot of a contract changed over time
+        """How one storage slot of a contract changed over time.
 
-        TraceFast live Ethereum data: every block in which one storage slot of a
-        contract CHANGED value, newest first — the value before and after the block, and
-        the transactions that wrote the slot in it. One entry per block: several writes
-        in one block are one change, and a write of the value already held is none.
-        `valueAfter` is absent on the newest change when it is not stated; it is never a
-        zero standing in. `writerTxs` is empty for a system write with no transaction,
-        and absent until the block is attributed (usually seconds after it lands).
-        `readThroughBlock` is the newest block the page was read through. A page can be
-        shorter than `limit` and still have a `nextCursor`: one request reads a bounded
-        span of history. Continue with `nextCursor`.
+        Every block in which one storage slot of a contract CHANGED value, newest first
+        — the value before and after the block, and the transactions that wrote the slot
+        in it. One entry per block: several writes in one block are one change, and a
+        write of the value already held is none. `valueAfter` is absent on the newest
+        change when it is not stated; it is never a zero standing in. `writerTxs` is
+        empty for a system write with no transaction, and absent until the block is
+        attributed (usually seconds after it lands). `readThroughBlock` is the newest
+        block the page was read through. A page can be shorter than `limit` and still
+        have a `nextCursor`: one request reads a bounded span of history. Continue with
+        `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
             key: The 32-byte slot key, `0x` + 64 hex.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method, this contract and this slot. Left as None, it is not sent.
+                method, this contract and this slot.
+
+        Returns:
+            `ContractSlotHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-slot-history
         """
@@ -5429,87 +9071,163 @@ class AsyncContractsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[ContractSlotHistoryResponse]:
-        """Every page of `contracts.slot_history`, following `data.nextCursor` to the end.
+        """Every page of `contracts.slot_history`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The contract, `0x` + 40 hex, any case.
             key: The 32-byte slot key, `0x` + 64 hex.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method, this contract and this slot. Left as None, it is not sent.
+                method, this contract and this slot.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `ContractSlotHistoryResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/contract-slot-history
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/{segment(key)}/history", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/{segment(key)}/history", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def slot_history_items(
+        self,
+        address: str,
+        key: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[SlotValueChange]:
+        """Every row of `data.changes` of `contracts.slot_history`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The contract, `0x` + 40 hex, any case.
+            key: The 32-byte slot key, `0x` + 64 hex.
+            limit: 1 to 100, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method, this contract and this slot.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `SlotValueChange`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/contract-slot-history
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/contracts/{segment(address)}/storage/{segment(key)}/history", {"limit": limit, "cursor": cursor}, "changes", max_items)
 
 
 class AsyncAddressesApi:
-    """`client.addresses` — the addresses methods of the TraceFast API (async)."""
+    """`client.addresses`: the addresses methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def get(self, address: str) -> EntityOverviewResponse:
-        """One address
+        """One address.
 
-        TraceFast live Ethereum data: one address as the chain sees it now — how it
-        exists (an account whose state was touched, or an address only ever mentioned by
-        other operations), whether it holds code, for an account its EIP-7702 delegation
-        (`eip7702`: delegated now — to which contract and since which block — revoked,
-        never, or unknown), its native balance and nonce, when it was first mentioned
-        and last active in any form, and its direct-transaction counters. No names,
-        labels or prices: those are other methods. An address mentioned nowhere on chain
-        answers 404.
+        One address as the chain sees it now — how it exists (an account whose state was
+        touched, or an address only ever mentioned by other operations), whether it
+        holds code, for an account its EIP-7702 delegation (`eip7702`: delegated now —
+        to which contract and since which block — revoked, never, or unknown), its
+        native balance and nonce, when it was first mentioned and last active in any
+        form, and its direct-transaction counters. No names, labels or prices: those are
+        other methods. An address mentioned nowhere on chain answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `EntityOverviewResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address
         """
         return cast("EntityOverviewResponse", await self._http.get(f"/chains/{self._http.chain_id}/entities/{segment(address)}", None))
 
     async def activity(self, address: str) -> EntityActivityResponse:
-        """Activity of an address
+        """Activity of an address.
 
-        TraceFast live Ethereum data: three different questions about when an address
-        was active, each answered separately — when it was first mentioned anywhere on
-        chain; when its own account state last changed and how many times it changed;
-        and the newest block at which it took part in anything (a top-level transaction,
-        a token transfer, an emitted log, a value-bearing call), with the sources that
-        answer was computed over. Read `lastActivity` as "last active": a contract only
-        ever called by other contracts never changes its own state after deployment.
+        Three different questions about when an address was active, each answered
+        separately — when it was first mentioned anywhere on chain; when its own account
+        state last changed and how many times it changed; and the newest block at which
+        it took part in anything (a top-level transaction, a token transfer, an emitted
+        log, a value-bearing call), with the sources that answer was computed over. Read
+        `lastActivity` as "last active": a contract only ever called by other contracts
+        never changes its own state after deployment.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
 
+        Returns:
+            `EntityActivityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/address-activity
         """
         return cast("EntityActivityResponse", await self._http.get(f"/chains/{self._http.chain_id}/entities/{segment(address)}/activity", None))
 
     async def attributes(self, address: str) -> EntityAttributesResponse:
-        """Attributes of an address
+        """Attributes of an address.
 
-        TraceFast knowledge graph: the facts proven about one Ethereum address — what
-        kind of account it is, how it has been used, what it is known to be. Returns the
-        list of proven attribute ids (`family:name`), the evaluation detail of each
-        (result and the block height it was evaluated at), and, while the graph has not
-        yet reached the address, a provisional classification from on-chain evidence. An
-        attribute that is absent is not proven; absence never means the opposite.
+        The facts proven about one Ethereum address — what kind of account it is, how it
+        has been used, what it is known to be. Returns the list of proven attribute ids
+        (`family:name`), the evaluation detail of each (result and the block height it
+        was evaluated at), and, while the graph has not yet reached the address, a
+        provisional classification from on-chain evidence. An attribute that is absent
+        is not proven; absence never means the opposite.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
+
+        Returns:
+            `EntityAttributesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attributes
         """
@@ -5521,22 +9239,30 @@ class AsyncAddressesApi:
         *,
         block: int,
     ) -> AttributesAtBlockResponse:
-        """Attributes of an address at a block
+        """Attributes of an address at a block.
 
-        TraceFast knowledge graph: the attributes an address held at the end of one
-        block, each with the window it held for. Answered from the attribute history,
-        which covers the families named in `coveredFamilies` and the single ids named in
-        `coveredAttributeIds` — any other attribute is not listed whether or not it
-        held, so its absence is not a negative; compare with the current-attributes
-        method for those. `behavior` is named in `coveredFamilies` only when `block` is
-        at or below the height that family has been computed to. A block past the
-        covered history is refused with the highest answerable block.
+        The attributes an address held at the end of one block, each with the window it
+        held for. Answered from the attribute history, which covers the families named
+        in `coveredFamilies` and the single ids named in `coveredAttributeIds` — any
+        other attribute is not listed whether or not it held, so its absence is not a
+        negative; compare with the current-attributes method for those. `behavior` is
+        named in `coveredFamilies` only when `block` is at or below the height that
+        family has been computed to. A block past the covered history is refused with
+        the highest answerable block.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to answer about. Required.
+
+        Returns:
+            `AttributesAtBlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attributes-at-block
         """
@@ -5548,35 +9274,43 @@ class AsyncAddressesApi:
         *,
         limit: int | None = None,
     ) -> AttributeHistoryResponse:
-        """Attribute history of an address
+        """Attribute history of an address.
 
-        TraceFast knowledge graph: every attribute interval an address has held, oldest
-        first — when it became a contract, when its code was removed, when it first held
-        state. Covers the attribute families named in `coveredFamilies`; an empty or
-        short timeline says nothing about the other families. Intervals of the
-        `behavior` family state an observed pattern, not a verdict, and the most recent
-        of them are evaluated again as later blocks arrive: they may shorten or
-        disappear. `truncated` is `true` when the timeline was cut at `limit`.
+        Every attribute interval an address has held, oldest first — when it became a
+        contract, when its code was removed, when it first held state. Covers the
+        attribute families named in `coveredFamilies`; an empty or short timeline says
+        nothing about the other families. Intervals of the `behavior` family state an
+        observed pattern, not a verdict, and the most recent of them are evaluated again
+        as later blocks arrive: they may shorten or disappear. `truncated` is `true`
+        when the timeline was cut at `limit`.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            limit: 1 to 500, default 100.
+
+        Returns:
+            `AttributeHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attribute-history
         """
         return cast("AttributeHistoryResponse", await self._http.get(f"/chains/{self._http.chain_id}/entities/{segment(address)}/attributes/history", {"limit": limit}))
 
     async def attribute_proof(self, address: str, attribute_id: str) -> ProofResponse:
-        """Proof of one attribute of an address
+        """Proof of one attribute of an address.
 
-        TraceFast knowledge graph: the evidence behind one proven attribute of an
-        address — the facts that were checked with their expected and observed values,
-        the conditions that had to be false, the sources the evidence was read from, and
-        the block the evaluation was pinned to. Nothing is summarised: the record is the
-        evaluator's own, so the claim can be checked rather than trusted. An attribute
-        with no recorded proof answers 404.
+        The evidence behind one proven attribute of an address — the facts that were
+        checked with their expected and observed values, the conditions that had to be
+        false, the sources the evidence was read from, and the block the evaluation was
+        pinned to. Nothing is summarised: the record is the evaluator's own, so the
+        claim can be checked rather than trusted. An attribute with no recorded proof
+        answers 404.
 
         Plan: Intelligence or higher.
 
@@ -5584,6 +9318,14 @@ class AsyncAddressesApi:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             attribute_id: The attribute id, `family:name`, as listed by the attributes
                 method.
+
+        Returns:
+            `ProofResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-attribute-proof
         """
@@ -5595,21 +9337,28 @@ class AsyncAddressesApi:
         *,
         limit: int | None = None,
     ) -> BalanceHistoryResponse:
-        """Native balance history of an address
+        """Native balance history of an address.
 
-        TraceFast live Ethereum data: the address's native balance at the end of each
-        day it changed, oldest first, with the net change and the number of
-        balance-changing events per day, the USD value at each closed day's last hour,
-        and totals over the window. Days without a balance change have no point; the
-        current, unfinished day carries no USD value. Daily granularity only, stated in
-        `granularity`.
+        The address's native balance at the end of each day it changed, oldest first,
+        with the net change and the number of balance-changing events per day, the USD
+        value at each closed day's last hour, and totals over the window. Days without a
+        balance change have no point; the current, unfinished day carries no USD value.
+        Daily granularity only, stated in `granularity`.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: Most recent days with a balance change to return, 1..=365, default
-                90. Left as None, it is not sent.
+            limit: Most recent days with a balance change to return, 1 to 365, default
+                90.
+
+        Returns:
+            `BalanceHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-balance-history
         """
@@ -5622,28 +9371,36 @@ class AsyncAddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityCallsReceivedResponse:
-        """Transactions that called an address
+        """Transactions that called an address.
 
-        TraceFast live Ethereum data: every transaction with a call frame in this
-        address's context — it was called, as the transaction's own target or from
-        inside another contract, reverted or not, with ETH or without — newest first:
-        the block, the transaction, its sender and whether it succeeded, how many frames
-        ran in the address's context and how many of them failed by themselves, their
-        kinds and whether any carried ETH. `txSender` sent the transaction; the direct
-        caller may be a contract it reached. A proxy's frames include the ones in which
-        it runs its implementation (`delegatecall`); an implementation behind a proxy is
-        therefore NOT listed for those runs — they happen in the proxy's context. A
-        contract's own deployment is not one of its calls. The list is known up to
-        `meta.asOfBlock`, which trails the chain head: a newer call is not listed yet,
-        and an empty list means no call up to that block. Continue with `nextCursor`.
+        Every transaction with a call frame in this address's context — it was called,
+        as the transaction's own target or from inside another contract, reverted or
+        not, with ETH or without — newest first: the block, the transaction, its sender
+        and whether it succeeded, how many frames ran in the address's context and how
+        many of them failed by themselves, their kinds and whether any carried ETH.
+        `txSender` sent the transaction; the direct caller may be a contract it reached.
+        A proxy's frames include the ones in which it runs its implementation
+        (`delegatecall`); an implementation behind a proxy is therefore NOT listed for
+        those runs — they happen in the proxy's context. A contract's own deployment is
+        not one of its calls. The list is known up to `meta.asOfBlock`, which trails the
+        chain head: a newer call is not listed yet, and an empty list means no call up
+        to that block. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+
+        Returns:
+            `EntityCallsReceivedResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-calls-received
         """
@@ -5655,24 +9412,71 @@ class AsyncAddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityCallsReceivedResponse]:
-        """Every page of `addresses.calls_received`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.calls_received`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityCallsReceivedResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-calls-received
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/calls-received", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/calls-received", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def calls_received_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ReceivedCall]:
+        """Every row of `data.calls` of `addresses.calls_received`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The address, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this address.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ReceivedCall`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-calls-received
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/calls-received", {"limit": limit, "cursor": cursor}, "calls", max_items)
 
     async def counterparties(
         self,
@@ -5681,33 +9485,40 @@ class AsyncAddressesApi:
         block: int | None = None,
         limit: int | None = None,
     ) -> CounterpartyRankingResponse:
-        """Top counterparties of an address
+        """Top counterparties of an address.
 
-        TraceFast knowledge graph: the addresses one address has INTERACTED with most,
-        ranked by successful transactions. An interaction is any of three: a top-level
-        transaction between the two, whether or not it carried ETH (so a contract the
-        address called, such as a token contract it sent `transfer` to, is listed as a
-        counterparty); an internal ETH transfer; or a token `Transfer` event naming
-        both. Token events are counted as emitted: they are not checked against a
-        balance change and zero amounts are included, so events planted by
-        address-poisoning contracts appear as interactions. `sentTxCount` counts
-        transactions in which the address is the sending side of such an interaction,
-        not transactions it signed. A counterparty here is not proof that value moved
-        between the two. Returns up to 100 counterparties in ranking order, each with
-        its transaction counts, first and last block of interaction, the surfaces the
-        relation was seen on and the token classes involved, plus `corpus` — how many
-        counterparties the ranking covered. With `block`, the ranking as it stood at the
-        end of that block, reconstructed from the full history up to it; very large
-        addresses are refused for that question with the bound stated, never answered
-        with a narrowed set.
+        The addresses one address has INTERACTED with most, ranked by successful
+        transactions. An interaction is any of three: a top-level transaction between
+        the two, whether or not it carried ETH (so a contract the address called, such
+        as a token contract it sent `transfer` to, is listed as a counterparty); an
+        internal ETH transfer; or a token `Transfer` event naming both. Token events are
+        counted as emitted: they are not checked against a balance change and zero
+        amounts are included, so events planted by address-poisoning contracts appear as
+        interactions. `sentTxCount` counts transactions in which the address is the
+        sending side of such an interaction, not transactions it signed. A counterparty
+        here is not proof that value moved between the two. Returns up to 100
+        counterparties in ranking order, each with its transaction counts, first and
+        last block of interaction, the surfaces the relation was seen on and the token
+        classes involved, plus `corpus` — how many counterparties the ranking covered.
+        With `block`, the ranking as it stood at the end of that block, reconstructed
+        from the full history up to it; very large addresses are refused for that
+        question with the bound stated, never answered with a narrowed set.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             block: State at the end of this block (everything up to and including it).
-                Absent: the current all-time ranking. Left as None, it is not sent.
-            limit: 1..=100, default 100. Left as None, it is not sent.
+                Absent: the current all-time ranking.
+            limit: 1 to 100, default 100.
+
+        Returns:
+            `CounterpartyRankingResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-counterparties
         """
@@ -5719,20 +9530,27 @@ class AsyncAddressesApi:
         *,
         period: str | None = None,
     ) -> DailyActivityResponse:
-        """Daily activity of an address
+        """Daily activity of an address.
 
-        TraceFast live Ethereum data: for each day in a window, how many blocks changed
-        the address's own account state and which kind of change it was (balance, nonce,
-        code, creation). The window ends at the latest day the daily aggregate holds;
-        days without activity have no entry. Activity that does not touch the address's
-        own state (receiving a token, being called) is not counted here; see the
-        activity method for that.
+        For each day in a window, how many blocks changed the address's own account
+        state and which kind of change it was (balance, nonce, code, creation). The
+        window ends at the latest day the daily aggregate holds; days without activity
+        have no entry. Activity that does not touch the address's own state (receiving a
+        token, being called) is not counted here; see the activity method for that.
 
         Plan: Enriched Data or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            period: `30d`, `90d` (default) or `365d`. Left as None, it is not sent.
+            period: `30d`, `90d` (default) or `365d`.
+
+        Returns:
+            `DailyActivityResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-daily-activity
         """
@@ -5745,27 +9563,35 @@ class AsyncAddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityDeploymentsResponse:
-        """Contracts an address created
+        """Contracts an address created.
 
-        TraceFast live Ethereum data: every contract creation this address made — each
-        successful CREATE or CREATE2 frame it called — oldest first: the created
-        contract, the block, the transaction, CREATE or CREATE2, and the code it
-        deployed. The address is the DIRECT caller of the creation: for a factory that
-        is the factory, and the wallet that signed the transaction is `originAddress` on
-        each row; a wallet's deployments made through a factory are listed under the
-        factory, not here. A row is a creation event: `outcome: rolled_back` means the
-        transaction (or a frame above the creation) failed afterwards and no contract
-        came from it. An address can appear more than once — re-created after
-        self-destruction, or rolled-back attempts. An empty list means no creation is
-        recorded up to `meta.asOfBlock`. Continue with `nextCursor`.
+        Every contract creation this address made — each successful CREATE or CREATE2
+        frame it called — oldest first: the created contract, the block, the
+        transaction, CREATE or CREATE2, and the code it deployed. The address is the
+        DIRECT caller of the creation: for a factory that is the factory, and the wallet
+        that signed the transaction is `originAddress` on each row; a wallet's
+        deployments made through a factory are listed under the factory, not here. A row
+        is a creation event: `outcome: rolled_back` means the transaction (or a frame
+        above the creation) failed afterwards and no contract came from it. An address
+        can appear more than once — re-created after self-destruction, or rolled-back
+        attempts. An empty list means no creation is recorded up to `meta.asOfBlock`.
+        Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The creating address, `0x` + 40 hex, any case.
-            limit: 1..=50, default 25. Left as None, it is not sent.
+            limit: 1 to 50, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+
+        Returns:
+            `EntityDeploymentsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-deployments
         """
@@ -5777,23 +9603,71 @@ class AsyncAddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityDeploymentsResponse]:
-        """Every page of `addresses.deployments`, following `data.nextCursor` to the end.
+        """Every page of `addresses.deployments`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The creating address, `0x` + 40 hex, any case.
-            limit: 1..=50, default 25. Left as None, it is not sent.
+            limit: 1 to 50, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityDeploymentsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-deployments
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/deployments", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/deployments", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def deployments_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ContractCreation]:
+        """Every row of `data.deployments` of `addresses.deployments`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The creating address, `0x` + 40 hex, any case.
+            limit: 1 to 50, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this address.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ContractCreation`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-deployments
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/deployments", {"limit": limit, "cursor": cursor}, "deployments", max_items)
 
     async def dex_trades(
         self,
@@ -5802,24 +9676,32 @@ class AsyncAddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityDexTradesResponse:
-        """DEX trades an address took part in
+        """DEX trades an address took part in.
 
-        TraceFast live Ethereum data: the swaps on DEX pools this address sent or
-        received the output of, newest first — the venue and its version, the pool, the
-        tokens sold and bought with their raw amounts, and an estimated USD value at the
-        hour of the trade. Coverage is what the DEX index holds: swaps on pools it has
-        not discovered are missing, and Balancer V2 swaps (whose event names no trader)
-        are not listed, so an empty list is not proof the address never traded. The
-        address is matched as the swap event's sender or recipient: a trade routed
-        through a contract is listed under the contract. Continue with `nextCursor`.
+        The swaps on DEX pools this address sent or received the output of, newest first
+        — the venue and its version, the pool, the tokens sold and bought with their raw
+        amounts, and an estimated USD value at the hour of the trade. Coverage is what
+        the DEX index holds: swaps on pools it has not discovered are missing, and
+        Balancer V2 swaps (whose event names no trader) are not listed, so an empty list
+        is not proof the address never traded. The address is matched as the swap
+        event's sender or recipient: a trade routed through a contract is listed under
+        the contract. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+
+        Returns:
+            `EntityDexTradesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-dex-trades
         """
@@ -5831,23 +9713,71 @@ class AsyncAddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityDexTradesResponse]:
-        """Every page of `addresses.dex_trades`, following `data.nextCursor` to the end.
+        """Every page of `addresses.dex_trades`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The address, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this address. Left as None, it is not sent.
+                method and this address.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityDexTradesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-dex-trades
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/dex-trades", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/dex-trades", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def dex_trades_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[DexTrade]:
+        """Every row of `data.trades` of `addresses.dex_trades`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The address, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this address.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `DexTrade`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-dex-trades
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/dex-trades", {"limit": limit, "cursor": cursor}, "trades", max_items)
 
     async def internal_transfers(
         self,
@@ -5860,30 +9790,36 @@ class AsyncAddressesApi:
         to_block: int | None = None,
         counterparty: str | None = None,
     ) -> EntityInternalTransfersResponse:
-        """Internal transfers of an address
+        """Internal transfers of an address.
 
-        TraceFast live Ethereum data: the value-carrying call frames an address sent or
-        received inside transactions, newest first — each with its position in the call
-        tree, its depth, the kind of call, the value it moved and its own outcome. The
-        transaction's own top-level call is NOT one of these; it is the transaction, and
-        it rides the transactions feed. Paged by an opaque cursor.
+        The value-carrying call frames an address sent or received inside transactions,
+        newest first — each with its position in the call tree, its depth, the kind of
+        call, the value it moved and its own outcome. The transaction's own top-level
+        call is NOT one of these; it is the transaction, and it rides the transactions
+        feed. Paged by an opaque cursor.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+
+        Returns:
+            `EntityInternalTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-internal-transfers
         """
@@ -5899,33 +9835,90 @@ class AsyncAddressesApi:
         from_block: int | None = None,
         to_block: int | None = None,
         counterparty: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityInternalTransfersResponse]:
-        """Every page of `addresses.internal_transfers`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.internal_transfers`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityInternalTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-internal-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/internal-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/internal-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, max_pages)
+
+    def internal_transfers_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        direction: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        counterparty: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[FeedInternalTransfer]:
+        """Every row of `data.transfers` of `addresses.internal_transfers`, page after
+        page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            direction: `sent` or `received`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
+                filter like the others: on a very active address it is answered only
+                inside a block window, and the refusal names the window it needs
+                (`filter_needs_block_window`).
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `FeedInternalTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-internal-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/internal-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, "transfers", max_items)
 
     async def portfolio(
         self,
@@ -5934,28 +9927,35 @@ class AsyncAddressesApi:
         block: int | None = None,
         limit: int | None = None,
     ) -> PortfolioResponse:
-        """Portfolio of an address
+        """Portfolio of an address.
 
-        TraceFast live Ethereum data: everything an address holds, valued in USD — its
-        token balances and its native ETH, each with the balance, the hourly USD price,
-        the USD value and the share of the total. Returns up to 100 positions in
-        descending USD value, plus `totalUsd`, `pricedCount` and `hiddenCount` over the
-        whole holding. A position is listed only when it can be valued (a USD price for
-        the hour, known decimals, and a value within what that price can vouch for — a
-        thin-market price is not applied to an amount far beyond what its market
-        trades); anything else the address holds is counted in `hiddenCount`, never
-        listed. Token balances are served for the covered tokens (`coveredTokenCount`,
-        growing continuously); a balance in a token outside that set is absent, not
-        zero. No NFTs, no DeFi positions, no liquidity-pool shares. With `block`, the
-        exact state at the end of that block, priced at that block's hour.
+        Everything an address holds, valued in USD — its token balances and its native
+        ETH, each with the balance, the hourly USD price, the USD value and the share of
+        the total. Returns up to 100 positions in descending USD value, plus `totalUsd`,
+        `pricedCount` and `hiddenCount` over the whole holding. A position is listed
+        only when it can be valued (a USD price for the hour, known decimals, and a
+        value within what that price can vouch for — a thin-market price is not applied
+        to an amount far beyond what its market trades); anything else the address holds
+        is counted in `hiddenCount`, never listed. Token balances are served for the
+        covered tokens (`coveredTokenCount`, growing continuously); a balance in a token
+        outside that set is absent, not zero. No NFTs, no DeFi positions, no
+        liquidity-pool shares. With `block`, the exact state at the end of that block,
+        priced at that block's hour.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            block: State at the end of this block. Absent: the current state. Left as
-                None, it is not sent.
-            limit: 1..=100, default 100. Left as None, it is not sent.
+            block: State at the end of this block. Absent: the current state.
+            limit: 1 to 100, default 100.
+
+        Returns:
+            `PortfolioResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-portfolio
         """
@@ -5970,29 +9970,36 @@ class AsyncAddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> RelationsResponse:
-        """Relations of an address
+        """Relations of an address.
 
-        TraceFast knowledge graph: the relations an address holds now — which
-        implementation a proxy points at, which beacon it reads, who administers it,
-        where an account has delegated, which lending market lists a token — as the
-        subject (`direction=subject`: what it points at, default) or as the object
-        (`direction=object`: who points at it). One page per call, ordered by relation
-        id then counterpart; pass `nextCursor` back as `cursor` until it is absent. On
-        the object side one implementation can be pointed at by millions of proxies, so
-        the first page of `direction=object` also states `counts`: how many addresses
-        point at this one per relation id, as of the graph's latest hourly refresh.
+        The relations an address holds now — which implementation a proxy points at,
+        which beacon it reads, who administers it, where an account has delegated, which
+        lending market lists a token — as the subject (`direction=subject`: what it
+        points at, default) or as the object (`direction=object`: who points at it). One
+        page per call, ordered by relation id then counterpart; pass `nextCursor` back
+        as `cursor` until it is absent. On the object side one implementation can be
+        pointed at by millions of proxies, so the first page of `direction=object` also
+        states `counts`: how many addresses point at this one per relation id, as of the
+        graph's latest hourly refresh.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
             attribute_id: Narrow to one relation id, `relation:name`. Any id the graph
-                publishes is accepted. Sent as ``attributeId``. Left as None, it is not
-                sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                publishes is accepted. Sent as `attributeId`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with this direction and filter. Left as None, it is not sent.
+                method with this direction and filter.
+
+        Returns:
+            `RelationsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relations
         """
@@ -6006,27 +10013,79 @@ class AsyncAddressesApi:
         attribute_id: str | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[RelationsResponse]:
-        """Every page of `addresses.relations`, following `data.nextCursor` to the end.
+        """Every page of `addresses.relations`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
             attribute_id: Narrow to one relation id, `relation:name`. Any id the graph
-                publishes is accepted. Sent as ``attributeId``. Left as None, it is not
-                sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                publishes is accepted. Sent as `attributeId`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with this direction and filter. Left as None, it is not sent.
+                method with this direction and filter.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `RelationsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relations
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations", {"direction": direction, "attributeId": attribute_id, "limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations", {"direction": direction, "attributeId": attribute_id, "limit": limit, "cursor": cursor}, max_pages)
+
+    def relations_items(
+        self,
+        address: str,
+        *,
+        direction: str | None = None,
+        attribute_id: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[Relation]:
+        """Every row of `data.relations` of `addresses.relations`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            direction: `subject` (default) or `object`.
+            attribute_id: Narrow to one relation id, `relation:name`. Any id the graph
+                publishes is accepted. Sent as `attributeId`.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with this direction and filter.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `Relation`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/address-relations
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations", {"direction": direction, "attributeId": attribute_id, "limit": limit, "cursor": cursor}, "relations", max_items)
 
     async def relations_at_block(
         self,
@@ -6034,20 +10093,27 @@ class AsyncAddressesApi:
         *,
         block: int,
     ) -> RelationsAtBlockResponse:
-        """Relations of an address at a block
+        """Relations of an address at a block.
 
-        TraceFast knowledge graph: the relations an address was the subject of at the
-        end of one block — which implementation a proxy pointed at, which beacon it
-        read, who administered it, where an account had delegated — each with the window
-        it held for. Answered from the relation history, which covers the relation ids
-        named in `coveredFamilies`. A block past the covered history is refused with the
-        highest answerable block.
+        The relations an address was the subject of at the end of one block — which
+        implementation a proxy pointed at, which beacon it read, who administered it,
+        where an account had delegated — each with the window it held for. Answered from
+        the relation history, which covers the relation ids named in `coveredFamilies`.
+        A block past the covered history is refused with the highest answerable block.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
             block: The block to answer about. Required.
+
+        Returns:
+            `RelationsAtBlockResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relations-at-block
         """
@@ -6063,34 +10129,39 @@ class AsyncAddressesApi:
         attribute_id: str | None = None,
         order: str | None = None,
     ) -> RelationHistoryResponse:
-        """Relation history of an address
+        """Relation history of an address.
 
-        TraceFast knowledge graph: every relation interval an address has held, oldest
-        first (`order=desc`: newest first) — as the subject (`direction=subject`: what
-        it pointed at, default) or as the object (`direction=object`: who pointed at
-        it). Covers the relation ids named in `coveredFamilies`; an empty or short
-        timeline says nothing about relations outside that list. Paged by an opaque
-        cursor: pass `nextCursor` back as `cursor` until it is absent (`truncated` is
-        `true` exactly when it is present). `total` counts the address's intervals as
-        the subject; there is no total on the object side, where one implementation can
-        be pointed at by millions of proxies.
+        Every relation interval an address has held, oldest first (`order=desc`: newest
+        first) — as the subject (`direction=subject`: what it pointed at, default) or as
+        the object (`direction=object`: who pointed at it). Covers the relation ids
+        named in `coveredFamilies`; an empty or short timeline says nothing about
+        relations outside that list. Paged by an opaque cursor: pass `nextCursor` back
+        as `cursor` until it is absent (`truncated` is `true` exactly when it is
+        present). `total` counts the address's intervals as the subject; there is no
+        total on the object side, where one implementation can be pointed at by millions
+        of proxies.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
+            limit: 1 to 500, default 100.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address, direction, `attributeId` and `order`. Left as None, it
-                is not sent.
+                method, address, direction, `attributeId` and `order`.
             attribute_id: Only this relation id, for example
                 `relation:eip7702_delegates_to` — every EIP-7702 delegation the account
-                signed, with `total` counting them. Sent as ``attributeId``. Left as
-                None, it is not sent.
+                signed, with `total` counting them. Sent as `attributeId`.
             order: `asc` (default): oldest interval first. `desc`: newest first — the
-                recent end of a long timeline on the first page. Left as None, it is not
-                sent.
+                recent end of a long timeline on the first page.
+
+        Returns:
+            `RelationHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relation-history
         """
@@ -6105,33 +10176,86 @@ class AsyncAddressesApi:
         cursor: str | None = None,
         attribute_id: str | None = None,
         order: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[RelationHistoryResponse]:
-        """Every page of `addresses.relation_history`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.relation_history`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Intelligence or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            direction: `subject` (default) or `object`. Left as None, it is not sent.
-            limit: 1..=500, default 100. Left as None, it is not sent.
+            direction: `subject` (default) or `object`.
+            limit: 1 to 500, default 100.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address, direction, `attributeId` and `order`. Left as None, it
-                is not sent.
+                method, address, direction, `attributeId` and `order`.
             attribute_id: Only this relation id, for example
                 `relation:eip7702_delegates_to` — every EIP-7702 delegation the account
-                signed, with `total` counting them. Sent as ``attributeId``. Left as
-                None, it is not sent.
+                signed, with `total` counting them. Sent as `attributeId`.
             order: `asc` (default): oldest interval first. `desc`: newest first — the
-                recent end of a long timeline on the first page. Left as None, it is not
-                sent.
+                recent end of a long timeline on the first page.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `RelationHistoryResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relation-history
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations/history", {"direction": direction, "limit": limit, "cursor": cursor, "attributeId": attribute_id, "order": order})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations/history", {"direction": direction, "limit": limit, "cursor": cursor, "attributeId": attribute_id, "order": order}, max_pages)
+
+    def relation_history_items(
+        self,
+        address: str,
+        *,
+        direction: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        attribute_id: str | None = None,
+        order: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[RelationInterval]:
+        """Every row of `data.intervals` of `addresses.relation_history`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            direction: `subject` (default) or `object`.
+            limit: 1 to 500, default 100.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, address, direction, `attributeId` and `order`.
+            attribute_id: Only this relation id, for example
+                `relation:eip7702_delegates_to` — every EIP-7702 delegation the account
+                signed, with `total` counting them. Sent as `attributeId`.
+            order: `asc` (default): oldest interval first. `desc`: newest first — the
+                recent end of a long timeline on the first page.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `RelationInterval`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/address-relation-history
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/relations/history", {"direction": direction, "limit": limit, "cursor": cursor, "attributeId": attribute_id, "order": order}, "intervals", max_items)
 
     async def relation_proof(
         self,
@@ -6139,13 +10263,12 @@ class AsyncAddressesApi:
         attribute_id: str,
         object: str,
     ) -> ProofResponse:
-        """Proof of one relation of an address
+        """Proof of one relation of an address.
 
-        TraceFast knowledge graph: the evidence behind one proven relation between two
-        addresses — the facts checked with their expected and observed values, the
-        conditions that had to be false, the sources read, and the block the evaluation
-        was pinned to. The record is the evaluator's own. A relation with no recorded
-        proof answers 404.
+        The evidence behind one proven relation between two addresses — the facts
+        checked with their expected and observed values, the conditions that had to be
+        false, the sources read, and the block the evaluation was pinned to. The record
+        is the evaluator's own. A relation with no recorded proof answers 404.
 
         Plan: Intelligence or higher.
 
@@ -6155,6 +10278,14 @@ class AsyncAddressesApi:
                 method.
             object: The object address of the relation, `0x`-prefixed, 40 hex
                 characters, any case.
+
+        Returns:
+            `ProofResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-relation-proof
         """
@@ -6167,24 +10298,32 @@ class AsyncAddressesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> EntityStateChangesResponse:
-        """Every block that changed an account's balance, nonce or code
+        """Every block that changed an account's balance, nonce or code.
 
-        TraceFast live Ethereum data: the history of one account's own state, newest
-        first — one entry per block that changed its balance, nonce or code, with the
-        values before and after the block (the net change over the whole block, not per
-        transaction) and whether the account came into existence in it. A change made by
-        someone else counts too: receiving ETH from a transaction or a validator
-        withdrawal, being self-destructed into. The list is known up to
-        `meta.asOfBlock`, which is published in steps and can trail the chain head by a
-        few minutes: a newer change is not listed yet. Continue with `nextCursor`.
+        The history of one account's own state, newest first — one entry per block that
+        changed its balance, nonce or code, with the values before and after the block
+        (the net change over the whole block, not per transaction) and whether the
+        account came into existence in it. A change made by someone else counts too:
+        receiving ETH from a transaction or a validator withdrawal, being
+        self-destructed into. The list is known up to `meta.asOfBlock`, which is
+        published in steps and can trail the chain head by a few minutes: a newer change
+        is not listed yet. Continue with `nextCursor`.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The account, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this account. Left as None, it is not sent.
+                method and this account.
+
+        Returns:
+            `EntityStateChangesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-state-changes
         """
@@ -6196,23 +10335,71 @@ class AsyncAddressesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityStateChangesResponse]:
-        """Every page of `addresses.state_changes`, following `data.nextCursor` to the end.
+        """Every page of `addresses.state_changes`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             address: The account, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this account. Left as None, it is not sent.
+                method and this account.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityStateChangesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-state-changes
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/state-changes", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/state-changes", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def state_changes_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[AccountStateChange]:
+        """Every row of `data.changes` of `addresses.state_changes`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            address: The account, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this account.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `AccountStateChange`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-state-changes
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/state-changes", {"limit": limit, "cursor": cursor}, "changes", max_items)
 
     async def token_transfers(
         self,
@@ -6226,33 +10413,38 @@ class AsyncAddressesApi:
         to_block: int | None = None,
         counterparty: str | None = None,
     ) -> EntityTokenTransfersResponse:
-        """Token transfers of an address
+        """Token transfers of an address.
 
-        TraceFast live Ethereum data: the token transfers an address sent or received,
-        newest first — the token as its contract declares itself, the raw amount
-        (unscaled), the parties, the transaction that emitted it and who sent that
-        transaction, which on a router or a batch disburser is another party entirely.
-        Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor. A transfer the
-        address made to itself is shown once.
+        The token transfers an address sent or received, newest first — the token as its
+        contract declares itself, the raw amount (unscaled), the parties, the
+        transaction that emitted it and who sent that transaction, which on a router or
+        a batch disburser is another party entirely. Covers ERC-20, ERC-721 and
+        ERC-1155. Paged by an opaque cursor. A transfer the address made to itself is
+        shown once.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            token: One token contract, `0x`-prefixed, 40 hex characters. Left as None,
-                it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            token: One token contract, `0x`-prefixed, 40 hex characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+
+        Returns:
+            `EntityTokenTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-token-transfers
         """
@@ -6269,35 +10461,92 @@ class AsyncAddressesApi:
         from_block: int | None = None,
         to_block: int | None = None,
         counterparty: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityTokenTransfersResponse]:
-        """Every page of `addresses.token_transfers`, following `data.nextCursor` to the
-        end.
+        """Every page of `addresses.token_transfers`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            direction: `sent` or `received`. Left as None, it is not sent.
-            token: One token contract, `0x`-prefixed, 40 hex characters. Left as None,
-                it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                method with these filters.
+            direction: `sent` or `received`.
+            token: One token contract, `0x`-prefixed, 40 hex characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityTokenTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-token-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/token-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "token": token, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/token-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "token": token, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, max_pages)
+
+    def token_transfers_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        direction: str | None = None,
+        token: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        counterparty: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[FeedTokenTransfer]:
+        """Every row of `data.transfers` of `addresses.token_transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            direction: `sent` or `received`.
+            token: One token contract, `0x`-prefixed, 40 hex characters.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
+                filter like the others: on a very active address it is answered only
+                inside a block window, and the refusal names the window it needs
+                (`filter_needs_block_window`).
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `FeedTokenTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-token-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/token-transfers", {"limit": limit, "cursor": cursor, "direction": direction, "token": token, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, "transfers", max_items)
 
     async def token_balance(
         self,
@@ -6306,11 +10555,11 @@ class AsyncAddressesApi:
         *,
         block: int | None = None,
     ) -> TokenBalanceResponse:
-        """Balance of one token on an address
+        """Balance of one token on an address.
 
-        TraceFast live Ethereum data: the balance of one token contract on one address —
-        the value `balanceOf(address)` returns at the end of a block. Served for the
-        covered token contracts (a growing set); a token outside it is refused with 422
+        The balance of one token contract on one address — the value
+        `balanceOf(address)` returns at the end of a block. Served for the covered token
+        contracts (a growing set); a token outside it is refused with 422
         `token_not_covered` rather than answered with a meaningless zero, so a `balance`
         of `"0"` is always a real zero. With `block`, the exact balance at the end of
         that block; a pair with no recorded balance at or before it is refused with 422
@@ -6322,8 +10571,15 @@ class AsyncAddressesApi:
             address: The holder address, `0x`-prefixed, 40 hex characters, any case.
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            block: State at the end of this block. Absent: the current balance. Left as
-                None, it is not sent.
+            block: State at the end of this block. Absent: the current balance.
+
+        Returns:
+            `TokenBalanceResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/address-token-balance
         """
@@ -6341,34 +10597,40 @@ class AsyncAddressesApi:
         to_block: int | None = None,
         counterparty: str | None = None,
     ) -> EntityTransactionsResponse:
-        """Transactions of an address
+        """Transactions of an address.
 
-        TraceFast live Ethereum data: the transactions an address sent or received,
-        newest first — each with sender, recipient, value, fee, the called function
-        where its selector is known, the receipt's outcome, and which side of it this
-        address is on (`sender`, `receiver`, or `self` when it is both). Paged by an
-        opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters
-        narrow the walk and are answered only inside a block window on a very active
-        address; the refusal names the window it needs.
+        The transactions an address sent or received, newest first — each with sender,
+        recipient, value, fee, the called function where its selector is known, the
+        receipt's outcome, and which side of it this address is on (`sender`,
+        `receiver`, or `self` when it is both). Paged by an opaque cursor: pass
+        `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and
+        are answered only inside a block window on a very active address; the refusal
+        names the window it needs.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             direction: `sent` or `received`. Absent: both, with a transaction the
-                address sent to itself shown once. Left as None, it is not sent.
-            status: `1` success, `0` failure. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                address sent to itself shown once.
+            status: `1` success, `0` failure.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+
+        Returns:
+            `EntityTransactionsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-transactions
         """
@@ -6385,58 +10647,127 @@ class AsyncAddressesApi:
         from_block: int | None = None,
         to_block: int | None = None,
         counterparty: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[EntityTransactionsResponse]:
-        """Every page of `addresses.transactions`, following `data.nextCursor` to the end.
+        """Every page of `addresses.transactions`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, 40 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
+                method with these filters.
             direction: `sent` or `received`. Absent: both, with a transaction the
-                address sent to itself shown once. Left as None, it is not sent.
-            status: `1` success, `0` failure. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                address sent to itself shown once.
+            status: `1` success, `0` failure.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
             counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
                 filter like the others: on a very active address it is answered only
                 inside a block window, and the refusal names the window it needs
-                (`filter_needs_block_window`). Left as None, it is not sent.
+                (`filter_needs_block_window`).
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `EntityTransactionsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/entity-transactions
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/transactions", {"limit": limit, "cursor": cursor, "direction": direction, "status": status, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty})
+        return self._http.pages(f"/chains/{self._http.chain_id}/entities/{segment(address)}/transactions", {"limit": limit, "cursor": cursor, "direction": direction, "status": status, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, max_pages)
+
+    def transactions_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        direction: str | None = None,
+        status: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        counterparty: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[FeedTransaction]:
+        """Every row of `data.transactions` of `addresses.transactions`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, 40 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            direction: `sent` or `received`. Absent: both, with a transaction the
+                address sent to itself shown once.
+            status: `1` success, `0` failure.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            counterparty: Only rows whose other side is this address (`0x` + 40 hex). A
+                filter like the others: on a very active address it is answered only
+                inside a block window, and the refusal names the window it needs
+                (`filter_needs_block_window`).
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `FeedTransaction`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/entity-transactions
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/entities/{segment(address)}/transactions", {"limit": limit, "cursor": cursor, "direction": direction, "status": status, "fromBlock": from_block, "toBlock": to_block, "counterparty": counterparty}, "transactions", max_items)
 
 
 class AsyncPoolsApi:
-    """`client.pools` — the pools methods of the TraceFast API (async)."""
+    """`client.pools`: the pools methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def for_pair(self, *, token_a: str, token_b: str) -> PoolsForPairResponse:
-        """The DEX pools that hold two given tokens
+        """The DEX pools that hold two given tokens.
 
-        TraceFast live Ethereum data: every DEX pool whose tokens include both `tokenA`
-        and `tokenB` (in either order, and pools of three or more tokens that hold
-        both), newest created first — each with its protocol and version, fee tier where
-        the source records one, approximate creation block and its tokens. Uniswap v4
-        pools are included and named by their PoolId. At most 200 pools; `truncated`
-        says when more exist.
+        Every DEX pool whose tokens include both `tokenA` and `tokenB` (in either order,
+        and pools of three or more tokens that hold both), newest created first — each
+        with its protocol and version, fee tier where the source records one,
+        approximate creation block and its tokens. Uniswap v4 pools are included and
+        named by their PoolId. At most 200 pools; `truncated` says when more exist.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            token_a: One token contract, `0x` + 40 hex. Required. Sent as ``tokenA``.
+            token_a: One token contract, `0x` + 40 hex. Required. Sent as `tokenA`.
             token_b: The other token contract, `0x` + 40 hex. Required. Sent as
-                ``tokenB``.
+                `tokenB`.
+
+        Returns:
+            `PoolsForPairResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-by-pair
         """
@@ -6448,20 +10779,27 @@ class AsyncPoolsApi:
         window: str | None = None,
         limit: int | None = None,
     ) -> LiquidityRemovalsResponse:
-        """The largest liquidity removals from DEX pools
+        """The largest liquidity removals from DEX pools.
 
-        TraceFast live Ethereum data: the largest removals of liquidity from DEX pools
-        over the last 24 hours, 7 days or 30 days of blocks up to the events' reach, by
-        USD removed — each with the pool, its protocol, the provider, the transaction
-        and how many of its token legs could be priced. Only events with at least one
-        priced leg rank, and their USD covers the priced legs only. Uniswap v4 pools are
-        not covered: their liquidity events are not recorded.
+        The largest removals of liquidity from DEX pools over the last 24 hours, 7 days
+        or 30 days of blocks up to the events' reach, by USD removed — each with the
+        pool, its protocol, the provider, the transaction and how many of its token legs
+        could be priced. Only events with at least one priced leg rank, and their USD
+        covers the priced legs only. Uniswap v4 pools are not covered: their liquidity
+        events are not recorded.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
-            window: `24h`, `7d` (default) or `30d`. Left as None, it is not sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            window: `24h`, `7d` (default) or `30d`.
+            limit: 1 to 100, default 25.
+
+        Returns:
+            `LiquidityRemovalsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-liquidity-removals
         """
@@ -6473,22 +10811,28 @@ class AsyncPoolsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> NewPoolsResponse:
-        """The newest DEX pools, by their first swap
+        """The newest DEX pools, by their first swap.
 
-        TraceFast live Ethereum data: DEX pools in order of their first swap, newest
-        first — the pool (its address, or for a Uniswap v4 pool its PoolId), its
-        protocol and the first swap's block, time, transaction, tokens and amounts in
-        token units. A pool appears once it has swapped; one created but never traded is
-        not listed. No USD value is stated for the first swap: a new pool's price is the
-        least reliable one. Paged by an opaque cursor: pass `nextCursor` back as
-        `cursor` until it is absent.
+        DEX pools in order of their first swap, newest first — the pool (its address, or
+        for a Uniswap v4 pool its PoolId), its protocol and the first swap's block,
+        time, transaction, tokens and amounts in token units. A pool appears once it has
+        swapped; one created but never traded is not listed. No USD value is stated for
+        the first swap: a new pool's price is the least reliable one. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method. Left as None, it is not sent.
+                method.
+
+        Returns:
+            `NewPoolsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-new
         """
@@ -6499,42 +10843,93 @@ class AsyncPoolsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[NewPoolsResponse]:
-        """Every page of `pools.new_pools`, following `data.nextCursor` to the end.
+        """Every page of `pools.new_pools`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method. Left as None, it is not sent.
+                method.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `NewPoolsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/pools-new
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/pools/new", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/pools/new", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def new_pools_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[NewPool]:
+        """Every row of `data.pools` of `pools.new_pools`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `NewPool`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/pools-new
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/pools/new", {"limit": limit, "cursor": cursor}, "pools", max_items)
 
     async def get(self, pool: str) -> PoolResponse:
-        """A DEX pool
+        """A DEX pool.
 
-        TraceFast live Ethereum data: one DEX pool — its protocol and version, its
-        tokens (address, the symbol, name and decimals the token contract declares —
-        verbatim, not verified — and role), the fee tier and tick spacing where the
-        source records them, the factory, hook, vault, gauge and LP token where the pool
-        has them, when it was created, and its USD volume and swap count over the last
-        24 hours and 7 days. A volume over days with swaps but no USD price is a partial
-        sum, and the unpriced days are counted beside it. A pool that trades but is not
-        in TraceFast's pool registry answers with what its swaps show (`registered:
-        false`). `{pool}` is the pool's address, or a Uniswap v4 PoolId. No names, no
-        verdicts.
+        One DEX pool — its protocol and version, its tokens (address, the symbol, name
+        and decimals the token contract declares — verbatim, not verified — and role),
+        the fee tier and tick spacing where the source records them, the factory, hook,
+        vault, gauge and LP token where the pool has them, when it was created, and its
+        USD volume and swap count over the last 24 hours and 7 days. A volume over days
+        with swaps but no USD price is a partial sum, and the unpriced days are counted
+        beside it. A pool that trades but is not in TraceFast's pool registry answers
+        with what its swaps show (`registered: false`). `{pool}` is the pool's address,
+        or a Uniswap v4 PoolId. No names, no verdicts.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64
                 hex); any case.
+
+        Returns:
+            `PoolResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool
         """
@@ -6549,32 +10944,39 @@ class AsyncPoolsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> PoolLiquidityEventsResponse:
-        """Who added and removed liquidity in a DEX pool
+        """Who added and removed liquidity in a DEX pool.
 
-        TraceFast live Ethereum data: every liquidity event of the pool in a block
-        window, newest first — the block, time and transaction, the provider, whether
-        liquidity was added or removed and the event as the pool names it, and the USD
-        value added or removed over the legs that could be priced (`pricedLegs` /
-        `unpricedLegs` say how many; absent when none could). The window is
-        `fromBlock`..`toBlock`, at most 30 days of blocks (216 000); by default the 7
-        days up to the events' reach. Uniswap v4 pools are not covered: their liquidity
-        events are not recorded, and such a pool answers 422 `pool_not_covered`. Paged
-        by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+        Every liquidity event of the pool in a block window, newest first — the block,
+        time and transaction, the provider, whether liquidity was added or removed and
+        the event as the pool names it, and the USD value added or removed over the legs
+        that could be priced (`pricedLegs` / `unpricedLegs` say how many; absent when
+        none could). The window is `fromBlock`..`toBlock`, at most 30 days of blocks
+        (216 000); by default the 7 days up to the events' reach. Uniswap v4 pools are
+        not covered: their liquidity events are not recorded, and such a pool answers
+        422 `pool_not_covered`. Paged by an opaque cursor: pass `nextCursor` back as
+        `cursor` until it is absent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
             from_block: The window's first block. Default: 7 days of blocks below
-                `toBlock`. Sent as ``fromBlock``. Left as None, it is not sent.
+                `toBlock`. Sent as `fromBlock`.
             to_block: The window's last block. Default: the last block the liquidity
-                events have reached (`meta.asOfBlock`). Sent as ``toBlock``. Left as
-                None, it is not sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                events have reached (`meta.asOfBlock`). Sent as `toBlock`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
                 method, pool and `fromBlock` / `toBlock` as passed; it keeps the window
-                the walk began under. Left as None, it is not sent.
+                the walk began under.
+
+        Returns:
+            `PoolLiquidityEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-liquidity-events
         """
@@ -6588,30 +10990,85 @@ class AsyncPoolsApi:
         to_block: int | None = None,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[PoolLiquidityEventsResponse]:
-        """Every page of `pools.liquidity_events`, following `data.nextCursor` to the end.
+        """Every page of `pools.liquidity_events`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
             from_block: The window's first block. Default: 7 days of blocks below
-                `toBlock`. Sent as ``fromBlock``. Left as None, it is not sent.
+                `toBlock`. Sent as `fromBlock`.
             to_block: The window's last block. Default: the last block the liquidity
-                events have reached (`meta.asOfBlock`). Sent as ``toBlock``. Left as
-                None, it is not sent.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+                events have reached (`meta.asOfBlock`). Sent as `toBlock`.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
                 method, pool and `fromBlock` / `toBlock` as passed; it keeps the window
-                the walk began under. Left as None, it is not sent.
+                the walk began under.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `PoolLiquidityEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-liquidity-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-events", {"fromBlock": from_block, "toBlock": to_block, "limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-events", {"fromBlock": from_block, "toBlock": to_block, "limit": limit, "cursor": cursor}, max_pages)
+
+    def liquidity_events_items(
+        self,
+        pool: str,
+        *,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[PoolLiquidityEvent]:
+        """Every row of `data.events` of `pools.liquidity_events`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
+                hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+            from_block: The window's first block. Default: 7 days of blocks below
+                `toBlock`. Sent as `fromBlock`.
+            to_block: The window's last block. Default: the last block the liquidity
+                events have reached (`meta.asOfBlock`). Sent as `toBlock`.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, pool and `fromBlock` / `toBlock` as passed; it keeps the window
+                the walk began under.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `PoolLiquidityEvent`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/pool-liquidity-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-events", {"fromBlock": from_block, "toBlock": to_block, "limit": limit, "cursor": cursor}, "events", max_items)
 
     async def liquidity_flow(
         self,
@@ -6619,46 +11076,61 @@ class AsyncPoolsApi:
         *,
         days: int | None = None,
     ) -> PoolLiquidityFlowResponse:
-        """Liquidity added to and removed from a DEX pool per day
+        """Liquidity added to and removed from a DEX pool per day.
 
-        TraceFast live Ethereum data: per UTC day over the last `days` days (today
-        included), oldest first, the USD value of the liquidity added to and removed
-        from the pool and the net flow, how many add and remove events there were and
-        how many distinct providers made them, and how many of the events' token legs
-        could be priced (`pricedLegs` of `totalLegs`: below it the USD figures cover the
-        priced legs only). A day without liquidity events is absent. Uniswap v4 pools
-        are not covered: their liquidity events are not recorded, and such a pool
-        answers 422 `pool_not_covered` rather than an empty list.
+        Per UTC day over the last `days` days (today included), oldest first, the USD
+        value of the liquidity added to and removed from the pool and the net flow, how
+        many add and remove events there were and how many distinct providers made them,
+        and how many of the events' token legs could be priced (`pricedLegs` of
+        `totalLegs`: below it the USD figures cover the priced legs only). A day without
+        liquidity events is absent. Uniswap v4 pools are not covered: their liquidity
+        events are not recorded, and such a pool answers 422 `pool_not_covered` rather
+        than an empty list.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            days: 1..=365, default 30. Left as None, it is not sent.
+            days: 1 to 365, default 30.
+
+        Returns:
+            `PoolLiquidityFlowResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-liquidity-flow
         """
         return cast("PoolLiquidityFlowResponse", await self._http.get(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/liquidity-flow", {"days": days}))
 
     async def reserves(self, pool: str) -> PoolReservesResponse:
-        """What a DEX pool holds now
+        """What a DEX pool holds now.
 
-        TraceFast live Ethereum data: the pool's current reserves, token by token — the
-        raw amount, the amount in token units where the decimals are known, and its USD
-        value where the token has a price TraceFast trusts at that size — and their USD
-        total over the trusted legs only (`totalTvlUsd`; absent when no leg can be
-        valued). The total comes with how far it can be relied on: `reserveStatus`,
-        `accuracyBand` and `accuracyDeltaBps` (how far the figure is off a direct read
-        of the pool), `isTvlTrusted`, and the block and age of the snapshot. It is an
-        estimate, not an accounting value. A pool outside the reserves TraceFast tracks
-        answers 404.
+        The pool's current reserves, token by token — the raw amount, the amount in
+        token units where the decimals are known, and its USD value where the token has
+        a price TraceFast trusts at that size — and their USD total over the trusted
+        legs only (`totalTvlUsd`; absent when no leg can be valued). The total comes
+        with how far it can be relied on: `reserveStatus`, `accuracyBand` and
+        `accuracyDeltaBps` (how far the figure is off a direct read of the pool),
+        `isTvlTrusted`, and the block and age of the snapshot. It is an estimate, not an
+        accounting value. A pool outside the reserves TraceFast tracks answers 404.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64
                 hex); any case.
+
+        Returns:
+            `PoolReservesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-reserves
         """
@@ -6671,26 +11143,34 @@ class AsyncPoolsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> PoolSwapsResponse:
-        """A DEX pool's swaps, newest first
+        """A DEX pool's swaps, newest first.
 
-        TraceFast live Ethereum data: every swap of the pool, newest first — the block,
-        time and transaction, the sender and recipient as the pool's event states them,
-        the token sold in and bought out with their raw amounts, decimals and declared
-        symbols, and an estimated USD value at the hour of the swap (the bought leg at
-        that hour's price, else the sold one; a leg larger than its price can vouch for
-        is left unvalued, never capped). The swaps are those of the pools TraceFast
-        decodes. `{pool}` is the pool's address, or the pool's own 32-byte id (a Uniswap
-        v4 PoolId, or a Balancer v2 poolId). Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        Every swap of the pool, newest first — the block, time and transaction, the
+        sender and recipient as the pool's event states them, the token sold in and
+        bought out with their raw amounts, decimals and declared symbols, and an
+        estimated USD value at the hour of the swap (the bought leg at that hour's
+        price, else the sold one; a leg larger than its price can vouch for is left
+        unvalued, never capped). The swaps are those of the pools TraceFast decodes.
+        `{pool}` is the pool's address, or the pool's own 32-byte id (a Uniswap v4
+        PoolId, or a Balancer v2 poolId). Paged by an opaque cursor: pass `nextCursor`
+        back as `cursor` until it is absent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and pool. Left as None, it is not sent.
+                method and pool.
+
+        Returns:
+            `PoolSwapsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-swaps
         """
@@ -6702,44 +11182,101 @@ class AsyncPoolsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[PoolSwapsResponse]:
-        """Every page of `pools.swaps`, following `data.nextCursor` to the end.
+        """Every page of `pools.swaps`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and pool. Left as None, it is not sent.
+                method and pool.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `PoolSwapsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-swaps
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/swaps", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/swaps", {"limit": limit, "cursor": cursor}, max_pages)
 
-    async def volume(self, pool: str, *, days: int | None = None) -> PoolVolumeResponse:
-        """A DEX pool's daily volume
+    def swaps_items(
+        self,
+        pool: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[PoolSwap]:
+        """Every row of `data.swaps` of `pools.swaps`, page after page.
 
-        TraceFast live Ethereum data: the pool's trading per UTC day over the last
-        `days` days (today included), oldest first — USD volume, swaps, the volume of
-        each of its two tokens in token units and how many distinct addresses sent swaps
-        — with the totals. Today's row is still being counted. A day's USD volume adds
-        the hours that could be priced: a day with swaps but no priced hour has no
-        `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial
-        sum); a day priced only in part is not marked. A day without swaps is absent.
-        The pool must be in TraceFast's pool registry. `{pool}` is the pool's address,
-        or a Uniswap v4 PoolId.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
                 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
-            days: 1..=365, default 30. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and pool.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `PoolSwap`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/pool-swaps
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/pools/{segment(pool)}/swaps", {"limit": limit, "cursor": cursor}, "swaps", max_items)
+
+    async def volume(self, pool: str, *, days: int | None = None) -> PoolVolumeResponse:
+        """A DEX pool's daily volume.
+
+        The pool's trading per UTC day over the last `days` days (today included),
+        oldest first — USD volume, swaps, the volume of each of its two tokens in token
+        units and how many distinct addresses sent swaps — with the totals. Today's row
+        is still being counted. A day's USD volume adds the hours that could be priced:
+        a day with swaps but no priced hour has no `volumeUsd` and is counted in
+        `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in
+        part is not marked. A day without swaps is absent. The pool must be in
+        TraceFast's pool registry. `{pool}` is the pool's address, or a Uniswap v4
+        PoolId.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            pool: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64
+                hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+            days: 1 to 365, default 30.
+
+        Returns:
+            `PoolVolumeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/pool-volume
         """
@@ -6747,7 +11284,10 @@ class AsyncPoolsApi:
 
 
 class AsyncRiskApi:
-    """`client.risk` — the risk methods of the TraceFast API (async)."""
+    """`client.risk`: the risk methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
@@ -6760,27 +11300,33 @@ class AsyncRiskApi:
         issuer_contract: str | None = None,
         action: str | None = None,
     ) -> BlacklistFeedResponse:
-        """Every blacklist event on the chain, newest first
+        """Every blacklist event on the chain, newest first.
 
-        TraceFast live Ethereum data: every blacklist event any issuer contract recorded
-        on the chain — an address listed (`add`), unlisted (`remove`) or enforced
-        against (`enforce`: funds destroyed or frozen) — newest first, with the address,
-        the issuer and its weight. Facts recorded on-chain by the issuer contracts
-        themselves; no external sanctions lists, no names. Optionally narrowed to one
-        issuer or one kind of event. To see what changed since an earlier read, page
-        until the events reach the block you last saw. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        Every blacklist event any issuer contract recorded on the chain — an address
+        listed (`add`), unlisted (`remove`) or enforced against (`enforce`: funds
+        destroyed or frozen) — newest first, with the address, the issuer and its
+        weight. Facts recorded on-chain by the issuer contracts themselves; no external
+        sanctions lists, no names. Optionally narrowed to one issuer or one kind of
+        event. To see what changed since an earlier read, page until the events reach
+        the block you last saw. Paged by an opaque cursor: pass `nextCursor` back as
+        `cursor` until it is absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filters. Left as None, it is not sent.
+                method and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+
+        Returns:
+            `BlacklistFeedResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-feed
         """
@@ -6793,47 +11339,101 @@ class AsyncRiskApi:
         cursor: str | None = None,
         issuer_contract: str | None = None,
         action: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlacklistFeedResponse]:
-        """Every page of `risk.blacklist_feed`, following `data.nextCursor` to the end.
+        """Every page of `risk.blacklist_feed`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filters. Left as None, it is not sent.
+                method and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlacklistFeedResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-feed
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklist-events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action})
+        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklist-events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, max_pages)
+
+    def blacklist_feed_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        issuer_contract: str | None = None,
+        action: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlacklistFeedEvent]:
+        """Every row of `data.events` of `risk.blacklist_feed`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and filters.
+            issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlacklistFeedEvent`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/risk-blacklist-feed
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/risk/blacklist-events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, "events", max_items)
 
     async def blacklist_issuers(
         self,
         *,
         limit: int | None = None,
     ) -> BlacklistIssuersResponse:
-        """The issuer contracts that keep blacklists
+        """The issuer contracts that keep blacklists.
 
-        TraceFast live Ethereum data: every contract that ever recorded a blacklist
-        event, with its weight and token symbol where it has one, and how many addresses
-        it lists now, has a recorded listing of and enforced against — the top `limit`
-        by addresses listed now, ties by contract address. Also the totals: issuers,
-        listed (address, issuer) pairs and distinct listed addresses. The counts are
-        refreshed a few minutes behind the newest events; `meta.asOfBlock` states the
-        block they reach. Facts recorded on-chain by the issuer contracts themselves; no
-        names.
+        Every contract that ever recorded a blacklist event, with its weight and token
+        symbol where it has one, and how many addresses it lists now, has a recorded
+        listing of and enforced against — the top `limit` by addresses listed now, ties
+        by contract address. Also the totals: issuers, listed (address, issuer) pairs
+        and distinct listed addresses. The counts are refreshed a few minutes behind the
+        newest events; `meta.asOfBlock` states the block they reach. Facts recorded
+        on-chain by the issuer contracts themselves; no names.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=1000, default 100. Left as None, it is not sent.
+            limit: 1 to 1000, default 100.
+
+        Returns:
+            `BlacklistIssuersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-issuers
         """
@@ -6846,26 +11446,33 @@ class AsyncRiskApi:
         cursor: str | None = None,
         issuer_contract: str | None = None,
     ) -> BlacklistedPairsResponse:
-        """The addresses issuer contracts list now
+        """The addresses issuer contracts list now.
 
-        TraceFast live Ethereum data: every (address, issuer contract) pair where the
-        issuer's blacklist holds the address now — with the issuer's weight, the block
-        it first listed the address and its latest event about it. An address listed by
-        two issuers appears twice. Facts recorded on-chain by the issuer contracts
-        themselves; no external sanctions lists, no names. In address order, optionally
-        narrowed to one issuer. The listings are refreshed a few minutes behind the
-        newest events, which `getBlacklistFeed` shows first; `meta.asOfBlock` states the
-        block they reach. Paged by an opaque cursor: pass `nextCursor` back as `cursor`
-        until it is absent.
+        Every (address, issuer contract) pair where the issuer's blacklist holds the
+        address now — with the issuer's weight, the block it first listed the address
+        and its latest event about it. An address listed by two issuers appears twice.
+        Facts recorded on-chain by the issuer contracts themselves; no external
+        sanctions lists, no names. In address order, optionally narrowed to one issuer.
+        The listings are refreshed a few minutes behind the newest events, which
+        `getBlacklistFeed` shows first; `meta.asOfBlock` states the block they reach.
+        Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is
+        absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filter. Left as None, it is not sent.
+                method and filter.
             issuer_contract: Only the addresses this issuer contract lists,
-                `0x`-prefixed. Sent as ``issuerContract``. Left as None, it is not sent.
+                `0x`-prefixed. Sent as `issuerContract`.
+
+        Returns:
+            `BlacklistedPairsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklisted
         """
@@ -6877,42 +11484,96 @@ class AsyncRiskApi:
         limit: int | None = None,
         cursor: str | None = None,
         issuer_contract: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlacklistedPairsResponse]:
-        """Every page of `risk.blacklisted_addresses`, following `data.nextCursor` to the
-        end.
+        """Every page of `risk.blacklisted_addresses`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and filter. Left as None, it is not sent.
+                method and filter.
             issuer_contract: Only the addresses this issuer contract lists,
-                `0x`-prefixed. Sent as ``issuerContract``. Left as None, it is not sent.
+                `0x`-prefixed. Sent as `issuerContract`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlacklistedPairsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklisted
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklisted", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract})
+        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklisted", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract}, max_pages)
+
+    def blacklisted_addresses_items(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        issuer_contract: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlacklistedPair]:
+        """Every row of `data.pairs` of `risk.blacklisted_addresses`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and filter.
+            issuer_contract: Only the addresses this issuer contract lists,
+                `0x`-prefixed. Sent as `issuerContract`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlacklistedPair`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+
+        Docs: https://docs.tracefast.xyz/api/risk-blacklisted
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/risk/blacklisted", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract}, "pairs", max_items)
 
     async def blacklist_status(self, address: str) -> BlacklistStatusResponse:
-        """Which issuer contracts list one address
+        """Which issuer contracts list one address.
 
-        TraceFast live Ethereum data: every issuer contract that ever placed the address
-        on its on-chain blacklist — one row each, currently listed or not, with the
-        issuer's weight (`authorityTier`), the first and latest events and the
-        transition counts — plus, as a separate fact, the issuers that enforced against
-        it (funds destroyed or frozen). Facts recorded on-chain by the issuer contracts
-        themselves (blacklist / unblacklist / enforcement events); no external sanctions
-        lists. There is no single verdict: a listing is one issuer's decision. Empty
-        lists mean no issuer recorded anything about the address as of `meta.asOfBlock`.
+        Every issuer contract that ever placed the address on its on-chain blacklist —
+        one row each, currently listed or not, with the issuer's weight
+        (`authorityTier`), the first and latest events and the transition counts — plus,
+        as a separate fact, the issuers that enforced against it (funds destroyed or
+        frozen). Facts recorded on-chain by the issuer contracts themselves (blacklist /
+        unblacklist / enforcement events); no external sanctions lists. There is no
+        single verdict: a listing is one issuer's decision. Empty lists mean no issuer
+        recorded anything about the address as of `meta.asOfBlock`.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, any case.
+
+        Returns:
+            `BlacklistStatusResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-status
         """
@@ -6927,27 +11588,34 @@ class AsyncRiskApi:
         issuer_contract: str | None = None,
         action: str | None = None,
     ) -> BlacklistEventsResponse:
-        """Blacklist events about one address
+        """Blacklist events about one address.
 
-        TraceFast live Ethereum data: every blacklist event any issuer contract recorded
-        about the address — listed (`add`), unlisted (`remove`) or enforced against
-        (`enforce`: funds destroyed or frozen) — newest first, with the issuer and its
-        weight. Facts recorded on-chain by the issuer contracts themselves (blacklist /
-        unblacklist / enforcement events); no external sanctions lists. Optionally
-        narrowed to one issuer or one kind of event. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        Every blacklist event any issuer contract recorded about the address — listed
+        (`add`), unlisted (`remove`) or enforced against (`enforce`: funds destroyed or
+        frozen) — newest first, with the issuer and its weight. Facts recorded on-chain
+        by the issuer contracts themselves (blacklist / unblacklist / enforcement
+        events); no external sanctions lists. Optionally narrowed to one issuer or one
+        kind of event. Paged by an opaque cursor: pass `nextCursor` back as `cursor`
+        until it is absent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address and filters. Left as None, it is not sent.
+                method, address and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+
+        Returns:
+            `BlacklistEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-events
         """
@@ -6961,57 +11629,119 @@ class AsyncRiskApi:
         cursor: str | None = None,
         issuer_contract: str | None = None,
         action: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[BlacklistEventsResponse]:
-        """Every page of `risk.blacklist_events`, following `data.nextCursor` to the end.
+        """Every page of `risk.blacklist_events`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             address: The address, `0x`-prefixed, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, address and filters. Left as None, it is not sent.
+                method, address and filters.
             issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
-                Sent as ``issuerContract``. Left as None, it is not sent.
-            action: Only events of this kind: `add`, `remove` or `enforce`. Left as
-                None, it is not sent.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `BlacklistEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/risk-blacklist-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklists/{segment(address)}/events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action})
+        return self._http.pages(f"/chains/{self._http.chain_id}/risk/blacklists/{segment(address)}/events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, max_pages)
+
+    def blacklist_events_items(
+        self,
+        address: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        issuer_contract: str | None = None,
+        action: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[BlacklistEvent]:
+        """Every row of `data.events` of `risk.blacklist_events`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            address: The address, `0x`-prefixed, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, address and filters.
+            issuer_contract: Only events emitted by this issuer contract, `0x`-prefixed.
+                Sent as `issuerContract`.
+            action: Only events of this kind: `add`, `remove` or `enforce`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `BlacklistEvent`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/risk-blacklist-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/risk/blacklists/{segment(address)}/events", {"limit": limit, "cursor": cursor, "issuerContract": issuer_contract, "action": action}, "events", max_items)
 
 
 class AsyncTokensApi:
-    """`client.tokens` — the tokens methods of the TraceFast API (async)."""
+    """`client.tokens`: the tokens methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def stats(self) -> TokenStatsResponse:
-        """Token statistics of the network
+        """Token statistics of the network.
 
-        TraceFast live Ethereum data: how many token contracts, transfer events and
-        holder positions the chain holds, in total and per standard (ERC-20, ERC-721,
-        ERC-1155, ERC-777, ERC-4626). A holder position is one address holding one
-        token, so `holderCount` is not a number of distinct addresses. Recomputed daily.
+        How many token contracts, transfer events and holder positions the chain holds,
+        in total and per standard (ERC-20, ERC-721, ERC-1155, ERC-777, ERC-4626). A
+        holder position is one address holding one token, so `holderCount` is not a
+        number of distinct addresses. Recomputed daily.
 
         Plan: Enriched Data or higher.
+
+        Returns:
+            `TokenStatsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/token-stats
         """
         return cast("TokenStatsResponse", await self._http.get(f"/chains/{self._http.chain_id}/tokens/stats", None))
 
     async def get(self, token: str) -> TokenResponse:
-        """One token contract
+        """One token contract.
 
-        TraceFast live Ethereum data: one token contract — its standard as observed from
-        its events (`erc20`, `erc721`, `erc1155`), the symbol, name and decimals it
-        declares (verbatim, not verified), its all-time transfer count, how many
-        addresses hold it now (`holderCount`, the holders method's number; absent where
-        holders are not covered, such as NFT collections) and how many ever held it
+        One token contract — its standard as observed from its events (`erc20`,
+        `erc721`, `erc1155`), the symbol, name and decimals it declares (verbatim, not
+        verified), its all-time transfer count, how many addresses hold it now
+        (`holderCount`, the holders method's number; absent where holders are not
+        covered, such as NFT collections) and how many ever held it
         (`holderCountAllTime`, where indexed). A contract with no transfer events
         answers 404. No price: prices are served with the portfolio, where they carry
         their own source and time.
@@ -7021,6 +11751,14 @@ class AsyncTokensApi:
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
+
+        Returns:
+            `TokenResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token
         """
@@ -7032,23 +11770,30 @@ class AsyncTokensApi:
         *,
         days: int | None = None,
     ) -> TokenDexVolumeResponse:
-        """A token's daily DEX volume
+        """A token's daily DEX volume.
 
-        TraceFast live Ethereum data: the token's DEX trading per UTC day over the last
-        `days` days (today included), oldest first — the USD volume and how many swaps
-        sold the token into a pool and bought it out of one — with the totals. Today's
-        row is still being counted and grows through the day. A day's USD volume adds
-        the hours that could be priced: a day with swaps but no priced hour has no
-        `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial
-        sum); a day priced only in part is not marked. A day without swaps is absent.
-        The volume counts the pools TraceFast has decoded, which may lag a newly created
-        pool.
+        The token's DEX trading per UTC day over the last `days` days (today included),
+        oldest first — the USD volume and how many swaps sold the token into a pool and
+        bought it out of one — with the totals. Today's row is still being counted and
+        grows through the day. A day's USD volume adds the hours that could be priced: a
+        day with swaps but no priced hour has no `volumeUsd` and is counted in
+        `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in
+        part is not marked. A day without swaps is absent. The volume counts the pools
+        TraceFast has decoded, which may lag a newly created pool.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
-            days: 1..=365, default 30. Left as None, it is not sent.
+            days: 1 to 365, default 30.
+
+        Returns:
+            `TokenDexVolumeResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-dex-volume
         """
@@ -7060,20 +11805,28 @@ class AsyncTokensApi:
         *,
         limit: int | None = None,
     ) -> TokenHoldersResponse:
-        """Top holders of a token
+        """Top holders of a token.
 
-        TraceFast live Ethereum data: the largest current holders of a token contract.
-        Returns up to 100 holders in descending balance order with the balance in the
-        token's smallest unit, plus `holderCount` — how many addresses hold a positive
-        balance now — the same balances the balance method answers. Only the current
-        ranking is served — a past block is refused.
+        The largest current holders of a token contract. Returns up to 100 holders in
+        descending balance order with the balance in the token's smallest unit, plus
+        `holderCount` — how many addresses hold a positive balance now — the same
+        balances the balance method answers. Only the current ranking is served — a past
+        block is refused.
 
         Plan: Intelligence or higher.
 
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            limit: 1..=100, default 100. Left as None, it is not sent.
+            limit: 1 to 100, default 100.
+
+        Returns:
+            `TokenHoldersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-holders
         """
@@ -7086,24 +11839,32 @@ class AsyncTokensApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> TokenPoolsResponse:
-        """The DEX pools holding a token
+        """The DEX pools holding a token.
 
-        TraceFast live Ethereum data: the DEX pools that hold the token, newest created
-        first — each with its protocol and version, fee tier, approximate creation
-        block, its tokens (address, symbol, decimals, role, weight where the pool
-        declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no
-        address of its own and is named by its `poolId`, the PoolId the protocol's
-        events use. TraceFast ranks at most the 10 000 most recently created pools of a
-        token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass
-        `nextCursor` back as `cursor` until it is absent.
+        The DEX pools that hold the token, newest created first — each with its protocol
+        and version, fee tier, approximate creation block, its tokens (address, symbol,
+        decimals, role, weight where the pool declares one) and its USD volume over the
+        last 7 days. A Uniswap v4 pool has no address of its own and is named by its
+        `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10
+        000 most recently created pools of a token; `rankedPools` says how many are
+        ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it
+        is absent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and token. Left as None, it is not sent.
+                method and token.
+
+        Returns:
+            `TokenPoolsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-pools
         """
@@ -7115,23 +11876,71 @@ class AsyncTokensApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[TokenPoolsResponse]:
-        """Every page of `tokens.pools`, following `data.nextCursor` to the end.
+        """Every page of `tokens.pools`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method and token. Left as None, it is not sent.
+                method and token.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `TokenPoolsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-pools
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/pools", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/pools", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def pools_items(
+        self,
+        token: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[TokenPoolEntry]:
+        """Every row of `data.pools` of `tokens.pools`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
+
+        Args:
+            token: The token contract, `0x` + 40 hex, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method and token.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `TokenPoolEntry`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/token-pools
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/pools", {"limit": limit, "cursor": cursor}, "pools", max_items)
 
     async def price(
         self,
@@ -7140,26 +11949,34 @@ class AsyncTokensApi:
         timestamp: int | None = None,
         block: int | None = None,
     ) -> TokenPriceResponse:
-        """A token's USD price, now or as of a past time or block
+        """A token's USD price, now or as of a past time or block.
 
-        TraceFast live Ethereum data: the USD price of a token for one hour — the newest
-        hour by default, or the hour holding `timestamp` or the block's time. The answer
-        is the newest priced hour at or before that time (`hour`), what the price is
-        (`priceSource`: an oracle reading, a DEX observation, a peg, or one carried over
-        from an earlier hour — `observedHour` says which hour it was observed in), and
-        the largest USD value it may vouch for (`maxTrustedValueUsd`; absent means no
-        bound): an amount worth more at this price is not valued by it. The DEX and the
-        oracle side it was chosen from are separate blocks, with how far they disagree.
-        TraceFast prices a selected set of tokens; any other answers 404.
+        The USD price of a token for one hour — the newest hour by default, or the hour
+        holding `timestamp` or the block's time. The answer is the newest priced hour at
+        or before that time (`hour`), what the price is (`priceSource`: an oracle
+        reading, a DEX observation, a peg, or one carried over from an earlier hour —
+        `observedHour` says which hour it was observed in), and the largest USD value it
+        may vouch for (`maxTrustedValueUsd`; absent means no bound): an amount worth
+        more at this price is not valued by it. The DEX and the oracle side it was
+        chosen from are separate blocks, with how far they disagree. TraceFast prices a
+        selected set of tokens; any other answers 404.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
             timestamp: Unix time, seconds: the price as of the hour holding it. Not with
-                `block`. Left as None, it is not sent.
+                `block`.
             block: A block: the price as of the hour holding its time. Not with
-                `timestamp`. Left as None, it is not sent.
+                `timestamp`.
+
+        Returns:
+            `TokenPriceResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-price
         """
@@ -7172,24 +11989,31 @@ class AsyncTokensApi:
         from_: int | None = None,
         to: int | None = None,
     ) -> TokenPriceHistoryResponse:
-        """A token's hourly USD prices over a window
+        """A token's hourly USD prices over a window.
 
-        TraceFast live Ethereum data: the token's USD price for every priced hour in
-        `[from, to]` (Unix seconds; the last 7 days by default, at most 90 days), oldest
-        first — each with what the price is (`priceSource`), whether it was carried over
-        from an earlier hour (`carried`), the largest USD value it may vouch for
-        (`maxTrustedValueUsd`; absent means no bound) and the DEX and oracle prices of
-        the hour where they exist. An hour without a price is absent, not zero.
-        TraceFast prices a selected set of tokens; any other answers an empty list.
+        The token's USD price for every priced hour in `[from, to]` (Unix seconds; the
+        last 7 days by default, at most 90 days), oldest first — each with what the
+        price is (`priceSource`), whether it was carried over from an earlier hour
+        (`carried`), the largest USD value it may vouch for (`maxTrustedValueUsd`;
+        absent means no bound) and the DEX and oracle prices of the hour where they
+        exist. An hour without a price is absent, not zero. TraceFast prices a selected
+        set of tokens; any other answers an empty list.
 
-        Plan: Intelligence or higher. **Beta** — the shape may still change.
+        Plan: Intelligence or higher. **Beta**: the shape may still change.
 
         Args:
             token: The token contract, `0x` + 40 hex, any case.
             from_: Unix time, seconds: the window's start (its hour included). Default:
-                7 days before `to`. Sent as ``from``. Left as None, it is not sent.
+                7 days before `to`. Sent as `from`.
             to: Unix time, seconds: the window's end (its hour included). Default: now.
-                Left as None, it is not sent.
+
+        Returns:
+            `TokenPriceHistoryResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-price-history
         """
@@ -7207,37 +12031,41 @@ class AsyncTokensApi:
         from_block: int | None = None,
         to_block: int | None = None,
     ) -> TokenTransfersResponse:
-        """Transfers of a token
+        """Transfers of a token.
 
-        TraceFast live Ethereum data: the transfer events of one token contract, newest
-        first — the parties, the raw amount (unscaled) or token id, the event kind, the
-        transaction that emitted it and who sent that transaction, which on a router or
-        a batch disburser is another party entirely. Covers ERC-20, ERC-721 and
-        ERC-1155. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it
-        is absent. Filters narrow the walk and are answered only inside a block window
-        on a very active token; the refusal names the window it needs.
+        The transfer events of one token contract, newest first — the parties, the raw
+        amount (unscaled) or token id, the event kind, the transaction that emitted it
+        and who sent that transaction, which on a router or a batch disburser is another
+        party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor:
+        pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk
+        and are answered only inside a block window on a very active token; the refusal
+        names the window it needs.
 
         Plan: Enriched Data or higher.
 
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            from_: Only transfers sent by this address, `0x`-prefixed. Sent as ``from``.
-                Left as None, it is not sent.
-            to: Only transfers received by this address, `0x`-prefixed. Left as None, it
-                is not sent.
+                method with these filters.
+            from_: Only transfers sent by this address, `0x`-prefixed. Sent as `from`.
+            to: Only transfers received by this address, `0x`-prefixed.
             event_type: One event kind: `transfer`, `transfer_single`, `transfer_batch`,
                 `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap`, `unwrap`.
                 `deposit` and `withdraw` are vault (ERC-4626) events; wrapping and
                 unwrapping ether (WETH) are `wrap` (no sender) and `unwrap` (no
-                recipient). Sent as ``eventType``. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                recipient). Sent as `eventType`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+
+        Returns:
+            `TokenTransfersResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-transfers
         """
@@ -7254,41 +12082,103 @@ class AsyncTokensApi:
         event_type: str | None = None,
         from_block: int | None = None,
         to_block: int | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[TokenTransfersResponse]:
-        """Every page of `tokens.transfers`, following `data.nextCursor` to the end.
+        """Every page of `tokens.transfers`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             token: The token contract address, `0x`-prefixed, 40 hex characters, any
                 case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method with these filters. Left as None, it is not sent.
-            from_: Only transfers sent by this address, `0x`-prefixed. Sent as ``from``.
-                Left as None, it is not sent.
-            to: Only transfers received by this address, `0x`-prefixed. Left as None, it
-                is not sent.
+                method with these filters.
+            from_: Only transfers sent by this address, `0x`-prefixed. Sent as `from`.
+            to: Only transfers received by this address, `0x`-prefixed.
             event_type: One event kind: `transfer`, `transfer_single`, `transfer_batch`,
                 `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap`, `unwrap`.
                 `deposit` and `withdraw` are vault (ERC-4626) events; wrapping and
                 unwrapping ether (WETH) are `wrap` (no sender) and `unwrap` (no
-                recipient). Sent as ``eventType``. Left as None, it is not sent.
-            from_block: Inclusive lower block bound. Sent as ``fromBlock``. Left as
-                None, it is not sent.
-            to_block: Inclusive upper block bound. Sent as ``toBlock``. Left as None, it
-                is not sent.
+                recipient). Sent as `eventType`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `TokenTransfersResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/token-transfers
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/transfers", {"limit": limit, "cursor": cursor, "from": from_, "to": to, "eventType": event_type, "fromBlock": from_block, "toBlock": to_block})
+        return self._http.pages(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/transfers", {"limit": limit, "cursor": cursor, "from": from_, "to": to, "eventType": event_type, "fromBlock": from_block, "toBlock": to_block}, max_pages)
+
+    def transfers_items(
+        self,
+        token: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        from_: str | None = None,
+        to: str | None = None,
+        event_type: str | None = None,
+        from_block: int | None = None,
+        to_block: int | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[TokenTransfer]:
+        """Every row of `data.transfers` of `tokens.transfers`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Enriched Data or higher.
+
+        Args:
+            token: The token contract address, `0x`-prefixed, 40 hex characters, any
+                case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method with these filters.
+            from_: Only transfers sent by this address, `0x`-prefixed. Sent as `from`.
+            to: Only transfers received by this address, `0x`-prefixed.
+            event_type: One event kind: `transfer`, `transfer_single`, `transfer_batch`,
+                `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap`, `unwrap`.
+                `deposit` and `withdraw` are vault (ERC-4626) events; wrapping and
+                unwrapping ether (WETH) are `wrap` (no sender) and `unwrap` (no
+                recipient). Sent as `eventType`.
+            from_block: Inclusive lower block bound. Sent as `fromBlock`.
+            to_block: Inclusive upper block bound. Sent as `toBlock`.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `TokenTransfer`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/token-transfers
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/tokens/{segment(token)}/transfers", {"limit": limit, "cursor": cursor, "from": from_, "to": to, "eventType": event_type, "fromBlock": from_block, "toBlock": to_block}, "transfers", max_items)
 
 
 class AsyncTracesApi:
-    """`client.traces` — the traces methods of the TraceFast API (async)."""
+    """`client.traces`: the traces methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
@@ -7300,16 +12190,16 @@ class AsyncTracesApi:
         include_calldata: bool | None = None,
         limit: int | None = None,
     ) -> TransactionTraceResponse:
-        """Execution trace of a transaction
+        """Execution trace of a transaction.
 
-        TraceFast live Ethereum data: every call frame a transaction executed, the order
-        it ran — the caller and target of each, the kind of call, the value and gas it
-        moved, its own outcome, and why it reverted where it did. A `delegatecall` names
-        both the storage context and the address whose code ran, which is what makes a
-        proxy call readable. `create` and `create2` frames name the address they
-        deployed. Calldata and output heads are opt-in. At most `limit` frames in the
-        order they ran (default and maximum 1 000), with `framesTruncated` saying when
-        the tree is larger; the frame-level method pages the whole tree.
+        Every call frame a transaction executed, the order it ran — the caller and
+        target of each, the kind of call, the value and gas it moved, its own outcome,
+        and why it reverted where it did. A `delegatecall` names both the storage
+        context and the address whose code ran, which is what makes a proxy call
+        readable. `create` and `create2` frames name the address they deployed. Calldata
+        and output heads are opt-in. At most `limit` frames in the order they ran
+        (default and maximum 1 000), with `framesTruncated` saying when the tree is
+        larger; the frame-level method pages the whole tree.
 
         Plan: Investigation or higher.
 
@@ -7317,10 +12207,17 @@ class AsyncTracesApi:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
             include_calldata: `true` adds each frame's calldata and output heads (first
                 260 bytes) with their full sizes. Default `false`. Sent as
-                ``includeCalldata``. Left as None, it is not sent.
-            limit: 1..=1000, default 1000: at most this many frames, the first ones in
+                `includeCalldata`.
+            limit: 1 to 1000, default 1000: at most this many frames, the first ones in
                 the order they ran; `framesTruncated` says when the tree holds more.
-                Left as None, it is not sent.
+
+        Returns:
+            `TransactionTraceResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/trace
         """
@@ -7333,26 +12230,33 @@ class AsyncTracesApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> TransactionFramesResponse:
-        """Call frames of a transaction, paged
+        """Call frames of a transaction, paged.
 
-        TraceFast live Ethereum data: the whole call tree of a transaction, frame by
-        frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what
-        the trace summary carries plus, always, the first 260 bytes of its calldata and
-        output with their full sizes, and the positions of the event logs it emitted.
-        Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is
-        absent; a page may hold fewer frames than `limit` when their calldata is large,
-        and continues from the last frame served. `meta.coverage` names the first block
-        from which the frame schema (`framesFromBlock`) and the event attribution
-        (`eventAttributionFromBlock`) are computed; both bounds move as history is
-        filled in.
+        The whole call tree of a transaction, frame by frame in the order it ran, paged
+        — no 1 000-frame cap. Each frame carries what the trace summary carries plus,
+        always, the first 260 bytes of its calldata and output with their full sizes,
+        and the positions of the event logs it emitted. Paged by an opaque cursor: pass
+        `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames
+        than `limit` when their calldata is large, and continues from the last frame
+        served. `meta.coverage` names the first block from which the frame schema
+        (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are
+        computed; both bounds move as history is filled in.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+
+        Returns:
+            `TransactionFramesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/trace-frames
         """
@@ -7364,65 +12268,130 @@ class AsyncTracesApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[TransactionFramesResponse]:
-        """Every page of `traces.frames`, following `data.nextCursor` to the end.
+        """Every page of `traces.frames`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 50. Left as None, it is not sent.
+            limit: 1 to 100, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `TransactionFramesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/trace-frames
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/traces/{segment(hash)}/frames", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/traces/{segment(hash)}/frames", {"limit": limit, "cursor": cursor}, max_pages)
+
+    def frames_items(
+        self,
+        hash: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[ExecutionFrame]:
+        """Every row of `data.frames` of `traces.frames`, page after page.
+
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
+
+        Plan: Investigation or higher.
+
+        Args:
+            hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+            limit: 1 to 100, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this transaction.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `ExecutionFrame`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/trace-frames
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/traces/{segment(hash)}/frames", {"limit": limit, "cursor": cursor}, "frames", max_items)
 
 
 class AsyncTransactionsApi:
-    """`client.transactions` — the transactions methods of the TraceFast API (async)."""
+    """`client.transactions`: the transactions methods of the TraceFast API, as coroutines.
+
+    A keyword argument left as None is not sent: the API applies its own default.
+    """
 
     def __init__(self, http: AsyncHttp) -> None:
         self._http = http
 
     async def get(self, hash: str) -> TransactionResponse:
-        """One transaction
+        """One transaction.
 
-        TraceFast live Ethereum data: one transaction by hash — sender, recipient,
-        value, nonce, type, gas limit and gas used, the fee fields of its type and the
-        price actually paid per gas, the receipt's outcome and log count, and its
-        position (block and index). Served from seconds after inclusion; a hash that is
-        not known answers 404.
+        One transaction by hash — sender, recipient, value, nonce, type, gas limit and
+        gas used, the fee fields of its type and the price actually paid per gas, the
+        receipt's outcome and log count, and its position (block and index). Served from
+        seconds after inclusion; a hash that is not known answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
 
+        Returns:
+            `TransactionResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/transaction
         """
         return cast("TransactionResponse", await self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}", None))
 
     async def account_changes(self, hash: str) -> TransactionAccountChangesResponse:
-        """Accounts a transaction changed
+        """Accounts a transaction changed.
 
-        TraceFast live Ethereum data: every account one transaction changed, with its
-        balance, nonce and code hash before and after, whether it existed before, still
-        exists after, and whether its storage was wiped — the net effect of the whole
-        transaction, inner calls included, ETH and gas fee included. Two rules of the
-        source: the fee recipient has no row when its only change is the priority fee,
-        and an account created and destroyed within the transaction has no row. A
-        transaction whose execution is not computed yet (usually minutes) answers 422,
-        never an empty list.
+        Every account one transaction changed, with its balance, nonce and code hash
+        before and after, whether it existed before, still exists after, and whether its
+        storage was wiped — the net effect of the whole transaction, inner calls
+        included, ETH and gas fee included. Two rules of the source: the fee recipient
+        has no row when its only change is the priority fee, and an account created and
+        destroyed within the transaction has no row. A transaction whose execution is
+        not computed yet (usually minutes) answers 422, never an empty list.
 
-        Plan: Enriched Data or higher. **Beta** — the shape may still change.
+        Plan: Enriched Data or higher. **Beta**: the shape may still change.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionAccountChangesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-account-changes
         """
@@ -7437,31 +12406,39 @@ class AsyncTransactionsApi:
         event_name: str | None = None,
         topic0: str | None = None,
     ) -> TransactionEventsResponse:
-        """Event logs of a transaction
+        """Event logs of a transaction.
 
-        TraceFast live Ethereum data: the event logs a transaction emitted, in emission
-        order, each with the emitting contract, topics and data, and — when the event
-        signature is known — the decoded event name and arguments with a stated
-        confidence. Decoding covers the common token, DeFi and protocol events; an
-        unknown signature is returned raw with `decodeStatus: abi_missing`, and a known
-        one whose layout does not fit the log with `failed` — raw as well, without
-        `decoded`. Paged by an opaque cursor; a page holds at most `limit` logs and may
-        hold fewer when their `data` is large — the page is bounded by size, a log is
-        never cut. A hash that is not known answers 404.
+        The event logs a transaction emitted, in emission order, each with the emitting
+        contract, topics and data, and — when the event signature is known — the decoded
+        event name and arguments with a stated confidence. Decoding covers the common
+        token, DeFi and protocol events; an unknown signature is returned raw with
+        `decodeStatus: abi_missing`, and a known one whose layout does not fit the log
+        with `failed` — raw as well, without `decoded`. Paged by an opaque cursor; a
+        page holds at most `limit` logs and may hold fewer when their `data` is large —
+        the page is bounded by size, a log is never cut. A hash that is not known
+        answers 404.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, transaction and filters. Left as None, it is not sent.
+                method, transaction and filters.
             event_name: Only events whose name, as TraceFast's event index records it,
                 is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores.
                 Case-sensitive. An event the index holds no name for is not matched.
-                Sent as ``eventName``. Left as None, it is not sent.
+                Sent as `eventName`.
             topic0: Only events whose first topic (the event signature hash) is this
-                value: `0x` + 64 hex characters. Left as None, it is not sent.
+                value: `0x` + 64 hex characters.
+
+        Returns:
+            `TransactionEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-events
         """
@@ -7475,112 +12452,197 @@ class AsyncTransactionsApi:
         cursor: str | None = None,
         event_name: str | None = None,
         topic0: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[TransactionEventsResponse]:
-        """Every page of `transactions.events`, following `data.nextCursor` to the end.
+        """Every page of `transactions.events`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=100, default 25. Left as None, it is not sent.
+            limit: 1 to 100, default 25.
             cursor: `nextCursor` of the previous page. Opaque; valid only for this
-                method, transaction and filters. Left as None, it is not sent.
+                method, transaction and filters.
             event_name: Only events whose name, as TraceFast's event index records it,
                 is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores.
                 Case-sensitive. An event the index holds no name for is not matched.
-                Sent as ``eventName``. Left as None, it is not sent.
+                Sent as `eventName`.
             topic0: Only events whose first topic (the event signature hash) is this
-                value: `0x` + 64 hex characters. Left as None, it is not sent.
+                value: `0x` + 64 hex characters.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `TransactionEventsResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-events
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/events", {"limit": limit, "cursor": cursor, "eventName": event_name, "topic0": topic0})
+        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/events", {"limit": limit, "cursor": cursor, "eventName": event_name, "topic0": topic0}, max_pages)
 
-    async def execution_profile(self, hash: str) -> TransactionExecutionProfileResponse:
-        """How heavy a transaction was inside the EVM
+    def events_items(
+        self,
+        hash: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        event_name: str | None = None,
+        topic0: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[EventLog]:
+        """Every row of `data.events` of `transactions.events`, page after page.
 
-        TraceFast live Ethereum data: opcode counts of one transaction over every frame,
-        the reverted ones included — SLOAD / SSTORE / TLOAD / TSTORE / KECCAK256
-        executions, precompile calls, CREATE and SELFDESTRUCT, whether a DELEGATECALL
-        ran, distinct contracts whose storage it touched, and the gas spent in frames
-        that reverted. Executions, not committed effects: `sstoreTotal` is not the
-        number of committed writes. A transaction whose execution is not computed yet
-        (usually minutes) answers 422.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+            limit: 1 to 100, default 25.
+            cursor: `nextCursor` of the previous page. Opaque; valid only for this
+                method, transaction and filters.
+            event_name: Only events whose name, as TraceFast's event index records it,
+                is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores.
+                Case-sensitive. An event the index holds no name for is not matched.
+                Sent as `eventName`.
+            topic0: Only events whose first topic (the event signature hash) is this
+                value: `0x` + 64 hex characters.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `EventLog`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/transaction-events
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/events", {"limit": limit, "cursor": cursor, "eventName": event_name, "topic0": topic0}, "events", max_items)
+
+    async def execution_profile(self, hash: str) -> TransactionExecutionProfileResponse:
+        """How heavy a transaction was inside the EVM.
+
+        Opcode counts of one transaction over every frame, the reverted ones included —
+        SLOAD / SSTORE / TLOAD / TSTORE / KECCAK256 executions, precompile calls, CREATE
+        and SELFDESTRUCT, whether a DELEGATECALL ran, distinct contracts whose storage
+        it touched, and the gas spent in frames that reverted. Executions, not committed
+        effects: `sstoreTotal` is not the number of committed writes. A transaction
+        whose execution is not computed yet (usually minutes) answers 422.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionExecutionProfileResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-execution-profile
         """
         return cast("TransactionExecutionProfileResponse", await self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/execution-profile", None))
 
     async def failures(self, hash: str) -> TransactionFailuresResponse:
-        """Why a transaction reverted
+        """Why a transaction reverted.
 
-        TraceFast live Ethereum data: the failed call frames of a reverted transaction —
-        for each, its position in the call tree, caller and target, the kind of failure
-        (revert, panic, custom error, out of gas, …), the revert payload with its
-        selector, and the error name when the selector is known. Root frame first, then
-        nested frames in tree order, at most 100 (`framesTruncated` says when there are
-        more). A successful transaction, and one that is not known, answer an empty
-        list: absence of a recorded failure is not a statement of success. A transaction
-        whose block the failure classification has not reached yet answers 422 — an
-        empty list there would read as success.
+        The failed call frames of a reverted transaction — for each, its position in the
+        call tree, caller and target, the kind of failure (revert, panic, custom error,
+        out of gas, …), the revert payload with its selector, and the error name when
+        the selector is known. Root frame first, then nested frames in tree order, at
+        most 100 (`framesTruncated` says when there are more). A successful transaction,
+        and one that is not known, answer an empty list: absence of a recorded failure
+        is not a statement of success. A transaction whose block the failure
+        classification has not reached yet answers 422 — an empty list there would read
+        as success.
 
         Plan: Enriched Data or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
 
+        Returns:
+            `TransactionFailuresResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
         Docs: https://docs.tracefast.xyz/api/transaction-failures
         """
         return cast("TransactionFailuresResponse", await self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/failures", None))
 
     async def flash_loans(self, hash: str) -> TransactionFlashLoansResponse:
-        """Flash loans taken inside a transaction
+        """Flash loans taken inside a transaction.
 
-        TraceFast live Ethereum data: the flash loans taken inside one transaction from
-        the lenders TraceFast indexes — Aave V2 and V3 (its official markets), Balancer
-        V2 and Uniswap V3 flash — in log order: the protocol, the lending contract, the
-        borrower and initiator where the event states them, the token and the raw
-        amount. Some Aave V2 forks are listed too, under their own name (`radiant`,
-        `aave_fork`): they are not Aave. An empty list means none FROM THESE LENDERS (a
-        Uniswap V2 flash swap, a Maker, Morpho, Euler or Balancer V3 flash loan is not
-        covered), and is stated only once the index has reached the transaction's block;
-        before that (usually under half an hour) the method answers 422 `coverage_gap`
-        with the bound, never an empty list. Pass `tokenAddress` to get_token for the
-        decimals.
+        The flash loans taken inside one transaction from the lenders TraceFast indexes
+        — Aave V2 and V3 (its official markets), Balancer V2 and Uniswap V3 flash — in
+        log order: the protocol, the lending contract, the borrower and initiator where
+        the event states them, the token and the raw amount. Some Aave V2 forks are
+        listed too, under their own name (`radiant`, `aave_fork`): they are not Aave. An
+        empty list means none FROM THESE LENDERS (a Uniswap V2 flash swap, a Maker,
+        Morpho, Euler or Balancer V3 flash loan is not covered), and is stated only once
+        the index has reached the transaction's block; before that (usually under half
+        an hour) the method answers 422 `coverage_gap` with the bound, never an empty
+        list. Pass `tokenAddress` to get_token for the decimals.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionFlashLoansResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-flash-loans
         """
         return cast("TransactionFlashLoansResponse", await self._http.get(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/flash-loans", None))
 
     async def liquidity_events(self, hash: str) -> TransactionLiquidityEventsResponse:
-        """The DEX liquidity added and removed in a transaction
+        """The DEX liquidity added and removed in a transaction.
 
-        TraceFast live Ethereum data: every liquidity event in the transaction, in log
-        order — the pool, its protocol, the provider, whether liquidity was added or
-        removed, and each token leg: the token with its declared symbol and decimals
-        (verbatim, not verified), the raw amount and in token units, and its USD value
-        with the price and how it was valued, as the source states them. An empty list
-        means no liquidity event happened in the transaction. A transaction past the
-        events' reach answers 422 rather than an empty list. Uniswap v4 liquidity events
-        are not recorded.
+        Every liquidity event in the transaction, in log order — the pool, its protocol,
+        the provider, whether liquidity was added or removed, and each token leg: the
+        token with its declared symbol and decimals (verbatim, not verified), the raw
+        amount and in token units, and its USD value with the price and how it was
+        valued, as the source states them. An empty list means no liquidity event
+        happened in the transaction. A transaction past the events' reach answers 422
+        rather than an empty list. Uniswap v4 liquidity events are not recorded.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             hash: The transaction hash, `0x` + 64 hex, any case.
+
+        Returns:
+            `TransactionLiquidityEventsResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-liquidity-events
         """
@@ -7590,19 +12652,27 @@ class AsyncTransactionsApi:
         self,
         hash: str,
     ) -> TransactionStateDependenciesResponse:
-        """Transactions of the same block it depends on
+        """Transactions of the same block it depends on.
 
-        TraceFast live Ethereum data: the read-after-write edges between one transaction
-        and the other transactions of its block — slots it read that an earlier
-        transaction had written (`role: reader`), and slots it wrote that a later one
-        read (`role: writer`) — edge by edge and folded per pair of transactions. Facts
-        of execution order only: no statement about intent. An empty answer for a
-        computed transaction means no dependency. Not computed yet answers 422.
+        The read-after-write edges between one transaction and the other transactions of
+        its block — slots it read that an earlier transaction had written (`role:
+        reader`), and slots it wrote that a later one read (`role: writer`) — edge by
+        edge and folded per pair of transactions. Facts of execution order only: no
+        statement about intent. An empty answer for a computed transaction means no
+        dependency. Not computed yet answers 422.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher. **Beta**: the shape may still change.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionStateDependenciesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-state-dependencies
         """
@@ -7615,26 +12685,33 @@ class AsyncTransactionsApi:
         limit: int | None = None,
         cursor: str | None = None,
     ) -> TransactionStorageWritesResponse:
-        """Storage writes of a transaction
+        """Storage writes of a transaction.
 
-        TraceFast live Ethereum data: every contract storage slot a transaction wrote,
-        in execution order — which contract's storage, which frame wrote it (with the
-        address whose code ran, which on a `delegatecall` is not the storage owner), the
-        slot, the value written, and the value the slot held before where that can be
-        established. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until
-        it is absent. `meta.coverage` names the first block writes are computed from
-        (`storageWritesFromBlock`) and the last block they have reached
-        (`storageWritesThroughBlock`); a write whose prior value has not been computed
-        yet says so per row (`valueBeforeStatus: not_computed`), which is not a
-        statement that the slot was empty.
+        Every contract storage slot a transaction wrote, in execution order — which
+        contract's storage, which frame wrote it (with the address whose code ran, which
+        on a `delegatecall` is not the storage owner), the slot, the value written, and
+        the value the slot held before where that can be established. Paged by an opaque
+        cursor: pass `nextCursor` back as `cursor` until it is absent. `meta.coverage`
+        names the first block writes are computed from (`storageWritesFromBlock`) and
+        the last block they have reached (`storageWritesThroughBlock`); a write whose
+        prior value has not been computed yet says so per row (`valueBeforeStatus:
+        not_computed`), which is not a statement that the slot was empty.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+
+        Returns:
+            `TransactionStorageWritesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-storage-writes
         """
@@ -7646,39 +12723,94 @@ class AsyncTransactionsApi:
         *,
         limit: int | None = None,
         cursor: str | None = None,
+        max_pages: int | None = None,
     ) -> AsyncIterator[TransactionStorageWritesResponse]:
-        """Every page of `transactions.storage_writes`, following `data.nextCursor` to the
-        end.
+        """Every page of `transactions.storage_writes`, one whole response at a time.
 
-        An async iterator of whole responses; the cursor goes back unchanged with the
-        same other parameters. The pager never stops on a short page.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
         Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
-            limit: 1..=200, default 50. Left as None, it is not sent.
+            limit: 1 to 200, default 50.
             cursor: `nextCursor` of the previous page. Opaque, and valid only for this
-                method and this transaction. Left as None, it is not sent.
+                method and this transaction.
+            max_pages: Stop after this many pages. Left as None, the walk goes to the
+                last page.
+
+        Returns:
+            An async iterator of `TransactionStorageWritesResponse`, `meta` included.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-storage-writes
         """
-        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/storage-writes", {"limit": limit, "cursor": cursor})
+        return self._http.pages(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/storage-writes", {"limit": limit, "cursor": cursor}, max_pages)
 
-    async def transient_writes(self, hash: str) -> TransactionTransientWritesResponse:
-        """Transient storage a transaction wrote
+    def storage_writes_items(
+        self,
+        hash: str,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        max_items: int | None = None,
+    ) -> AsyncIterator[StorageWrite]:
+        """Every row of `data.writes` of `transactions.storage_writes`, page after page.
 
-        TraceFast live Ethereum data: the committed TSTORE writes (EIP-1153) of one
-        transaction in execution order — the contract, the code that executed the write,
-        its caller, slot, value, frame path and depth. Transient storage lives for one
-        transaction; none exists before block 19 426 976. An empty list for a computed
-        transaction means no transient writes. At most 5 000 (`truncated` says when
-        there are more). Not computed yet answers 422.
+        It stops when `data.nextCursor` is absent, never on a short page, and passes the
+        cursor back unchanged with the same other parameters. A `cursor` given here is
+        the first one sent.
 
-        Plan: Investigation or higher. **Beta** — the shape may still change.
+        Plan: Investigation or higher.
 
         Args:
             hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+            limit: 1 to 200, default 50.
+            cursor: `nextCursor` of the previous page. Opaque, and valid only for this
+                method and this transaction.
+            max_items: Stop after this many rows; no further page is fetched. Left as
+                None, the walk goes to the last page.
+
+        Returns:
+            An async iterator of `StorageWrite`.
+
+        Raises:
+            TraceFastError: While iterating: the API refused the call or it failed; the
+                subclass and `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
+
+        Docs: https://docs.tracefast.xyz/api/transaction-storage-writes
+        """
+        return self._http.items(f"/chains/{self._http.chain_id}/transactions/{segment(hash)}/storage-writes", {"limit": limit, "cursor": cursor}, "writes", max_items)
+
+    async def transient_writes(self, hash: str) -> TransactionTransientWritesResponse:
+        """Transient storage a transaction wrote.
+
+        The committed TSTORE writes (EIP-1153) of one transaction in execution order —
+        the contract, the code that executed the write, its caller, slot, value, frame
+        path and depth. Transient storage lives for one transaction; none exists before
+        block 19 426 976. An empty list for a computed transaction means no transient
+        writes. At most 5 000 (`truncated` says when there are more). Not computed yet
+        answers 422.
+
+        Plan: Investigation or higher. **Beta**: the shape may still change.
+
+        Args:
+            hash: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+
+        Returns:
+            `TransactionTransientWritesResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
+            ValueError: A path value is empty, `.` or `..`; nothing is sent.
 
         Docs: https://docs.tracefast.xyz/api/transaction-transient-writes
         """
@@ -7688,6 +12820,8 @@ class AsyncTransactionsApi:
 class ClientBase:
     """The generated part of `TraceFast`: its namespaces and the methods on the client
     itself.
+
+    A keyword argument left as None is not sent: the API applies its own default.
     """
 
     blocks: BlocksApi
@@ -7713,22 +12847,22 @@ class ClientBase:
         self.transactions = TransactionsApi(http)
 
     def resolve(self, *, q: str, limit: int | None = None) -> EntityResolutionResponse:
-        """Resolve a name, symbol or address
+        """Resolve a name, symbol or address.
 
-        TraceFast live Ethereum data: what a reference means. An address (`0x` + 40 hex)
-        is described — the name TraceFast shows for it, how it presents it, what kind of
-        address it is, its token identity. Any other text is looked up in two
-        collections — token contracts by the symbol and name they declare, and the names
-        TraceFast shows for projects, exchanges, protocols and ENS names — and answered
-        with the matching addresses, best first: verified addresses, then the projects
-        and ENS names TraceFast knows by name (flagged ones included), then the rest,
-        and impersonations last — never hidden; inside each group exact, then prefix,
-        then substring matches, then tokens with more holders. The starting point when
-        you have a name and need an address. No cursor: `hasMore` says when a more
-        specific query or a larger `limit` would show more. A 32-byte hash (`queryKind:
-        hash`) is looked up as a TRANSACTION and answered in `transaction` (a block hash
-        is not resolved — look a block up by its number); a whole number is also stated
-        as `block` when that block exists, beside the text matches.
+        What a reference means. An address (`0x` + 40 hex) is described — the name
+        TraceFast shows for it, how it presents it, what kind of address it is, its
+        token identity. Any other text is looked up in two collections — token contracts
+        by the symbol and name they declare, and the names TraceFast shows for projects,
+        exchanges, protocols and ENS names — and answered with the matching addresses,
+        best first: verified addresses, then the projects and ENS names TraceFast knows
+        by name (flagged ones included), then the rest, and impersonations last — never
+        hidden; inside each group exact, then prefix, then substring matches, then
+        tokens with more holders. The starting point when you have a name and need an
+        address. No cursor: `hasMore` says when a more specific query or a larger
+        `limit` would show more. A 32-byte hash (`queryKind: hash`) is looked up as a
+        TRANSACTION and answered in `transaction` (a block hash is not resolved — look a
+        block up by its number); a whole number is also stated as `block` when that
+        block exists, beside the text matches.
 
         Plan: Intelligence or higher.
 
@@ -7736,7 +12870,14 @@ class ClientBase:
             q: What to resolve: an address (`0x` + 40 hex, any case), or a name, ENS
                 name, token symbol or token name — at least 2 and at most 100
                 characters, matched ignoring ASCII case.
-            limit: 1..=20, default 10. Left as None, it is not sent.
+            limit: 1 to 20, default 10.
+
+        Returns:
+            `EntityResolutionResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/entity-resolve
         """
@@ -7746,6 +12887,8 @@ class ClientBase:
 class AsyncClientBase:
     """The generated part of `AsyncTraceFast`: its namespaces and the methods on the client
     itself.
+
+    A keyword argument left as None is not sent: the API applies its own default.
     """
 
     blocks: AsyncBlocksApi
@@ -7776,22 +12919,22 @@ class AsyncClientBase:
         q: str,
         limit: int | None = None,
     ) -> EntityResolutionResponse:
-        """Resolve a name, symbol or address
+        """Resolve a name, symbol or address.
 
-        TraceFast live Ethereum data: what a reference means. An address (`0x` + 40 hex)
-        is described — the name TraceFast shows for it, how it presents it, what kind of
-        address it is, its token identity. Any other text is looked up in two
-        collections — token contracts by the symbol and name they declare, and the names
-        TraceFast shows for projects, exchanges, protocols and ENS names — and answered
-        with the matching addresses, best first: verified addresses, then the projects
-        and ENS names TraceFast knows by name (flagged ones included), then the rest,
-        and impersonations last — never hidden; inside each group exact, then prefix,
-        then substring matches, then tokens with more holders. The starting point when
-        you have a name and need an address. No cursor: `hasMore` says when a more
-        specific query or a larger `limit` would show more. A 32-byte hash (`queryKind:
-        hash`) is looked up as a TRANSACTION and answered in `transaction` (a block hash
-        is not resolved — look a block up by its number); a whole number is also stated
-        as `block` when that block exists, beside the text matches.
+        What a reference means. An address (`0x` + 40 hex) is described — the name
+        TraceFast shows for it, how it presents it, what kind of address it is, its
+        token identity. Any other text is looked up in two collections — token contracts
+        by the symbol and name they declare, and the names TraceFast shows for projects,
+        exchanges, protocols and ENS names — and answered with the matching addresses,
+        best first: verified addresses, then the projects and ENS names TraceFast knows
+        by name (flagged ones included), then the rest, and impersonations last — never
+        hidden; inside each group exact, then prefix, then substring matches, then
+        tokens with more holders. The starting point when you have a name and need an
+        address. No cursor: `hasMore` says when a more specific query or a larger
+        `limit` would show more. A 32-byte hash (`queryKind: hash`) is looked up as a
+        TRANSACTION and answered in `transaction` (a block hash is not resolved — look a
+        block up by its number); a whole number is also stated as `block` when that
+        block exists, beside the text matches.
 
         Plan: Intelligence or higher.
 
@@ -7799,7 +12942,14 @@ class AsyncClientBase:
             q: What to resolve: an address (`0x` + 40 hex, any case), or a name, ENS
                 name, token symbol or token name — at least 2 and at most 100
                 characters, matched ignoring ASCII case.
-            limit: 1..=20, default 10. Left as None, it is not sent.
+            limit: 1 to 20, default 10.
+
+        Returns:
+            `EntityResolutionResponse`: the whole answer, `data` and `meta`.
+
+        Raises:
+            TraceFastError: The API refused the call or it failed; the subclass and
+                `code` say why.
 
         Docs: https://docs.tracefast.xyz/api/entity-resolve
         """

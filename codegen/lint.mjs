@@ -11,7 +11,9 @@ const SKIP = new Set(['.git', 'node_modules', 'dist', 'target', '.venv', '__pyca
 const RULES = [
   [/\bAtlas\b/, 'internal name'],
   [/DeepTrace/i, 'old brand'],
-  [/127\.0\.0\.1|localhost|:400[13]\b|\/dev\/public|\/api-docs\//, 'internal host'],
+  // A loopback host on its own is allowed (the https rule exempts it); with a port or a
+  // service path it is somebody's machine.
+  [/(127\.0\.0\.1|localhost):\d|:400[13]\b|\/dev\/public|\/api-docs\//, 'internal host'],
   [/sepolia|eip155:84532/i, 'test network'],
   [/\bdt_[a-z0-9]/, 'old key prefix'],
   [/tf_(live|test)_[A-Za-z0-9]{16,}/, 'what looks like a real key'],

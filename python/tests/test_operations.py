@@ -37,7 +37,8 @@ def test_operation(op: dict[str, Any], mode: str) -> None:
                 return source[name]
         raise KeyError(f"{op['id']}: no sample for {name}")
 
-    args = [value(p["name"]) for p in op["pathParams"]]
+    # Integer path parameters are integers in Python; the shared samples hold strings.
+    args = [int(value(p["name"])) if p["type"]["kind"] == "integer" else value(p["name"]) for p in op["pathParams"]]
     query: dict[str, Any] = {}
     if any(q["name"] == "limit" for q in op["queryParams"]):
         query["limit"] = int(SAMPLES["limit"])
@@ -80,5 +81,7 @@ def test_every_operation_has_a_fixture_and_a_method() -> None:
             assert callable(getattr(target, op["pyMethod"]))
             if op["paged"]:
                 assert callable(getattr(target, op["pyMethod"] + "_pages"))
+                assert callable(getattr(target, op["pyMethod"] + "_items"))
+                assert op["itemsField"]
             fixture(op["id"])
     assert len(IR["operations"]) == 97

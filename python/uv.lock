@@ -509,12 +509,6 @@ dependencies = [
     { name = "typing-extensions" },
 ]
 
-[package.optional-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
@@ -524,11 +518,8 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "httpx", specifier = ">=0.27,<1" },
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "typing-extensions", specifier = ">=4.7" },
 ]
-provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
 dev = [

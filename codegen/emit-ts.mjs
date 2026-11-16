@@ -24,7 +24,7 @@ const ts = (t) => {
     case 'array':
       return `Array<${ts(t.items)}>`
     case 'map':
-      return `Record<string, ${ts(t.values)}>`
+      return `Partial<Record<string, ${ts(t.values)}>>`
     case 'enum':
       return `${t.values.map((v) => JSON.stringify(v)).join(' | ')} | (string & {})`
     default:
@@ -66,43 +66,57 @@ export function emitTs(ir) {
   }
   let api = ''
   const paramsTypes = []
+  const responseAliases = []
   const methodsOf = (ops) =>
     ops
       .map((op) => {
-        const pType = `${pascal(op.namespace ?? 'root')}${pascal(op.name)}Params`
+        const base = `${pascal(op.namespace ?? 'root')}${pascal(op.name)}`
+        const pType = `${base}Params`
         const hasQuery = op.queryParams.length > 0
         const queryRequired = op.queryParams.some((q) => q.required)
         if (hasQuery) {
           paramsTypes.push(
-            doc([`Query parameters of \`${op.namespace ? `${op.namespace}.` : ''}${op.name}\`.`]) +
+            doc([`Query parameters of \`${op.namespace ? `${op.namespace}.` : ''}${op.name}\`. A parameter left out is not sent.`]) +
               `export interface ${pType} {\n` +
-              op.queryParams.map((q) => doc([q.description], '  ') + `  ${prop(q.name)}${q.required ? '' : '?'}: ${ref(q.type)}\n`).join('') +
+              op.queryParams.map((q) => doc([q.description], '  ') + `  ${prop(q.name)}${q.required ? `: ${ref(q.type)}` : `?: ${ref(q.type)} | undefined`}\n`).join('') +
               '}\n',
           )
         }
-        const pathArgs = op.pathParams.map((p) => `${camel(p.name)}: string${p.type.kind === 'integer' ? ' | number' : ''}`)
+        // The response type, named after the method so a reader can guess it.
+        const resName = `${base}Response`
+        const target = ref(op.response)
+        if (resName !== target) {
+          if (ir.types.has(resName)) throw new Error(`${resName} is both a method response alias and a catalogue type`)
+          responseAliases.push(`/** What \`${op.namespace ? `${op.namespace}.` : ''}${op.name}\` returns. */\nexport type ${resName} = ${target}\n`)
+        }
+        const res = resName
+        const pathArgs = op.pathParams.map((p) => `${camel(p.name)}: ${p.type.kind === 'integer' ? 'number | string' : 'string'}`)
         const args = [...pathArgs, ...(hasQuery ? [`params${queryRequired ? '' : '?'}: ${pType}`] : []), 'options?: RequestOptions']
-        const res = ref(op.response)
         const pathExpr =
-          '`' + op.path.replace('{chainId}', '${this.#http.chainId}').replace(/\{(\w+)\}/g, (_, n) => `\${encodeURIComponent(String(${camel(n)}))}`) + '`'
-        const comment = doc([
-          op.summary,
-          '',
-          op.description,
-          '',
-          `Plan: ${PLAN[op.plan] ?? op.plan} or higher.${op.stability === 'beta' ? ' **Beta** — the shape may still change.' : ''}`,
+          '`' + op.path.replace('{chainId}', '${this.#http.chainId}').replace(/\{(\w+)\}/g, (_, n) => `\${seg(${camel(n)})}`) + '`'
+        const planLine = `Plan: ${PLAN[op.plan] ?? op.plan} or higher.${op.stability === 'beta' ? ' **Beta** — the shape may still change.' : ''}`
+        const tags = [
           ...op.pathParams.map((p) => `@param ${camel(p.name)} ${p.description.replace(/\s+/g, ' ')}`),
           ...(hasQuery ? ['@param params Query parameters; a parameter left out is not sent.'] : []),
+          '@param options Per-call options: `signal`, `timeout`, `maxRetries`.',
+          '@throws {TraceFastError} on any failure — a subclass names the kind.',
+          ...(op.stability === 'beta' ? ['@beta'] : []),
           `@see ${op.docsUrl}`,
-        ], '  ')
-        let m = `${comment}  ${op.name}(${args.join(', ')}): Promise<${res}> {\n    return this.#http.get<${res}>(${pathExpr}, ${hasQuery ? 'params' : 'undefined'}, options)\n  }\n`
+        ]
+        const comment = doc([op.summary, '', planLine, '', op.description, '', ...tags], '  ')
+        let m = `${comment}  async ${op.name}(${args.join(', ')}): Promise<${res}> {\n    return this.#http.get<${res}>(${pathExpr}, ${hasQuery ? 'params' : 'undefined'}, options)\n  }\n`
         if (op.paged) {
-          const pagedArgs = [...pathArgs, `params${queryRequired ? '' : '?'}: ${pType}`, 'options?: RequestOptions']
+          const walkArgs = (o) => [...pathArgs, `params${queryRequired ? '' : '?'}: ${pType}`, `options?: ${o}`]
+          const item = ref(op.itemType)
           m +=
             '\n' +
-            doc([`Every page of \`${op.name}\`, following \`data.nextCursor\` until it is absent.`, '', `@see ${op.docsUrl}`], '  ') +
-            `  ${op.name}Pages(${pagedArgs.join(', ')}): AsyncGenerator<${res}, void, undefined> {\n` +
-            `    return this.#http.pages<${res}>(${pathExpr}, params, options)\n  }\n`
+            doc([`Every page of \`${op.name}\`, following \`data.nextCursor\` until it is absent. Each page is a whole response.`, '', planLine, '', '@param options Per-call options, and `maxPages` to stop early.', '@throws {TraceFastError} on any failure — the pages already yielded stay valid, except after `invalid_cursor`.', `@see ${op.docsUrl}`], '  ') +
+            `  async *${op.name}Pages(${walkArgs('PagesOptions').join(', ')}): AsyncGenerator<${res}, void, undefined> {\n` +
+            `    yield* this.#http.pages<${res}>(${pathExpr}, params, options)\n  }\n` +
+            '\n' +
+            doc([`Every row of \`data.${op.itemsField}\` across the pages of \`${op.name}\`, one by one.`, '', planLine, '', '@param options Per-call options, and `maxItems` to stop early.', '@throws {TraceFastError} on any failure.', `@see ${op.docsUrl}`], '  ') +
+            `  async *${op.name}Items(${walkArgs('ItemsOptions').join(', ')}): AsyncGenerator<${item}, void, undefined> {\n` +
+            `    yield* this.#http.items<${item}>(${pathExpr}, params, ${JSON.stringify(op.itemsField)}, options)\n  }\n`
         }
         return m
       })
@@ -115,14 +129,26 @@ export function emitTs(ir) {
   }
   const root = groups.get('root') ?? []
   api += `\n/** The methods that live on the client itself. */\nexport class RootApi {\n  #http: Http\n\n  constructor(http: Http) {\n    this.#http = http\n  }\n\n${methodsOf(root)}}\n`
+  api += `\n/** The version of the API catalogue this SDK was generated from. */\nexport const CATALOGUE_VERSION = ${JSON.stringify(ir.version)}\n`
   api += `\n/** The namespaces of the client, in catalogue order. */\nexport const NAMESPACES = ${JSON.stringify([...groups.keys()].filter((n) => n !== 'root'))} as const\n`
 
   const imports =
     header +
-    `import type { Http, RequestOptions } from '../http.ts'\n` +
+    `import { seg, type Http, type RequestOptions, type PagesOptions, type ItemsOptions } from '../http.ts'\n` +
+    `import type { TraceFastError } from '../errors.ts'\n` +
     `import type {\n${[...usedTypes].sort().map((t) => `  ${t},`).join('\n')}\n} from './types.ts'\n`
+  // Every recorded live answer checked against its generated type at compile time.
+  const pascalId = (id) => id[0].toUpperCase() + id.slice(1)
+  const fx =
+    header +
+    '// Type-checked by `npm run typecheck`; never run.\n' +
+    ir.operations.map((op) => `import ${op.id} from '../../../fixtures/${op.id}.json' with { type: 'json' }\n`).join('') +
+    `import type {\n${ir.operations.map((op) => `  ${pascal(op.namespace ?? 'root')}${pascal(op.name)}Response,`).join('\n')}\n} from '../../src/index.ts'\n\n` +
+    ir.operations.map((op) => `${op.id} satisfies ${pascal(op.namespace ?? 'root')}${pascal(op.name)}Response\n`).join('') +
+    `void ${JSON.stringify(pascalId('x'))}\n`
   return {
+    'typescript/test/generated/fixtures.typecheck.ts': fx,
     'typescript/src/generated/types.ts': types,
-    'typescript/src/generated/api.ts': imports + '\n' + paramsTypes.join('\n') + api,
+    'typescript/src/generated/api.ts': imports + '\n' + paramsTypes.join('\n') + '\n' + responseAliases.join('\n') + api,
   }
 }

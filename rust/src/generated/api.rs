@@ -2,9 +2,14 @@
 //! The client's methods, grouped by namespace, and their query parameters.
 
 use super::types::*;
-use crate::client::{encode_path, Client};
-use crate::error::Error;
-use crate::pager::{Paged, Pager};
+use crate::client::{Client, ResponseFuture};
+use crate::pager::sealed::Sealed;
+use crate::pager::{Items, Paged, Pager};
+
+/// The query pairs a params struct sends: only the parameters that are set.
+pub(crate) trait QueryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)>;
+}
 
 /// Query parameters of [`blocks().at_time`](BlocksApi::at_time). A parameter left `None` is not sent.
 #[derive(Debug, Clone, PartialEq)]
@@ -27,8 +32,10 @@ impl BlocksAtTimeParams {
         self.timestamp = value;
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksAtTimeParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         vec![("timestamp", self.timestamp.to_string())]
     }
 }
@@ -37,7 +44,7 @@ impl BlocksAtTimeParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksAddressesParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and block.
     pub cursor: Option<String>,
@@ -49,7 +56,7 @@ impl BlocksAddressesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -60,8 +67,10 @@ impl BlocksAddressesParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksAddressesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -77,7 +86,7 @@ impl BlocksAddressesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksAuthorizationsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and block.
     pub cursor: Option<String>,
@@ -89,7 +98,7 @@ impl BlocksAuthorizationsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -100,8 +109,10 @@ impl BlocksAuthorizationsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksAuthorizationsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -117,7 +128,7 @@ impl BlocksAuthorizationsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksInternalTransfersParams {
-    /// 1..=200, default 50.
+    /// 1 to 200, default 50.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this block.
     pub cursor: Option<String>,
@@ -129,7 +140,7 @@ impl BlocksInternalTransfersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=200, default 50.
+    /// Sets `limit`: 1 to 200, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -140,8 +151,10 @@ impl BlocksInternalTransfersParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksInternalTransfersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -157,7 +170,7 @@ impl BlocksInternalTransfersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksParticipantsParams {
-    /// 1..=100, default 50.
+    /// 1 to 100, default 50.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this block.
     pub cursor: Option<String>,
@@ -169,7 +182,7 @@ impl BlocksParticipantsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 50.
+    /// Sets `limit`: 1 to 100, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -180,8 +193,10 @@ impl BlocksParticipantsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksParticipantsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -197,7 +212,7 @@ impl BlocksParticipantsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksTokenTransfersParams {
-    /// 1..=200, default 50.
+    /// 1 to 200, default 50.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this block.
     pub cursor: Option<String>,
@@ -209,7 +224,7 @@ impl BlocksTokenTransfersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=200, default 50.
+    /// Sets `limit`: 1 to 200, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -220,8 +235,10 @@ impl BlocksTokenTransfersParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksTokenTransfersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -237,7 +254,7 @@ impl BlocksTokenTransfersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksTransactionsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and block.
     pub cursor: Option<String>,
@@ -249,7 +266,7 @@ impl BlocksTransactionsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -260,8 +277,10 @@ impl BlocksTransactionsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksTransactionsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -277,7 +296,7 @@ impl BlocksTransactionsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct BlocksWithdrawalsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method, block and filters.
     pub cursor: Option<String>,
@@ -293,7 +312,7 @@ impl BlocksWithdrawalsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -316,8 +335,10 @@ impl BlocksWithdrawalsParams {
         self.address = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for BlocksWithdrawalsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -339,7 +360,7 @@ impl BlocksWithdrawalsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ConsensusEpochsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method.
     pub cursor: Option<String>,
@@ -351,7 +372,7 @@ impl ConsensusEpochsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -362,8 +383,10 @@ impl ConsensusEpochsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusEpochsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -379,7 +402,7 @@ impl ConsensusEpochsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ConsensusMissedSlotsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method.
     pub cursor: Option<String>,
@@ -391,7 +414,7 @@ impl ConsensusMissedSlotsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -402,8 +425,10 @@ impl ConsensusMissedSlotsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusMissedSlotsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -423,7 +448,7 @@ pub struct ConsensusProposersParams {
     pub period: Option<String>,
     /// `validator` (default) or `address`.
     pub group_by: Option<String>,
-    /// Rows to return, 1..=100, default 20.
+    /// Rows to return, 1 to 100, default 20.
     pub limit: Option<i64>,
 }
 
@@ -445,13 +470,15 @@ impl ConsensusProposersParams {
         self
     }
 
-    /// Sets `limit`: Rows to return, 1..=100, default 20.
+    /// Sets `limit`: Rows to return, 1 to 100, default 20.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusProposersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.period {
             q.push(("period", v.clone()));
@@ -470,7 +497,7 @@ impl ConsensusProposersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ConsensusQueuesParams {
-    /// Most recent daily points to return, 1..=90, default 30.
+    /// Most recent daily points to return, 1 to 90, default 30.
     pub limit: Option<i64>,
 }
 
@@ -480,13 +507,15 @@ impl ConsensusQueuesParams {
         Self::default()
     }
 
-    /// Sets `limit`: Most recent daily points to return, 1..=90, default 30.
+    /// Sets `limit`: Most recent daily points to return, 1 to 90, default 30.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusQueuesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -499,7 +528,7 @@ impl ConsensusQueuesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ConsensusValidatorSlotsParams {
-    /// 1..=200, default 50.
+    /// 1 to 200, default 50.
     pub limit: Option<i64>,
 }
 
@@ -509,13 +538,15 @@ impl ConsensusValidatorSlotsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=200, default 50.
+    /// Sets `limit`: 1 to 200, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusValidatorSlotsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -528,7 +559,7 @@ impl ConsensusValidatorSlotsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ConsensusValidatorWithdrawalsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with the same window.
     pub cursor: Option<String>,
@@ -544,7 +575,7 @@ impl ConsensusValidatorWithdrawalsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -567,8 +598,10 @@ impl ConsensusValidatorWithdrawalsParams {
         self.to_block = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusValidatorWithdrawalsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -590,7 +623,7 @@ impl ConsensusValidatorWithdrawalsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsClonesParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this code.
     pub cursor: Option<String>,
@@ -602,7 +635,7 @@ impl ContractsClonesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -613,8 +646,10 @@ impl ContractsClonesParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsClonesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -630,7 +665,7 @@ impl ContractsClonesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsControlHistoryParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method.
     pub cursor: Option<String>,
@@ -642,7 +677,7 @@ impl ContractsControlHistoryParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -653,8 +688,10 @@ impl ContractsControlHistoryParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsControlHistoryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -717,8 +754,10 @@ impl ContractsDecompilationParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsDecompilationParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.block {
             q.push(("block", v.to_string()));
@@ -747,7 +786,7 @@ pub struct ContractsDisassemblyParams {
     pub block: Option<i64>,
     /// `auto` (default): the code that runs at the address, one hop through a proxy. `self`: the address's own code.
     pub target: Option<String>,
-    /// Instructions per page, 1..=5000, default 1000.
+    /// Instructions per page, 1 to 5000, default 1000.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with the same address, target and block.
     pub cursor: Option<String>,
@@ -771,7 +810,7 @@ impl ContractsDisassemblyParams {
         self
     }
 
-    /// Sets `limit`: Instructions per page, 1..=5000, default 1000.
+    /// Sets `limit`: Instructions per page, 1 to 5000, default 1000.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -782,8 +821,10 @@ impl ContractsDisassemblyParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsDisassemblyParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.block {
             q.push(("block", v.to_string()));
@@ -805,7 +846,7 @@ impl ContractsDisassemblyParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsEventsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with these filters.
     pub cursor: Option<String>,
@@ -823,7 +864,7 @@ impl ContractsEventsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -852,8 +893,10 @@ impl ContractsEventsParams {
         self.to_block = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsEventsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -878,7 +921,7 @@ impl ContractsEventsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsStorageActivityParams {
-    /// The window in UTC days, 1..=365, default 90.
+    /// The window in UTC days, 1 to 365, default 90.
     pub days: Option<i64>,
 }
 
@@ -888,13 +931,15 @@ impl ContractsStorageActivityParams {
         Self::default()
     }
 
-    /// Sets `days`: The window in UTC days, 1..=365, default 90.
+    /// Sets `days`: The window in UTC days, 1 to 365, default 90.
     pub fn days(mut self, value: i64) -> Self {
         self.days = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsStorageActivityParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.days {
             q.push(("days", v.to_string()));
@@ -907,7 +952,7 @@ impl ContractsStorageActivityParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsHotSlotsParams {
-    /// The window's width in blocks, 1..=50400 (one week), default 7200 (about a day).
+    /// The window's width in blocks, 1 to 50400 (one week), default 7200 (about a day).
     pub window_blocks: Option<i64>,
 }
 
@@ -917,13 +962,15 @@ impl ContractsHotSlotsParams {
         Self::default()
     }
 
-    /// Sets `windowBlocks`: The window's width in blocks, 1..=50400 (one week), default 7200 (about a day).
+    /// Sets `windowBlocks`: The window's width in blocks, 1 to 50400 (one week), default 7200 (about a day).
     pub fn window_blocks(mut self, value: i64) -> Self {
         self.window_blocks = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsHotSlotsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.window_blocks {
             q.push(("windowBlocks", v.to_string()));
@@ -936,7 +983,7 @@ impl ContractsHotSlotsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsStorageParametersParams {
-    /// 1..=200, default 100.
+    /// 1 to 200, default 100.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this contract.
     pub cursor: Option<String>,
@@ -948,7 +995,7 @@ impl ContractsStorageParametersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=200, default 100.
+    /// Sets `limit`: 1 to 200, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -959,8 +1006,10 @@ impl ContractsStorageParametersParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsStorageParametersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -976,7 +1025,7 @@ impl ContractsStorageParametersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsStorageWritersParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
 }
 
@@ -986,13 +1035,15 @@ impl ContractsStorageWritersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsStorageWritersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1005,7 +1056,7 @@ impl ContractsStorageWritersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ContractsSlotHistoryParams {
-    /// 1..=100, default 50.
+    /// 1 to 100, default 50.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method, this contract and this slot.
     pub cursor: Option<String>,
@@ -1017,7 +1068,7 @@ impl ContractsSlotHistoryParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 50.
+    /// Sets `limit`: 1 to 100, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1028,8 +1079,10 @@ impl ContractsSlotHistoryParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ContractsSlotHistoryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1062,8 +1115,10 @@ impl AddressesAttributesAtBlockParams {
         self.block = value;
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesAttributesAtBlockParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         vec![("block", self.block.to_string())]
     }
 }
@@ -1072,7 +1127,7 @@ impl AddressesAttributesAtBlockParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesAttributeHistoryParams {
-    /// 1..=500, default 100.
+    /// 1 to 500, default 100.
     pub limit: Option<i64>,
 }
 
@@ -1082,13 +1137,15 @@ impl AddressesAttributeHistoryParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=500, default 100.
+    /// Sets `limit`: 1 to 500, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesAttributeHistoryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1101,7 +1158,7 @@ impl AddressesAttributeHistoryParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesBalanceHistoryParams {
-    /// Most recent days with a balance change to return, 1..=365, default 90.
+    /// Most recent days with a balance change to return, 1 to 365, default 90.
     pub limit: Option<i64>,
 }
 
@@ -1111,13 +1168,15 @@ impl AddressesBalanceHistoryParams {
         Self::default()
     }
 
-    /// Sets `limit`: Most recent days with a balance change to return, 1..=365, default 90.
+    /// Sets `limit`: Most recent days with a balance change to return, 1 to 365, default 90.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesBalanceHistoryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1130,7 +1189,7 @@ impl AddressesBalanceHistoryParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesCallsReceivedParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this address.
     pub cursor: Option<String>,
@@ -1142,7 +1201,7 @@ impl AddressesCallsReceivedParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1153,8 +1212,10 @@ impl AddressesCallsReceivedParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesCallsReceivedParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1172,7 +1233,7 @@ impl AddressesCallsReceivedParams {
 pub struct AddressesCounterpartiesParams {
     /// State at the end of this block (everything up to and including it). Absent: the current all-time ranking.
     pub block: Option<i64>,
-    /// 1..=100, default 100.
+    /// 1 to 100, default 100.
     pub limit: Option<i64>,
 }
 
@@ -1188,13 +1249,15 @@ impl AddressesCounterpartiesParams {
         self
     }
 
-    /// Sets `limit`: 1..=100, default 100.
+    /// Sets `limit`: 1 to 100, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesCounterpartiesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.block {
             q.push(("block", v.to_string()));
@@ -1225,8 +1288,10 @@ impl AddressesDailyActivityParams {
         self.period = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesDailyActivityParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.period {
             q.push(("period", v.clone()));
@@ -1239,7 +1304,7 @@ impl AddressesDailyActivityParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesDeploymentsParams {
-    /// 1..=50, default 25.
+    /// 1 to 50, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this address.
     pub cursor: Option<String>,
@@ -1251,7 +1316,7 @@ impl AddressesDeploymentsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=50, default 25.
+    /// Sets `limit`: 1 to 50, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1262,8 +1327,10 @@ impl AddressesDeploymentsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesDeploymentsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1279,7 +1346,7 @@ impl AddressesDeploymentsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesDexTradesParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this address.
     pub cursor: Option<String>,
@@ -1291,7 +1358,7 @@ impl AddressesDexTradesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1302,8 +1369,10 @@ impl AddressesDexTradesParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesDexTradesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1319,7 +1388,7 @@ impl AddressesDexTradesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesInternalTransfersParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with these filters.
     pub cursor: Option<String>,
@@ -1339,7 +1408,7 @@ impl AddressesInternalTransfersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1374,8 +1443,10 @@ impl AddressesInternalTransfersParams {
         self.counterparty = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesInternalTransfersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1405,7 +1476,7 @@ impl AddressesInternalTransfersParams {
 pub struct AddressesPortfolioParams {
     /// State at the end of this block. Absent: the current state.
     pub block: Option<i64>,
-    /// 1..=100, default 100.
+    /// 1 to 100, default 100.
     pub limit: Option<i64>,
 }
 
@@ -1421,13 +1492,15 @@ impl AddressesPortfolioParams {
         self
     }
 
-    /// Sets `limit`: 1..=100, default 100.
+    /// Sets `limit`: 1 to 100, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesPortfolioParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.block {
             q.push(("block", v.to_string()));
@@ -1447,7 +1520,7 @@ pub struct AddressesRelationsParams {
     pub direction: Option<String>,
     /// Narrow to one relation id, `relation:name`. Any id the graph publishes is accepted.
     pub attribute_id: Option<String>,
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with this direction and filter.
     pub cursor: Option<String>,
@@ -1471,7 +1544,7 @@ impl AddressesRelationsParams {
         self
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1482,8 +1555,10 @@ impl AddressesRelationsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesRelationsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.direction {
             q.push(("direction", v.clone()));
@@ -1522,8 +1597,10 @@ impl AddressesRelationsAtBlockParams {
         self.block = value;
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesRelationsAtBlockParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         vec![("block", self.block.to_string())]
     }
 }
@@ -1534,7 +1611,7 @@ impl AddressesRelationsAtBlockParams {
 pub struct AddressesRelationHistoryParams {
     /// `subject` (default) or `object`.
     pub direction: Option<String>,
-    /// 1..=500, default 100.
+    /// 1 to 500, default 100.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method, address, direction, `attributeId` and `order`.
     pub cursor: Option<String>,
@@ -1556,7 +1633,7 @@ impl AddressesRelationHistoryParams {
         self
     }
 
-    /// Sets `limit`: 1..=500, default 100.
+    /// Sets `limit`: 1 to 500, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1579,8 +1656,10 @@ impl AddressesRelationHistoryParams {
         self.order = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesRelationHistoryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.direction {
             q.push(("direction", v.clone()));
@@ -1605,7 +1684,7 @@ impl AddressesRelationHistoryParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesStateChangesParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this account.
     pub cursor: Option<String>,
@@ -1617,7 +1696,7 @@ impl AddressesStateChangesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1628,8 +1707,10 @@ impl AddressesStateChangesParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesStateChangesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1645,7 +1726,7 @@ impl AddressesStateChangesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesTokenTransfersParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with these filters.
     pub cursor: Option<String>,
@@ -1667,7 +1748,7 @@ impl AddressesTokenTransfersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1708,8 +1789,10 @@ impl AddressesTokenTransfersParams {
         self.counterparty = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesTokenTransfersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1755,8 +1838,10 @@ impl AddressesTokenBalanceParams {
         self.block = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesTokenBalanceParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.block {
             q.push(("block", v.to_string()));
@@ -1769,7 +1854,7 @@ impl AddressesTokenBalanceParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct AddressesTransactionsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with these filters.
     pub cursor: Option<String>,
@@ -1791,7 +1876,7 @@ impl AddressesTransactionsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1832,8 +1917,10 @@ impl AddressesTransactionsParams {
         self.counterparty = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for AddressesTransactionsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1864,7 +1951,7 @@ impl AddressesTransactionsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct ConsensusEntityValidatorsParams {
-    /// 1..=500, default 100.
+    /// 1 to 500, default 100.
     pub limit: Option<i64>,
 }
 
@@ -1874,13 +1961,15 @@ impl ConsensusEntityValidatorsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=500, default 100.
+    /// Sets `limit`: 1 to 500, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ConsensusEntityValidatorsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -1919,8 +2008,10 @@ impl PoolsForPairParams {
         self.token_b = value.into();
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsForPairParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         vec![("tokenA", self.token_a.clone()), ("tokenB", self.token_b.clone())]
     }
 }
@@ -1931,7 +2022,7 @@ impl PoolsForPairParams {
 pub struct PoolsLargestLiquidityRemovalsParams {
     /// `24h`, `7d` (default) or `30d`.
     pub window: Option<String>,
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
 }
 
@@ -1947,13 +2038,15 @@ impl PoolsLargestLiquidityRemovalsParams {
         self
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsLargestLiquidityRemovalsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.window {
             q.push(("window", v.clone()));
@@ -1969,7 +2062,7 @@ impl PoolsLargestLiquidityRemovalsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct PoolsNewPoolsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method.
     pub cursor: Option<String>,
@@ -1981,7 +2074,7 @@ impl PoolsNewPoolsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -1992,8 +2085,10 @@ impl PoolsNewPoolsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsNewPoolsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2013,7 +2108,7 @@ pub struct PoolsLiquidityEventsParams {
     pub from_block: Option<i64>,
     /// The window's last block. Default: the last block the liquidity events have reached (`meta.asOfBlock`).
     pub to_block: Option<i64>,
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method, pool and `fromBlock` / `toBlock` as passed; it keeps the window the walk began under.
     pub cursor: Option<String>,
@@ -2037,7 +2132,7 @@ impl PoolsLiquidityEventsParams {
         self
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2048,8 +2143,10 @@ impl PoolsLiquidityEventsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsLiquidityEventsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.from_block {
             q.push(("fromBlock", v.to_string()));
@@ -2071,7 +2168,7 @@ impl PoolsLiquidityEventsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct PoolsLiquidityFlowParams {
-    /// 1..=365, default 30.
+    /// 1 to 365, default 30.
     pub days: Option<i64>,
 }
 
@@ -2081,13 +2178,15 @@ impl PoolsLiquidityFlowParams {
         Self::default()
     }
 
-    /// Sets `days`: 1..=365, default 30.
+    /// Sets `days`: 1 to 365, default 30.
     pub fn days(mut self, value: i64) -> Self {
         self.days = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsLiquidityFlowParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.days {
             q.push(("days", v.to_string()));
@@ -2100,7 +2199,7 @@ impl PoolsLiquidityFlowParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct PoolsSwapsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and pool.
     pub cursor: Option<String>,
@@ -2112,7 +2211,7 @@ impl PoolsSwapsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2123,8 +2222,10 @@ impl PoolsSwapsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsSwapsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2140,7 +2241,7 @@ impl PoolsSwapsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct PoolsVolumeParams {
-    /// 1..=365, default 30.
+    /// 1 to 365, default 30.
     pub days: Option<i64>,
 }
 
@@ -2150,13 +2251,15 @@ impl PoolsVolumeParams {
         Self::default()
     }
 
-    /// Sets `days`: 1..=365, default 30.
+    /// Sets `days`: 1 to 365, default 30.
     pub fn days(mut self, value: i64) -> Self {
         self.days = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for PoolsVolumeParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.days {
             q.push(("days", v.to_string()));
@@ -2171,7 +2274,7 @@ impl PoolsVolumeParams {
 pub struct ResolveParams {
     /// What to resolve: an address (`0x` + 40 hex, any case), or a name, ENS name, token symbol or token name — at least 2 and at most 100 characters, matched ignoring ASCII case.
     pub q: String,
-    /// 1..=20, default 10.
+    /// 1 to 20, default 10.
     pub limit: Option<i64>,
 }
 
@@ -2190,13 +2293,15 @@ impl ResolveParams {
         self
     }
 
-    /// Sets `limit`: 1..=20, default 10.
+    /// Sets `limit`: 1 to 20, default 10.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for ResolveParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = vec![("q", self.q.clone())];
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2209,7 +2314,7 @@ impl ResolveParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct RiskBlacklistFeedParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and filters.
     pub cursor: Option<String>,
@@ -2225,7 +2330,7 @@ impl RiskBlacklistFeedParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2248,8 +2353,10 @@ impl RiskBlacklistFeedParams {
         self.action = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for RiskBlacklistFeedParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2271,7 +2378,7 @@ impl RiskBlacklistFeedParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct RiskBlacklistIssuersParams {
-    /// 1..=1000, default 100.
+    /// 1 to 1000, default 100.
     pub limit: Option<i64>,
 }
 
@@ -2281,13 +2388,15 @@ impl RiskBlacklistIssuersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=1000, default 100.
+    /// Sets `limit`: 1 to 1000, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for RiskBlacklistIssuersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2300,7 +2409,7 @@ impl RiskBlacklistIssuersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct RiskBlacklistedAddressesParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and filter.
     pub cursor: Option<String>,
@@ -2314,7 +2423,7 @@ impl RiskBlacklistedAddressesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2331,8 +2440,10 @@ impl RiskBlacklistedAddressesParams {
         self.issuer_contract = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for RiskBlacklistedAddressesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2351,7 +2462,7 @@ impl RiskBlacklistedAddressesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct RiskBlacklistEventsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method, address and filters.
     pub cursor: Option<String>,
@@ -2367,7 +2478,7 @@ impl RiskBlacklistEventsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2390,8 +2501,10 @@ impl RiskBlacklistEventsParams {
         self.action = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for RiskBlacklistEventsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2413,7 +2526,7 @@ impl RiskBlacklistEventsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TokensDexVolumeParams {
-    /// 1..=365, default 30.
+    /// 1 to 365, default 30.
     pub days: Option<i64>,
 }
 
@@ -2423,13 +2536,15 @@ impl TokensDexVolumeParams {
         Self::default()
     }
 
-    /// Sets `days`: 1..=365, default 30.
+    /// Sets `days`: 1 to 365, default 30.
     pub fn days(mut self, value: i64) -> Self {
         self.days = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TokensDexVolumeParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.days {
             q.push(("days", v.to_string()));
@@ -2442,7 +2557,7 @@ impl TokensDexVolumeParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TokensHoldersParams {
-    /// 1..=100, default 100.
+    /// 1 to 100, default 100.
     pub limit: Option<i64>,
 }
 
@@ -2452,13 +2567,15 @@ impl TokensHoldersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 100.
+    /// Sets `limit`: 1 to 100, default 100.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TokensHoldersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2471,7 +2588,7 @@ impl TokensHoldersParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TokensPoolsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method and token.
     pub cursor: Option<String>,
@@ -2483,7 +2600,7 @@ impl TokensPoolsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2494,8 +2611,10 @@ impl TokensPoolsParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TokensPoolsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2534,8 +2653,10 @@ impl TokensPriceParams {
         self.block = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TokensPriceParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.timestamp {
             q.push(("timestamp", v.to_string()));
@@ -2574,8 +2695,10 @@ impl TokensPriceHistoryParams {
         self.to = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TokensPriceHistoryParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.from {
             q.push(("from", v.to_string()));
@@ -2591,7 +2714,7 @@ impl TokensPriceHistoryParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TokensTransfersParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method with these filters.
     pub cursor: Option<String>,
@@ -2613,7 +2736,7 @@ impl TokensTransfersParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2654,8 +2777,10 @@ impl TokensTransfersParams {
         self.to_block = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TokensTransfersParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2688,7 +2813,7 @@ impl TokensTransfersParams {
 pub struct TracesGetParams {
     /// `true` adds each frame's calldata and output heads (first 260 bytes) with their full sizes. Default `false`.
     pub include_calldata: Option<bool>,
-    /// 1..=1000, default 1000: at most this many frames, the first ones in the order they ran; `framesTruncated` says when the tree holds more.
+    /// 1 to 1000, default 1000: at most this many frames, the first ones in the order they ran; `framesTruncated` says when the tree holds more.
     pub limit: Option<i64>,
 }
 
@@ -2704,13 +2829,15 @@ impl TracesGetParams {
         self
     }
 
-    /// Sets `limit`: 1..=1000, default 1000: at most this many frames, the first ones in the order they ran; `framesTruncated` says when the tree holds more.
+    /// Sets `limit`: 1 to 1000, default 1000: at most this many frames, the first ones in the order they ran; `framesTruncated` says when the tree holds more.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TracesGetParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.include_calldata {
             q.push(("includeCalldata", v.to_string()));
@@ -2726,7 +2853,7 @@ impl TracesGetParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TracesFramesParams {
-    /// 1..=100, default 50.
+    /// 1 to 100, default 50.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this transaction.
     pub cursor: Option<String>,
@@ -2738,7 +2865,7 @@ impl TracesFramesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 50.
+    /// Sets `limit`: 1 to 100, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2749,8 +2876,10 @@ impl TracesFramesParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TracesFramesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2766,7 +2895,7 @@ impl TracesFramesParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TransactionsEventsParams {
-    /// 1..=100, default 25.
+    /// 1 to 100, default 25.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque; valid only for this method, transaction and filters.
     pub cursor: Option<String>,
@@ -2782,7 +2911,7 @@ impl TransactionsEventsParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=100, default 25.
+    /// Sets `limit`: 1 to 100, default 25.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2805,8 +2934,10 @@ impl TransactionsEventsParams {
         self.topic0 = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TransactionsEventsParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2828,7 +2959,7 @@ impl TransactionsEventsParams {
 #[derive(Debug, Clone, PartialEq, Default)]
 #[non_exhaustive]
 pub struct TransactionsStorageWritesParams {
-    /// 1..=200, default 50.
+    /// 1 to 200, default 50.
     pub limit: Option<i64>,
     /// `nextCursor` of the previous page. Opaque, and valid only for this method and this transaction.
     pub cursor: Option<String>,
@@ -2840,7 +2971,7 @@ impl TransactionsStorageWritesParams {
         Self::default()
     }
 
-    /// Sets `limit`: 1..=200, default 50.
+    /// Sets `limit`: 1 to 200, default 50.
     pub fn limit(mut self, value: i64) -> Self {
         self.limit = Some(value);
         self
@@ -2851,8 +2982,10 @@ impl TransactionsStorageWritesParams {
         self.cursor = Some(value.into());
         self
     }
+}
 
-    pub(crate) fn query(&self) -> Vec<(&'static str, String)> {
+impl QueryParams for TransactionsStorageWritesParams {
+    fn pairs(&self) -> Vec<(&'static str, String)> {
         let mut q = Vec::new();
         if let Some(v) = &self.limit {
             q.push(("limit", v.to_string()));
@@ -2910,1952 +3043,2673 @@ impl Client {
         TransactionsApi { client: self }
     }
 
-    /// Resolve a name, symbol or address
+    /// Resolve a name, symbol or address.
     ///
-    /// TraceFast live Ethereum data: what a reference means. An address (`0x` + 40 hex) is described — the name TraceFast shows for it, how it presents it, what kind of address it is, its token identity. Any other text is looked up in two collections — token contracts by the symbol and name they declare, and the names TraceFast shows for projects, exchanges, protocols and ENS names — and answered with the matching addresses, best first: verified addresses, then the projects and ENS names TraceFast knows by name (flagged ones included), then the rest, and impersonations last — never hidden; inside each group exact, then prefix, then substring matches, then tokens with more holders. The starting point when you have a name and need an address. No cursor: `hasMore` says when a more specific query or a larger `limit` would show more. A 32-byte hash (`queryKind: hash`) is looked up as a TRANSACTION and answered in `transaction` (a block hash is not resolved — look a block up by its number); a whole number is also stated as `block` when that block exists, beside the text matches.
+    /// What a reference means. An address (`0x` + 40 hex) is described — the name TraceFast shows for it, how it presents it, what kind of address it is, its token identity. Any other text is looked up in two collections — token contracts by the symbol and name they declare, and the names TraceFast shows for projects, exchanges, protocols and ENS names — and answered with the matching addresses, best first: verified addresses, then the projects and ENS names TraceFast knows by name (flagged ones included), then the rest, and impersonations last — never hidden; inside each group exact, then prefix, then substring matches, then tokens with more holders. The starting point when you have a name and need an address. No cursor: `hasMore` says when a more specific query or a larger `limit` would show more. A 32-byte hash (`queryKind: hash`) is looked up as a TRANSACTION and answered in `transaction` (a block hash is not resolved — look a block up by its number); a whole number is also stated as `block` when that block exists, beside the text matches.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-resolve>
-    pub async fn resolve(&self, params: &ResolveParams) -> Result<EntityResolutionResponse, Error> {
-        self.get(&format!("/chains/{}/resolve", self.chain_id()), &params.query()).await
+    pub fn resolve(&self, params: &ResolveParams) -> ResponseFuture<'_, EntityResolutionResponse> {
+        self.fetch(self.path("/chains/{chainId}/resolve", &[]), QueryParams::pairs(params))
     }
 }
 
-/// `client.blocks()` — the blocks methods of the TraceFast API.
+/// `client.blocks()`: the blocks methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.blocks().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct BlocksApi<'a> {
     client: &'a Client,
 }
 
-impl BlocksApi<'_> {
-    /// Which block was the chain's at a given time
+impl<'a> BlocksApi<'a> {
+    /// Which block was the chain's at a given time.
     ///
-    /// TraceFast live Ethereum data: the last block whose time is at or before a Unix time, and the first block after it — the bracket around the moment. Block times rise strictly with the number, so the answer is exact. `final: false` means the time is after the newest block: a later block may still land at or before it, so ask again later; `nextBlock` is then absent. If blocks around the time are temporarily unavailable, the method answers `422 coverage_gap` rather than a pair across the gap. Pass a block's number to the block methods for its contents.
+    /// The last block whose time is at or before a Unix time, and the first block after it — the bracket around the moment. Block times rise strictly with the number, so the answer is exact. `final: false` means the time is after the newest block: a later block may still land at or before it, so ask again later; `nextBlock` is then absent. If blocks around the time are temporarily unavailable, the method answers `422 coverage_gap` rather than a pair across the gap. Pass a block's number to the block methods for its contents.
     ///
-    /// Plan: Enriched Data or higher. **Beta** — the shape may still change.
+    /// Plan: Enriched Data or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-at-time>
-    pub async fn at_time(&self, params: &BlocksAtTimeParams) -> Result<BlockAtTimeResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/at-time", self.client.chain_id()), &params.query()).await
+    pub fn at_time(self, params: &BlocksAtTimeParams) -> ResponseFuture<'a, BlockAtTimeResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/at-time", &[]), QueryParams::pairs(params))
     }
 
-    /// The latest block
+    /// The latest block.
     ///
-    /// TraceFast live Ethereum data: the most recent block, with its header and the totals of what it contains — transaction counts by outcome, gas, fees, value moved, withdrawals. The same shape as `blocks/{number}`.
+    /// The most recent block, with its header and the totals of what it contains — transaction counts by outcome, gas, fees, value moved, withdrawals. The same shape as `blocks/{number}`.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-latest>
-    pub async fn latest(&self) -> Result<BlockResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/latest", self.client.chain_id()), &[]).await
+    pub fn latest(self) -> ResponseFuture<'a, BlockResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/latest", &[]), Vec::new())
     }
 
-    /// One block
+    /// One block.
     ///
-    /// TraceFast live Ethereum data: one block by height — its header (hash, parent, roots, fee recipient, gas, base fee, blob gas) and the totals of what it contains: transactions by outcome, contract creations, blob transactions, logs, withdrawals, value moved, fees burnt and paid. A block that is not known yet answers 404.
+    /// One block by height — its header (hash, parent, roots, fee recipient, gas, base fee, blob gas) and the totals of what it contains: transactions by outcome, contract creations, blob transactions, logs, withdrawals, value moved, fees burnt and paid. A block that is not known yet answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `number` — Block height.
+    /// - `number`: Block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block>
-    pub async fn get(&self, number: impl std::fmt::Display) -> Result<BlockResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}", self.client.chain_id(), encode_path(&number.to_string())), &[]).await
+    pub fn get(self, number: u64) -> ResponseFuture<'a, BlockResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}", &[&number.to_string()]), Vec::new())
     }
 
-    /// Accounts touched by one block
+    /// Accounts touched by one block.
     ///
-    /// TraceFast live Ethereum data: every account whose own state — native balance, nonce or code — changed in one block, with what changed and the balance before and after, in address order. Accounts only mentioned by the block's activity without a state change are not listed. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Account changes are served to the chain head: a block with no account change answers an empty list, which is a statement about that block and not a gap. A block above the chain head does not exist yet and answers 404.
+    /// Every account whose own state — native balance, nonce or code — changed in one block, with what changed and the balance before and after, in address order. Accounts only mentioned by the block's activity without a state change are not listed. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Account changes are served to the chain head: a block with no account change answers an empty list, which is a statement about that block and not a gap. A block above the chain head does not exist yet and answers 404.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `number` — Block height.
+    /// - `number`: Block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-addresses>
-    pub async fn addresses(&self, number: impl std::fmt::Display, params: &BlocksAddressesParams) -> Result<BlockAddressesResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/addresses", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn addresses(self, number: u64, params: &BlocksAddressesParams) -> ResponseFuture<'a, BlockAddressesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/addresses", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`addresses`](Self::addresses), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-addresses>
-    pub fn addresses_pages(&self, number: impl std::fmt::Display, params: &BlocksAddressesParams) -> Pager<BlockAddressesResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/addresses", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn addresses_pages(self, number: u64, params: &BlocksAddressesParams) -> Pager<BlockAddressesResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/addresses", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
-    /// EIP-7702 authorizations of one block
+    /// Every row of `data.addresses` over all pages of [`addresses`](Self::addresses), one by one; see [`addresses_pages`](Self::addresses_pages).
     ///
-    /// TraceFast live Ethereum data: every EIP-7702 authorization-list entry carried by the transactions of one block — the delegation target, the account that signed it (`authority`), the chain id and nonce it was signed for, the signature, and the carrying transaction's hash and position — in transaction order and then list order. `authorityStatus` says whether the signer is known: `recovered`, `recovery_failed` (an invalid signature — the authorization has no signer) or `not_available` (not determined yet). Empty when the block carries no type-4 transaction. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A block the authorization history has not reached yet answers 422 with the highest block it can answer; a block above the chain head does not exist yet and answers 404.
+    /// Documentation: <https://docs.tracefast.xyz/api/block-addresses>
+    pub fn addresses_items(self, number: u64, params: &BlocksAddressesParams) -> Items<BlockAddressesResponse> {
+        self.addresses_pages(number, params).into_items()
+    }
+
+    /// EIP-7702 authorizations of one block.
+    ///
+    /// Every EIP-7702 authorization-list entry carried by the transactions of one block — the delegation target, the account that signed it (`authority`), the chain id and nonce it was signed for, the signature, and the carrying transaction's hash and position — in transaction order and then list order. `authorityStatus` says whether the signer is known: `recovered`, `recovery_failed` (an invalid signature — the authorization has no signer) or `not_available` (not determined yet). Empty when the block carries no type-4 transaction. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A block the authorization history has not reached yet answers 422 with the highest block it can answer; a block above the chain head does not exist yet and answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `number` — Block height.
+    /// - `number`: Block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-authorizations>
-    pub async fn authorizations(&self, number: impl std::fmt::Display, params: &BlocksAuthorizationsParams) -> Result<BlockAuthorizationsResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/authorizations", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn authorizations(self, number: u64, params: &BlocksAuthorizationsParams) -> ResponseFuture<'a, BlockAuthorizationsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/authorizations", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`authorizations`](Self::authorizations), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-authorizations>
-    pub fn authorizations_pages(&self, number: impl std::fmt::Display, params: &BlocksAuthorizationsParams) -> Pager<BlockAuthorizationsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/authorizations", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn authorizations_pages(self, number: u64, params: &BlocksAuthorizationsParams) -> Pager<BlockAuthorizationsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/authorizations", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Every internal ETH transfer of a block
+    /// Every row of `data.authorizations` over all pages of [`authorizations`](Self::authorizations), one by one; see [`authorizations_pages`](Self::authorizations_pages).
     ///
-    /// TraceFast live Ethereum data: every call frame of one block that moved ETH below the transaction's own top level — sends from contracts, value carried by internal calls, self-destruct payouts, contract creations with value — in transaction order: the transaction and its sender, the frame's depth (2 = called by the transaction's target), its kind, from, to, the amount in wei and whether the frame succeeded. A frame that succeeded inside a reverted transaction, or under a reverted parent frame, moved nothing in the end. `total` counts the block's rows. A block the traces have not reached yet is refused (`422 coverage_gap` with the bound), never answered with an empty list. Continue with `nextCursor`.
+    /// Documentation: <https://docs.tracefast.xyz/api/block-authorizations>
+    pub fn authorizations_items(self, number: u64, params: &BlocksAuthorizationsParams) -> Items<BlockAuthorizationsResponse> {
+        self.authorizations_pages(number, params).into_items()
+    }
+
+    /// Every internal ETH transfer of a block.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Every call frame of one block that moved ETH below the transaction's own top level — sends from contracts, value carried by internal calls, self-destruct payouts, contract creations with value — in transaction order: the transaction and its sender, the frame's depth (2 = called by the transaction's target), its kind, from, to, the amount in wei and whether the frame succeeded. A frame that succeeded inside a reverted transaction, or under a reverted parent frame, moved nothing in the end. `total` counts the block's rows. A block the traces have not reached yet is refused (`422 coverage_gap` with the bound), never answered with an empty list. Continue with `nextCursor`.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `number` — The block height.
+    /// - `number`: The block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-internal-transfers>
-    pub async fn internal_transfers(&self, number: impl std::fmt::Display, params: &BlocksInternalTransfersParams) -> Result<BlockInternalTransfersResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/internal-transfers", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn internal_transfers(self, number: u64, params: &BlocksInternalTransfersParams) -> ResponseFuture<'a, BlockInternalTransfersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/internal-transfers", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`internal_transfers`](Self::internal_transfers), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-internal-transfers>
-    pub fn internal_transfers_pages(&self, number: impl std::fmt::Display, params: &BlocksInternalTransfersParams) -> Pager<BlockInternalTransfersResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/internal-transfers", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn internal_transfers_pages(self, number: u64, params: &BlocksInternalTransfersParams) -> Pager<BlockInternalTransfersResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/internal-transfers", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Every address a block touched, and how
+    /// Every row of `data.transfers` over all pages of [`internal_transfers`](Self::internal_transfers), one by one; see [`internal_transfers_pages`](Self::internal_transfers_pages).
     ///
-    /// TraceFast live Ethereum data: every address that took part in one block, in the block's order (the system calls before the first transaction, then by first transaction, then the rest — withdrawals, the fee recipient), with its roles (transaction sender or recipient, caller or callee, token party, created, named in an event, …), its primary class, how many of the block's transactions it took part in, whether its own account changed — the balance before and after and the signed ETH delta — its token transfers in the block summed per token (raw units; transfers, not balance changes), and what the knowledge graph says the address was at that block (`nature`, stated only when `natureState` is `known`). The block's counts come with every page. A block whose participants are not computed yet is refused (`422 coverage_gap`), never answered empty. Continue with `nextCursor`.
+    /// Documentation: <https://docs.tracefast.xyz/api/block-internal-transfers>
+    pub fn internal_transfers_items(self, number: u64, params: &BlocksInternalTransfersParams) -> Items<BlockInternalTransfersResponse> {
+        self.internal_transfers_pages(number, params).into_items()
+    }
+
+    /// Every address a block touched, and how.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Every address that took part in one block, in the block's order (the system calls before the first transaction, then by first transaction, then the rest — withdrawals, the fee recipient), with its roles (transaction sender or recipient, caller or callee, token party, created, named in an event, …), its primary class, how many of the block's transactions it took part in, whether its own account changed — the balance before and after and the signed ETH delta — its token transfers in the block summed per token (raw units; transfers, not balance changes), and what the knowledge graph says the address was at that block (`nature`, stated only when `natureState` is `known`). The block's counts come with every page. A block whose participants are not computed yet is refused (`422 coverage_gap`), never answered empty. Continue with `nextCursor`.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `number` — The block height.
+    /// - `number`: The block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-participants>
-    pub async fn participants(&self, number: impl std::fmt::Display, params: &BlocksParticipantsParams) -> Result<BlockParticipantsResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/participants", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn participants(self, number: u64, params: &BlocksParticipantsParams) -> ResponseFuture<'a, BlockParticipantsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/participants", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`participants`](Self::participants), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-participants>
-    pub fn participants_pages(&self, number: impl std::fmt::Display, params: &BlocksParticipantsParams) -> Pager<BlockParticipantsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/participants", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn participants_pages(self, number: u64, params: &BlocksParticipantsParams) -> Pager<BlockParticipantsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/participants", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Every token transfer of a block
+    /// Every row of `data.participants` over all pages of [`participants`](Self::participants), one by one; see [`participants_pages`](Self::participants_pages).
     ///
-    /// TraceFast live Ethereum data: every token transfer event of one block — ERC-20, ERC-721 and ERC-1155 transfers, mints, burns, vault deposits and withdrawals, WETH wraps and unwraps — in transaction and log order: the token and its standard, the event, from, to, the raw amount or token id, and the transaction with its sender and target. Amounts are in each token's smallest unit; pass the token to the token method for its decimals. `total` counts the block's rows. Continue with `nextCursor`.
+    /// Documentation: <https://docs.tracefast.xyz/api/block-participants>
+    pub fn participants_items(self, number: u64, params: &BlocksParticipantsParams) -> Items<BlockParticipantsResponse> {
+        self.participants_pages(number, params).into_items()
+    }
+
+    /// Every token transfer of a block.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Every token transfer event of one block — ERC-20, ERC-721 and ERC-1155 transfers, mints, burns, vault deposits and withdrawals, WETH wraps and unwraps — in transaction and log order: the token and its standard, the event, from, to, the raw amount or token id, and the transaction with its sender and target. Amounts are in each token's smallest unit; pass the token to the token method for its decimals. `total` counts the block's rows. Continue with `nextCursor`.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `number` — The block height.
+    /// - `number`: The block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-token-transfers>
-    pub async fn token_transfers(&self, number: impl std::fmt::Display, params: &BlocksTokenTransfersParams) -> Result<BlockTokenTransfersResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/token-transfers", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn token_transfers(self, number: u64, params: &BlocksTokenTransfersParams) -> ResponseFuture<'a, BlockTokenTransfersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/token-transfers", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`token_transfers`](Self::token_transfers), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-token-transfers>
-    pub fn token_transfers_pages(&self, number: impl std::fmt::Display, params: &BlocksTokenTransfersParams) -> Pager<BlockTokenTransfersResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/token-transfers", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn token_transfers_pages(self, number: u64, params: &BlocksTokenTransfersParams) -> Pager<BlockTokenTransfersResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/token-transfers", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Transactions of one block
+    /// Every row of `data.transfers` over all pages of [`token_transfers`](Self::token_transfers), one by one; see [`token_transfers_pages`](Self::token_transfers_pages).
     ///
-    /// TraceFast live Ethereum data: the transactions of one block in their order within the block, each with sender, recipient, value, gas, fee fields and the receipt's outcome. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. `txCount` is the block's whole count. A block that is not known yet answers 404; a block this API cannot see right now answers 422 like `blocks/{number}` does.
+    /// Documentation: <https://docs.tracefast.xyz/api/block-token-transfers>
+    pub fn token_transfers_items(self, number: u64, params: &BlocksTokenTransfersParams) -> Items<BlockTokenTransfersResponse> {
+        self.token_transfers_pages(number, params).into_items()
+    }
+
+    /// Transactions of one block.
+    ///
+    /// The transactions of one block in their order within the block, each with sender, recipient, value, gas, fee fields and the receipt's outcome. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. `txCount` is the block's whole count. A block that is not known yet answers 404; a block this API cannot see right now answers 422 like `blocks/{number}` does.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `number` — Block height.
+    /// - `number`: Block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-transactions>
-    pub async fn transactions(&self, number: impl std::fmt::Display, params: &BlocksTransactionsParams) -> Result<BlockTransactionsResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/transactions", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn transactions(self, number: u64, params: &BlocksTransactionsParams) -> ResponseFuture<'a, BlockTransactionsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/transactions", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`transactions`](Self::transactions), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-transactions>
-    pub fn transactions_pages(&self, number: impl std::fmt::Display, params: &BlocksTransactionsParams) -> Pager<BlockTransactionsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/transactions", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn transactions_pages(self, number: u64, params: &BlocksTransactionsParams) -> Pager<BlockTransactionsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/transactions", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Validator withdrawals of one block
+    /// Every row of `data.transactions` over all pages of [`transactions`](Self::transactions), one by one; see [`transactions_pages`](Self::transactions_pages).
     ///
-    /// TraceFast live Ethereum data: the validator withdrawals paid out in one block — index, validator, recipient and amount — in withdrawal-index order. A block holds at most 16. Optionally narrowed to one validator or one recipient. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Withdrawals are served to the chain head: a block with no withdrawals answers an empty list, which is a statement about that block and not a gap. A block above the chain head does not exist yet and answers 404.
+    /// Documentation: <https://docs.tracefast.xyz/api/block-transactions>
+    pub fn transactions_items(self, number: u64, params: &BlocksTransactionsParams) -> Items<BlockTransactionsResponse> {
+        self.transactions_pages(number, params).into_items()
+    }
+
+    /// Validator withdrawals of one block.
+    ///
+    /// The validator withdrawals paid out in one block — index, validator, recipient and amount — in withdrawal-index order. A block holds at most 16. Optionally narrowed to one validator or one recipient. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Withdrawals are served to the chain head: a block with no withdrawals answers an empty list, which is a statement about that block and not a gap. A block above the chain head does not exist yet and answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `number` — Block height.
+    /// - `number`: Block height.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-withdrawals>
-    pub async fn withdrawals(&self, number: impl std::fmt::Display, params: &BlocksWithdrawalsParams) -> Result<BlockWithdrawalsResponse, Error> {
-        self.client.get(&format!("/chains/{}/blocks/{}/withdrawals", self.client.chain_id(), encode_path(&number.to_string())), &params.query()).await
+    pub fn withdrawals(self, number: u64, params: &BlocksWithdrawalsParams) -> ResponseFuture<'a, BlockWithdrawalsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/blocks/{number}/withdrawals", &[&number.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`withdrawals`](Self::withdrawals), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/block-withdrawals>
-    pub fn withdrawals_pages(&self, number: impl std::fmt::Display, params: &BlocksWithdrawalsParams) -> Pager<BlockWithdrawalsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/blocks/{}/withdrawals", self.client.chain_id(), encode_path(&number.to_string())), params.query())
+    pub fn withdrawals_pages(self, number: u64, params: &BlocksWithdrawalsParams) -> Pager<BlockWithdrawalsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/blocks/{number}/withdrawals", &[&number.to_string()]), QueryParams::pairs(params))
+    }
+
+    /// Every row of `data.withdrawals` over all pages of [`withdrawals`](Self::withdrawals), one by one; see [`withdrawals_pages`](Self::withdrawals_pages).
+    ///
+    /// Documentation: <https://docs.tracefast.xyz/api/block-withdrawals>
+    pub fn withdrawals_items(self, number: u64, params: &BlocksWithdrawalsParams) -> Items<BlockWithdrawalsResponse> {
+        self.withdrawals_pages(number, params).into_items()
     }
 }
 
-/// `client.consensus()` — the consensus methods of the TraceFast API.
+/// `client.consensus()`: the consensus methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.consensus().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct ConsensusApi<'a> {
     client: &'a Client,
 }
 
-impl ConsensusApi<'_> {
-    /// Validator queues now
+impl<'a> ConsensusApi<'a> {
+    /// Validator queues now.
     ///
-    /// TraceFast live Ethereum data: the validator queues by the Electra rules as of the newest sampled epoch, under `queues` — the deposit queue (new validators and top-ups), the exit queue, consolidations, partial withdrawals and validators awaiting withdrawal, each as a count and a balance; the active set; the per-epoch churn limits; and wait ESTIMATES (queue balance over churn, entry also bounded by 16 deposits an epoch; for the queue as a whole, not a promise to one validator). Beside them: recent exit and deposit flow, and validator counts by STATUS under `status`, which since Electra are not the queues. Observed facts and arithmetic over them only; no score or verdict. Values not yet sampled are `null`, never zero.
+    /// The validator queues by the Electra rules as of the newest sampled epoch, under `queues` — the deposit queue (new validators and top-ups), the exit queue, consolidations, partial withdrawals and validators awaiting withdrawal, each as a count and a balance; the active set; the per-epoch churn limits; and wait ESTIMATES (queue balance over churn, entry also bounded by 16 deposits an epoch; for the queue as a whole, not a promise to one validator). Beside them: recent exit and deposit flow, and validator counts by STATUS under `status`, which since Electra are not the queues. Observed facts and arithmetic over them only; no score or verdict. Values not yet sampled are `null`, never zero.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-current>
-    pub async fn current(&self) -> Result<ConsensusCurrentResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/current", self.client.chain_id()), &[]).await
+    pub fn current(self) -> ResponseFuture<'a, ConsensusCurrentResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/current", &[]), Vec::new())
     }
 
-    /// Epoch health
+    /// Epoch health.
     ///
-    /// TraceFast live Ethereum data: complete epochs (32 slots), newest first — proposed and missed slots, sync committee participation, attestations, blob commitments, deposits, exits, slashings, execution-layer requests and execution gas. The epoch in progress is absent until it is complete; a field that the epoch's fork had not introduced yet is absent. `publishedThroughEpoch` is the newest complete epoch. Continue with `nextCursor`.
+    /// Complete epochs (32 slots), newest first — proposed and missed slots, sync committee participation, attestations, blob commitments, deposits, exits, slashings, execution-layer requests and execution gas. The epoch in progress is absent until it is complete; a field that the epoch's fork had not introduced yet is absent. `publishedThroughEpoch` is the newest complete epoch. Continue with `nextCursor`.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-epochs>
-    pub async fn epochs(&self, params: &ConsensusEpochsParams) -> Result<ConsensusEpochsResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/epochs", self.client.chain_id()), &params.query()).await
+    pub fn epochs(self, params: &ConsensusEpochsParams) -> ResponseFuture<'a, ConsensusEpochsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/epochs", &[]), QueryParams::pairs(params))
     }
 
     /// Every page of [`epochs`](Self::epochs), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-epochs>
-    pub fn epochs_pages(&self, params: &ConsensusEpochsParams) -> Pager<ConsensusEpochsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/consensus/epochs", self.client.chain_id()), params.query())
+    pub fn epochs_pages(self, params: &ConsensusEpochsParams) -> Pager<ConsensusEpochsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/consensus/epochs", &[]), QueryParams::pairs(params))
     }
 
-    /// Consensus liveness
+    /// Every row of `data.epochs` over all pages of [`epochs`](Self::epochs), one by one; see [`epochs_pages`](Self::epochs_pages).
     ///
-    /// TraceFast live Ethereum data: the newest head and finalized slot TraceFast saw and when, the distance between them, the newest published slot, missed slots and reorgs over the last 24 hours (the reorgs and the newest missed slots as rows), and `observation24h` — how completely the head was seen over the window. A reorg count is a statement about what was SEEN: read it next to `observation24h` and `ages.headSeconds`. A missed slot names its assigned validator only when `dutyStatus` is `recorded`. The facts are refreshed every minute; `ages` is computed for each request.
+    /// Documentation: <https://docs.tracefast.xyz/api/consensus-epochs>
+    pub fn epochs_items(self, params: &ConsensusEpochsParams) -> Items<ConsensusEpochsResponse> {
+        self.epochs_pages(params).into_items()
+    }
+
+    /// Consensus liveness.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// The newest head and finalized slot TraceFast saw and when, the distance between them, the newest published slot, missed slots and reorgs over the last 24 hours (the reorgs and the newest missed slots as rows), and `observation24h` — how completely the head was seen over the window. A reorg count is a statement about what was SEEN: read it next to `observation24h` and `ages.headSeconds`. A missed slot names its assigned validator only when `dutyStatus` is `recorded`. The facts are refreshed every minute; `ages` is computed for each request.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-health>
-    pub async fn health(&self) -> Result<ConsensusHealthResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/health", self.client.chain_id()), &[]).await
+    pub fn health(self) -> ResponseFuture<'a, ConsensusHealthResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/health", &[]), Vec::new())
     }
 
-    /// Missed slots
+    /// Missed slots.
     ///
-    /// TraceFast live Ethereum data: beacon slots in which no block was proposed, newest first. Each names the validator that was assigned to it when `dutyStatus` is `recorded`; below slot 14 971 296 assignments were never captured and the status is `not_recorded`, permanently. Slots are published once finalised, 13-19 minutes behind the chain head; `publishedThroughSlot` is the newest one. Continue with `nextCursor`.
+    /// Beacon slots in which no block was proposed, newest first. Each names the validator that was assigned to it when `dutyStatus` is `recorded`; below slot 14 971 296 assignments were never captured and the status is `not_recorded`, permanently. Slots are published once finalised, 13-19 minutes behind the chain head; `publishedThroughSlot` is the newest one. Continue with `nextCursor`.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-missed-slots>
-    pub async fn missed_slots(&self, params: &ConsensusMissedSlotsParams) -> Result<ConsensusMissedSlotsResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/missed-slots", self.client.chain_id()), &params.query()).await
+    pub fn missed_slots(self, params: &ConsensusMissedSlotsParams) -> ResponseFuture<'a, ConsensusMissedSlotsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/missed-slots", &[]), QueryParams::pairs(params))
     }
 
     /// Every page of [`missed_slots`](Self::missed_slots), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-missed-slots>
-    pub fn missed_slots_pages(&self, params: &ConsensusMissedSlotsParams) -> Pager<ConsensusMissedSlotsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/consensus/missed-slots", self.client.chain_id()), params.query())
+    pub fn missed_slots_pages(self, params: &ConsensusMissedSlotsParams) -> Pager<ConsensusMissedSlotsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/consensus/missed-slots", &[]), QueryParams::pairs(params))
     }
 
-    /// Block-proposal leaderboard
+    /// Every row of `data.missedSlots` over all pages of [`missed_slots`](Self::missed_slots), one by one; see [`missed_slots_pages`](Self::missed_slots_pages).
     ///
-    /// TraceFast live Ethereum data: which validators proposed the most blocks over a window, or — grouped by withdrawal address — which payout addresses their proposals sum to. The proposer is the validator whose duty the slot was, never the block's fee recipient (usually a builder or relay). A withdrawal address is a payout destination, not an operator. The two groupings rank different sets; ask for the one you need.
+    /// Documentation: <https://docs.tracefast.xyz/api/consensus-missed-slots>
+    pub fn missed_slots_items(self, params: &ConsensusMissedSlotsParams) -> Items<ConsensusMissedSlotsResponse> {
+        self.missed_slots_pages(params).into_items()
+    }
+
+    /// Block-proposal leaderboard.
+    ///
+    /// Which validators proposed the most blocks over a window, or — grouped by withdrawal address — which payout addresses their proposals sum to. The proposer is the validator whose duty the slot was, never the block's fee recipient (usually a builder or relay). A withdrawal address is a payout destination, not an operator. The two groupings rank different sets; ask for the one you need.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-proposers>
-    pub async fn proposers(&self, params: &ConsensusProposersParams) -> Result<ConsensusProposersResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/proposers", self.client.chain_id()), &params.query()).await
+    pub fn proposers(self, params: &ConsensusProposersParams) -> ResponseFuture<'a, ConsensusProposersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/proposers", &[]), QueryParams::pairs(params))
     }
 
-    /// Validator queues over time
+    /// Validator queues over time.
     ///
-    /// TraceFast live Ethereum data: the validator queues now, plus one closing point per UTC day for the most recent `limit` days (up to 90), newest first. Each point carries the queues by the Electra rules under `queues` (deposit, exit and consolidation queues with wait estimates in epochs; `null` on days before they were sampled) and the validator counts by STATUS under `status`. The span between the end of the reconstruction and the start of sampling is listed in `gaps` — draw a break there, not a zero. Daily granularity only, stated in `granularity`.
+    /// The validator queues now, plus one closing point per UTC day for the most recent `limit` days (up to 90), newest first. Each point carries the queues by the Electra rules under `queues` (deposit, exit and consolidation queues with wait estimates in epochs; `null` on days before they were sampled) and the validator counts by STATUS under `status`. The span between the end of the reconstruction and the start of sampling is listed in `gaps` — draw a break there, not a zero. Daily granularity only, stated in `granularity`.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-queues>
-    pub async fn queues(&self, params: &ConsensusQueuesParams) -> Result<ConsensusQueuesResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/queues", self.client.chain_id()), &params.query()).await
+    pub fn queues(self, params: &ConsensusQueuesParams) -> ResponseFuture<'a, ConsensusQueuesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/queues", &[]), QueryParams::pairs(params))
     }
 
-    /// One beacon slot
+    /// One beacon slot.
     ///
-    /// TraceFast live Ethereum data: one beacon slot — whether a block was proposed and by which validator, the validator that was ASSIGNED to it (`duty`; known from slot 14 971 296 on, `not_recorded` below, permanently), and the execution block with its fee recipient (who was paid for the block — under MEV-Boost usually the builder, not the validator). A missed slot carries no block fields. `graffitiHex` is the proposer's free 32-byte field, raw and undecoded. Slots are published once finalised, 13-19 minutes behind the chain head; `publishedThroughSlot` is the newest one.
+    /// One beacon slot — whether a block was proposed and by which validator, the validator that was ASSIGNED to it (`duty`; known from slot 14 971 296 on, `not_recorded` below, permanently), and the execution block with its fee recipient (who was paid for the block — under MEV-Boost usually the builder, not the validator). A missed slot carries no block fields. `graffitiHex` is the proposer's free 32-byte field, raw and undecoded. Slots are published once finalised, 13-19 minutes behind the chain head; `publishedThroughSlot` is the newest one.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `slot` — The beacon slot.
+    /// - `slot`: The beacon slot.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-slot>
-    pub async fn slot(&self, slot: impl std::fmt::Display) -> Result<ConsensusSlotResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/slots/{}", self.client.chain_id(), encode_path(&slot.to_string())), &[]).await
+    pub fn slot(self, slot: u64) -> ResponseFuture<'a, ConsensusSlotResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/slots/{slot}", &[&slot.to_string()]), Vec::new())
     }
 
-    /// One validator
+    /// One validator.
     ///
-    /// TraceFast live Ethereum data: one validator as of the validator snapshot (taken about once a day; `snapshotEpoch`) — status, slashed, lifecycle epochs (an absent epoch is not scheduled), effective balance, public key, credential type, withdrawal credentials and `withdrawalAddress`, the execution address its payouts go to. That address is a DESTINATION, not the owner or the operator; a validator with BLS credentials has none. A validator index is never answered 'not found': a snapshot cannot prove that a validator does not exist.
+    /// One validator as of the validator snapshot (taken about once a day; `snapshotEpoch`) — status, slashed, lifecycle epochs (an absent epoch is not scheduled), effective balance, public key, credential type, withdrawal credentials and `withdrawalAddress`, the execution address its payouts go to. That address is a DESTINATION, not the owner or the operator; a validator with BLS credentials has none. A validator index is never answered 'not found': a snapshot cannot prove that a validator does not exist.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `index` — The validator's index in the consensus registry.
+    /// - `index`: The validator's index in the consensus registry.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-validator>
-    pub async fn validator(&self, index: impl std::fmt::Display) -> Result<ConsensusValidatorResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/validators/{}", self.client.chain_id(), encode_path(&index.to_string())), &[]).await
+    pub fn validator(self, index: u64) -> ResponseFuture<'a, ConsensusValidatorResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/validators/{index}", &[&index.to_string()]), Vec::new())
     }
 
-    /// A validator's proposal history
+    /// A validator's proposal history.
     ///
-    /// TraceFast live Ethereum data: a validator's proposal history over EVERY published slot (not a recent window), newest first — each slot it proposed (`outcome: proposed`, with its execution block) and each slot it was assigned and no block was proposed in (`outcome: missed`). Proposals are complete; misses are a lower bound: assignments are recorded from slot 14 971 296 on. An index that proposed nothing answers an empty list — a fact up to `publishedThroughSlot`.
+    /// A validator's proposal history over EVERY published slot (not a recent window), newest first — each slot it proposed (`outcome: proposed`, with its execution block) and each slot it was assigned and no block was proposed in (`outcome: missed`). Proposals are complete; misses are a lower bound: assignments are recorded from slot 14 971 296 on. An index that proposed nothing answers an empty list — a fact up to `publishedThroughSlot`.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `index` — The validator's index in the consensus registry.
+    /// - `index`: The validator's index in the consensus registry.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/consensus-validator-slots>
-    pub async fn validator_slots(&self, index: impl std::fmt::Display, params: &ConsensusValidatorSlotsParams) -> Result<ConsensusValidatorSlotsResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/validators/{}/slots", self.client.chain_id(), encode_path(&index.to_string())), &params.query()).await
+    pub fn validator_slots(self, index: u64, params: &ConsensusValidatorSlotsParams) -> ResponseFuture<'a, ConsensusValidatorSlotsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/validators/{index}/slots", &[&index.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Withdrawals of a validator
+    /// Withdrawals of a validator.
     ///
-    /// TraceFast live Ethereum data: the withdrawals paid out for one validator — block, global withdrawal index, the address paid and the amount — newest first, inside a block window of at most 216 000 blocks (about 30 days). Without `fromBlock` / `toBlock` the newest window is answered; the window used is echoed in `window`, and older history is read by asking again with `toBlock` set to `window.fromBlock - 1`. Paged inside the window by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A wider window is refused with the bound, never narrowed.
+    /// The withdrawals paid out for one validator — block, global withdrawal index, the address paid and the amount — newest first, inside a block window of at most 216 000 blocks (about 30 days). Without `fromBlock` / `toBlock` the newest window is answered; the window used is echoed in `window`, and older history is read by asking again with `toBlock` set to `window.fromBlock - 1`. Paged inside the window by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A wider window is refused with the bound, never narrowed.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `index` — The validator's index in the consensus registry.
+    /// - `index`: The validator's index in the consensus registry.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/validator-withdrawals>
-    pub async fn validator_withdrawals(&self, index: impl std::fmt::Display, params: &ConsensusValidatorWithdrawalsParams) -> Result<ValidatorWithdrawalsResponse, Error> {
-        self.client.get(&format!("/chains/{}/consensus/validators/{}/withdrawals", self.client.chain_id(), encode_path(&index.to_string())), &params.query()).await
+    pub fn validator_withdrawals(self, index: u64, params: &ConsensusValidatorWithdrawalsParams) -> ResponseFuture<'a, ValidatorWithdrawalsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/consensus/validators/{index}/withdrawals", &[&index.to_string()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`validator_withdrawals`](Self::validator_withdrawals), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/validator-withdrawals>
-    pub fn validator_withdrawals_pages(&self, index: impl std::fmt::Display, params: &ConsensusValidatorWithdrawalsParams) -> Pager<ValidatorWithdrawalsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/consensus/validators/{}/withdrawals", self.client.chain_id(), encode_path(&index.to_string())), params.query())
+    pub fn validator_withdrawals_pages(self, index: u64, params: &ConsensusValidatorWithdrawalsParams) -> Pager<ValidatorWithdrawalsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/consensus/validators/{index}/withdrawals", &[&index.to_string()]), QueryParams::pairs(params))
     }
 
-    /// Validators paying out to an address
+    /// Every row of `data.withdrawals` over all pages of [`validator_withdrawals`](Self::validator_withdrawals), one by one; see [`validator_withdrawals_pages`](Self::validator_withdrawals_pages).
     ///
-    /// TraceFast live Ethereum data: the validators that direct their withdrawals to an address, as of the validator snapshot (about once a day; `snapshotEpoch`) — counts over all of them (active, withdrawn, slashed, by credential type, total effective balance) and the validators themselves, lowest index first. The address is where the payouts GO — not the owner or the operator. An address with no validator answers zeros: the snapshot covers every validator with an execution address.
+    /// Documentation: <https://docs.tracefast.xyz/api/validator-withdrawals>
+    pub fn validator_withdrawals_items(self, index: u64, params: &ConsensusValidatorWithdrawalsParams) -> Items<ValidatorWithdrawalsResponse> {
+        self.validator_withdrawals_pages(index, params).into_items()
+    }
+
+    /// Validators paying out to an address.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// The validators that direct their withdrawals to an address, as of the validator snapshot (about once a day; `snapshotEpoch`) — counts over all of them (active, withdrawn, slashed, by credential type, total effective balance) and the validators themselves, lowest index first. The address is where the payouts GO — not the owner or the operator. An address with no validator answers zeros: the snapshot covers every validator with an execution address.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x` + 40 hex, any case.
+    /// - `address`: The address, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-validators>
-    pub async fn entity_validators(&self, address: impl AsRef<str>, params: &ConsensusEntityValidatorsParams) -> Result<ConsensusAddressValidatorsResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/validators", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn entity_validators(self, address: impl AsRef<str>, params: &ConsensusEntityValidatorsParams) -> ResponseFuture<'a, ConsensusAddressValidatorsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/validators", &[address.as_ref()]), QueryParams::pairs(params))
     }
 }
 
-/// `client.contracts()` — the contracts methods of the TraceFast API.
+/// `client.contracts()`: the contracts methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.contracts().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct ContractsApi<'a> {
     client: &'a Client,
 }
 
-impl ContractsApi<'_> {
-    /// One contract
+impl<'a> ContractsApi<'a> {
+    /// One contract.
     ///
-    /// TraceFast live Ethereum data: one deployed contract — the hash and size of its current code, what the code exposes (ERC-20 view functions, ERC-165, an EIP-1167 minimal proxy and its target), the proxy pattern detected in it, and its lifecycle: the deploying account, the origin account, the creating transaction, code changes and self-destruction. An address with no indexed code answers 404.
+    /// One deployed contract — the hash and size of its current code, what the code exposes (ERC-20 view functions, ERC-165, an EIP-1167 minimal proxy and its target), the proxy pattern detected in it, and its lifecycle: the deploying account, the origin account, the creating transaction, code changes and self-destruction. An address with no indexed code answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract>
-    pub async fn get(&self, address: impl AsRef<str>) -> Result<ContractResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn get(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}", &[address.as_ref()]), Vec::new())
     }
 
-    /// Bytecode of a contract
+    /// Bytecode of a contract.
     ///
-    /// TraceFast live Ethereum data: the current runtime bytecode of a contract as hex, with its code hash and a structural fingerprint that is equal across contracts sharing the same logic. Up to 24 576 bytes of code. An address with no indexed code answers 404.
+    /// The current runtime bytecode of a contract as hex, with its code hash and a structural fingerprint that is equal across contracts sharing the same logic. Up to 24 576 bytes of code. An address with no indexed code answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-bytecode>
-    pub async fn bytecode(&self, address: impl AsRef<str>) -> Result<ContractBytecodeResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/bytecode", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn bytecode(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractBytecodeResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/bytecode", &[address.as_ref()]), Vec::new())
     }
 
-    /// What a contract can do: mint, pause, blacklist, upgrade
+    /// What a contract can do: mint, pause, blacklist, upgrade.
     ///
-    /// TraceFast knowledge graph: the powers of one contract, each with three questions — `inCode` (the code exposes it), `availableNow` (it can be used right now) and `usedBefore` (it has been used on chain) — and the block each answer was evaluated at. Powers include `mint`, `burn`, `pause`, `blacklist`, `freeze`, `seize`, `upgrade` and `emergency_withdraw`; others may appear. An answer is present only when it is proven: an absent answer means "not proven", never "no". `otherFacts` lists the remaining proven capability facts as they are named (for example `capability:currently_paused`). `graphReached: false` means the graph has not reached the address yet, and nothing here is an answer about it. The same facts appear among the address's attributes.
+    /// The powers of one contract, each with three questions — `inCode` (the code exposes it), `availableNow` (it can be used right now) and `usedBefore` (it has been used on chain) — and the block each answer was evaluated at. Powers include `mint`, `burn`, `pause`, `blacklist`, `freeze`, `seize`, `upgrade` and `emergency_withdraw`; others may appear. An answer is present only when it is proven: an absent answer means "not proven", never "no". `otherFacts` lists the remaining proven capability facts as they are named (for example `capability:currently_paused`). `graphReached: false` means the graph has not reached the address yet, and nothing here is an answer about it. The same facts appear among the address's attributes.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-capabilities>
-    pub async fn capabilities(&self, address: impl AsRef<str>) -> Result<ContractCapabilitiesResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/capabilities", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn capabilities(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractCapabilitiesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/capabilities", &[address.as_ref()]), Vec::new())
     }
 
-    /// Contracts running exactly the same code
+    /// Contracts running exactly the same code.
     ///
-    /// TraceFast live Ethereum data: every contract whose runtime code hashes to `codeHash`, the hash of this contract's current code — the same deployed code at other addresses — by address ascending, with `contractCount`, the size of the whole list. The same code does not mean the same owner or the same deployer: a factory, a template or a copied contract produces identical code for unrelated parties, and two contracts with the same code can hold different state. Identical code is byte for byte; code that differs only in its metadata or constructor-set values is not listed (compare `fingerprint` on the bytecode method). For an account delegated by EIP-7702 the shared code is the delegation, so the list is the accounts delegated to the same contract. The list is updated once a day: a contract deployed, or whose code changed, since then — this one included — is missing from it, or still listed under its earlier code, until the next update. An address with no indexed code answers 404. Continue with `nextCursor`.
+    /// Every contract whose runtime code hashes to `codeHash`, the hash of this contract's current code — the same deployed code at other addresses — by address ascending, with `contractCount`, the size of the whole list. The same code does not mean the same owner or the same deployer: a factory, a template or a copied contract produces identical code for unrelated parties, and two contracts with the same code can hold different state. Identical code is byte for byte; code that differs only in its metadata or constructor-set values is not listed (compare `fingerprint` on the bytecode method). For an account delegated by EIP-7702 the shared code is the delegation, so the list is the accounts delegated to the same contract. The list is updated once a day: a contract deployed, or whose code changed, since then — this one included — is missing from it, or still listed under its earlier code, until the next update. An address with no indexed code answers 404. Continue with `nextCursor`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-clones>
-    pub async fn clones(&self, address: impl AsRef<str>, params: &ContractsClonesParams) -> Result<ContractClonesResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/clones", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn clones(self, address: impl AsRef<str>, params: &ContractsClonesParams) -> ResponseFuture<'a, ContractClonesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/clones", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`clones`](Self::clones), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-clones>
-    pub fn clones_pages(&self, address: impl AsRef<str>, params: &ContractsClonesParams) -> Pager<ContractClonesResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/clones", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn clones_pages(self, address: impl AsRef<str>, params: &ContractsClonesParams) -> Pager<ContractClonesResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/clones", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Who changed a proxy's implementation or admin, and when
+    /// Every row of `data.contracts` over all pages of [`clones`](Self::clones), one by one; see [`clones_pages`](Self::clones_pages).
     ///
-    /// TraceFast live Ethereum data: every write to a proxy's control slots — the EIP-1967 implementation, admin and beacon slots and the older OpenZeppelin slot — newest first, one row per write: the block and transaction, which slot, the value before and after, who called the frame that wrote it and whose code ran in it. `kind` is `upgrade` (a value written), `unset` (the slot written to zero) or `cleared` (wiped with the account, pre-Cancun SELFDESTRUCT); other values may be added. An `upgrade` whose previous value is all zeros means the slot was empty before the write — not necessarily its first deployment. History of the OWNER role is not here: only storage slots that proxies use for control. `meta.asOfBlock` is how far the history is known. Continue with `nextCursor`.
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-clones>
+    pub fn clones_items(self, address: impl AsRef<str>, params: &ContractsClonesParams) -> Items<ContractClonesResponse> {
+        self.clones_pages(address, params).into_items()
+    }
+
+    /// Who changed a proxy's implementation or admin, and when.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Every write to a proxy's control slots — the EIP-1967 implementation, admin and beacon slots and the older OpenZeppelin slot — newest first, one row per write: the block and transaction, which slot, the value before and after, who called the frame that wrote it and whose code ran in it. `kind` is `upgrade` (a value written), `unset` (the slot written to zero) or `cleared` (wiped with the account, pre-Cancun SELFDESTRUCT); other values may be added. An `upgrade` whose previous value is all zeros means the slot was empty before the write — not necessarily its first deployment. History of the OWNER role is not here: only storage slots that proxies use for control. `meta.asOfBlock` is how far the history is known. Continue with `nextCursor`.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The proxy, `0x` + 40 hex, any case.
+    /// - `address`: The proxy, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-control-history>
-    pub async fn control_history(&self, address: impl AsRef<str>, params: &ContractsControlHistoryParams) -> Result<ContractControlHistoryResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/control-history", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn control_history(self, address: impl AsRef<str>, params: &ContractsControlHistoryParams) -> ResponseFuture<'a, ContractControlHistoryResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/control-history", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`control_history`](Self::control_history), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-control-history>
-    pub fn control_history_pages(&self, address: impl AsRef<str>, params: &ContractsControlHistoryParams) -> Pager<ContractControlHistoryResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/control-history", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn control_history_pages(self, address: impl AsRef<str>, params: &ContractsControlHistoryParams) -> Pager<ContractControlHistoryResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/control-history", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Decompiled code of a contract
+    /// Every row of `data.changes` over all pages of [`control_history`](Self::control_history), one by one; see [`control_history_pages`](Self::control_history_pages).
     ///
-    /// TraceFast live Ethereum data: a contract's code reconstructed as readable Solidity-like pseudocode, for contracts with or without published source. By default the code that runs at the address — through a proxy, a beacon, a minimal proxy or an EIP-7702 delegation — at the latest block, or at `block`. The answer is a table of contents of the functions with their names where known; `selector` returns one function's body, `bodies=true` the bodies in order, a page at a time. Every answer carries a disclaimer: the reconstruction is best-effort. A code not analysed yet is analysed on request: the answer is then 503 `decompilation_pending` with `Retry-After` — ask again after it, usually within a minute. Each account starts a limited number of analyses per day; reading an analysed code is not limited.
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-control-history>
+    pub fn control_history_items(self, address: impl AsRef<str>, params: &ContractsControlHistoryParams) -> Items<ContractControlHistoryResponse> {
+        self.control_history_pages(address, params).into_items()
+    }
+
+    /// Decompiled code of a contract.
+    ///
+    /// A contract's code reconstructed as readable Solidity-like pseudocode, for contracts with or without published source. By default the code that runs at the address — through a proxy, a beacon, a minimal proxy or an EIP-7702 delegation — at the latest block, or at `block`. The answer is a table of contents of the functions with their names where known; `selector` returns one function's body, `bodies=true` the bodies in order, a page at a time. Every answer carries a disclaimer: the reconstruction is best-effort. A code not analysed yet is analysed on request: the answer is then 503 `decompilation_pending` with `Retry-After` — ask again after it, usually within a minute. Each account starts a limited number of analyses per day; reading an analysed code is not limited.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-decompilation>
-    pub async fn decompilation(&self, address: impl AsRef<str>, params: &ContractsDecompilationParams) -> Result<ContractDecompilationResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/decompilation", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn decompilation(self, address: impl AsRef<str>, params: &ContractsDecompilationParams) -> ResponseFuture<'a, ContractDecompilationResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/decompilation", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`decompilation`](Self::decompilation), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-decompilation>
-    pub fn decompilation_pages(&self, address: impl AsRef<str>, params: &ContractsDecompilationParams) -> Pager<ContractDecompilationResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/decompilation", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn decompilation_pages(self, address: impl AsRef<str>, params: &ContractsDecompilationParams) -> Pager<ContractDecompilationResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/decompilation", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Disassembly of a contract
+    /// Every row of `data.bodies` over all pages of [`decompilation`](Self::decompilation), one by one; see [`decompilation_pages`](Self::decompilation_pages).
     ///
-    /// TraceFast live Ethereum data: a contract's code as EVM instructions with their byte offsets (pc), in order, a page at a time — the same pcs the decompiled view refers to. By default the code that runs at the address, through a proxy, at the latest block, or at `block`. The compiler's metadata at the end of the code is named, and every instruction inside it is marked: it is data that happens to decode as instructions. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-decompilation>
+    pub fn decompilation_items(self, address: impl AsRef<str>, params: &ContractsDecompilationParams) -> Items<ContractDecompilationResponse> {
+        self.decompilation_pages(address, params).into_items()
+    }
+
+    /// Disassembly of a contract.
+    ///
+    /// A contract's code as EVM instructions with their byte offsets (pc), in order, a page at a time — the same pcs the decompiled view refers to. By default the code that runs at the address, through a proxy, at the latest block, or at `block`. The compiler's metadata at the end of the code is named, and every instruction inside it is marked: it is data that happens to decode as instructions. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-disassembly>
-    pub async fn disassembly(&self, address: impl AsRef<str>, params: &ContractsDisassemblyParams) -> Result<ContractDisassemblyResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/disassembly", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn disassembly(self, address: impl AsRef<str>, params: &ContractsDisassemblyParams) -> ResponseFuture<'a, ContractDisassemblyResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/disassembly", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`disassembly`](Self::disassembly), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-disassembly>
-    pub fn disassembly_pages(&self, address: impl AsRef<str>, params: &ContractsDisassemblyParams) -> Pager<ContractDisassemblyResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/disassembly", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn disassembly_pages(self, address: impl AsRef<str>, params: &ContractsDisassemblyParams) -> Pager<ContractDisassemblyResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/disassembly", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Events emitted by a contract
+    /// Every row of `data.instructions` over all pages of [`disassembly`](Self::disassembly), one by one; see [`disassembly_pages`](Self::disassembly_pages).
     ///
-    /// TraceFast live Ethereum data: the event logs a contract emitted, newest first, each with its topics and data and, where the signature is known, the decoded event and its arguments. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page holds at most `limit` events and may hold fewer when their `data` is large: the page is bounded by size, a log is never cut. `topic0` narrows to one event signature; on a very active contract that narrowing is answered only inside a block window, and the refusal names the window it needs.
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-disassembly>
+    pub fn disassembly_items(self, address: impl AsRef<str>, params: &ContractsDisassemblyParams) -> Items<ContractDisassemblyResponse> {
+        self.disassembly_pages(address, params).into_items()
+    }
+
+    /// Events emitted by a contract.
+    ///
+    /// The event logs a contract emitted, newest first, each with its topics and data and, where the signature is known, the decoded event and its arguments. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page holds at most `limit` events and may hold fewer when their `data` is large: the page is bounded by size, a log is never cut. `topic0` narrows to one event signature; on a very active contract that narrowing is answered only inside a block window, and the refusal names the window it needs.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-events>
-    pub async fn events(&self, address: impl AsRef<str>, params: &ContractsEventsParams) -> Result<ContractEventsResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/events", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn events(self, address: impl AsRef<str>, params: &ContractsEventsParams) -> ResponseFuture<'a, ContractEventsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/events", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`events`](Self::events), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-events>
-    pub fn events_pages(&self, address: impl AsRef<str>, params: &ContractsEventsParams) -> Pager<ContractEventsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/events", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn events_pages(self, address: impl AsRef<str>, params: &ContractsEventsParams) -> Pager<ContractEventsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/events", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Calls per function of a contract
+    /// Every row of `data.events` over all pages of [`events`](Self::events), one by one; see [`events_pages`](Self::events_pages).
     ///
-    /// TraceFast live Ethereum data: how often each function of an address was called — the transactions sent to it per 4-byte selector, most called first, with the block of the last one and the function's name where known — plus the first and the last block in which it received any call. The counts are top-level calls only: a call made from inside another contract is not counted. A proxy's calls are counted at the proxy. An address nobody called answers an empty list.
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-events>
+    pub fn events_items(self, address: impl AsRef<str>, params: &ContractsEventsParams) -> Items<ContractEventsResponse> {
+        self.events_pages(address, params).into_items()
+    }
+
+    /// Calls per function of a contract.
+    ///
+    /// How often each function of an address was called — the transactions sent to it per 4-byte selector, most called first, with the block of the last one and the function's name where known — plus the first and the last block in which it received any call. The counts are top-level calls only: a call made from inside another contract is not counted. A proxy's calls are counted at the proxy. An address nobody called answers an empty list.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-function-calls>
-    pub async fn function_calls(&self, address: impl AsRef<str>) -> Result<ContractFunctionCallsResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/function-calls", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn function_calls(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractFunctionCallsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/function-calls", &[address.as_ref()]), Vec::new())
     }
 
-    /// Which code a contract runs, its hashes, and how it came to be
+    /// Which code a contract runs, its hashes, and how it came to be.
     ///
-    /// TraceFast live Ethereum data: the identity of one contract — the Keccak-256 hash of its current code, the SHA-256 of the same code (the hash Sourcify and other verifiers key on), a structural fingerprint that is equal across contracts sharing the same logic, the code's size and kind, and its lifecycle: deploying account, signing account, creating transaction, code changes and self-destruction. Fields that are not recorded are absent. For an account delegated by EIP-7702 the stored bytes are the delegation, not code: `runtimeSha256` and `fingerprint` are absent there. Other contracts with exactly the same code are the clones method. An address with no indexed code answers 404.
+    /// The identity of one contract — the Keccak-256 hash of its current code, the SHA-256 of the same code (the hash Sourcify and other verifiers key on), a structural fingerprint that is equal across contracts sharing the same logic, the code's size and kind, and its lifecycle: deploying account, signing account, creating transaction, code changes and self-destruction. Fields that are not recorded are absent. For an account delegated by EIP-7702 the stored bytes are the delegation, not code: `runtimeSha256` and `fingerprint` are absent there. Other contracts with exactly the same code are the clones method. An address with no indexed code answers 404.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-identity>
-    pub async fn identity(&self, address: impl AsRef<str>) -> Result<ContractIdentityResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/identity", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn identity(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractIdentityResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/identity", &[address.as_ref()]), Vec::new())
     }
 
-    /// Implementations of a proxy contract
+    /// Implementations of a proxy contract.
     ///
-    /// TraceFast live Ethereum data: the implementations a proxy contract has been observed delegating to — from its EIP-1167 bytecode, its EIP-1967 implementation or beacon slot, or its OpenZeppelin v1 slot — newest first, each with the blocks it was seen at and whether it has since been replaced. `supersededBy` has three states: absent when storage cannot say (a code-embedded pointer, a beacon row, or a slot value the proxy status does not name as current), `null` when the pointer is current by the proxy status, an address when it was replaced. On a beacon row the listed address is the beacon and `supersededBy` speaks only of the proxy's beacon slot (an address when the proxy moved to another beacon); changes of logic behind the beacon are in `beacon`, which carries what it handed out: the logic contracts with `startBlock` and inclusive `endBlock`, newest first, proven from `provenFromBlock` and complete at least through `completeThroughBlock`, or `state: not_proven` when the beacon's implementation could not be established — which says nothing about what it hands out. An empty list means no pointer was observed, not that the address is not a proxy.
+    /// The implementations a proxy contract has been observed delegating to — from its EIP-1167 bytecode, its EIP-1967 implementation or beacon slot, or its OpenZeppelin v1 slot — newest first, each with the blocks it was seen at and whether it has since been replaced. `supersededBy` has three states: absent when storage cannot say (a code-embedded pointer, a beacon row, or a slot value the proxy status does not name as current), `null` when the pointer is current by the proxy status, an address when it was replaced. On a beacon row the listed address is the beacon and `supersededBy` speaks only of the proxy's beacon slot (an address when the proxy moved to another beacon); changes of logic behind the beacon are in `beacon`, which carries what it handed out: the logic contracts with `startBlock` and inclusive `endBlock`, newest first, proven from `provenFromBlock` and complete at least through `completeThroughBlock`, or `state: not_proven` when the beacon's implementation could not be established — which says nothing about what it hands out. An empty list means no pointer was observed, not that the address is not a proxy.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The proxy contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The proxy contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-proxy>
-    pub async fn proxy(&self, address: impl AsRef<str>) -> Result<ProxyImplementationsResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/proxy", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn proxy(self, address: impl AsRef<str>) -> ResponseFuture<'a, ProxyImplementationsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/proxy", &[address.as_ref()]), Vec::new())
     }
 
-    /// How a contract's code is built and how it can change
+    /// How a contract's code is built and how it can change.
     ///
-    /// TraceFast live Ethereum data: the security profile of one contract's current code — the proxy pattern detected in it and its confidence, its opcode-level features (DELEGATECALL, CALLCODE, a DELEGATECALL target read from storage), and what the knowledge graph proves about how it is built (`architecture`: for example immutable, an upgradeable proxy, a mutable implementation slot, metamorphic). Only proven facts are stated: an absent one means "not proven", never "no". Who changed a proxy's implementation and when is the control-history method; what the contract can do is the capabilities method. An address with no indexed code answers 404.
+    /// The security profile of one contract's current code — the proxy pattern detected in it and its confidence, its opcode-level features (DELEGATECALL, CALLCODE, a DELEGATECALL target read from storage), and what the knowledge graph proves about how it is built (`architecture`: for example immutable, an upgradeable proxy, a mutable implementation slot, metamorphic). Only proven facts are stated: an absent one means "not proven", never "no". Who changed a proxy's implementation and when is the control-history method; what the contract can do is the capabilities method. An address with no indexed code answers 404.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-security>
-    pub async fn security(&self, address: impl AsRef<str>) -> Result<ContractSecurityResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/security", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn security(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractSecurityResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/security", &[address.as_ref()]), Vec::new())
     }
 
-    /// Function selectors of a contract
+    /// Function selectors of a contract.
     ///
-    /// TraceFast live Ethereum data: the 4-byte selectors found as constants in a contract's bytecode, each resolved to a known signature and name where one exists, with how many known signatures share the selector. `decodeStatus` says how confident each resolution is. The list holds the contract's own functions together with the selectors of functions it calls on other contracts and of its custom errors, not told apart: a selector here is not proof the contract implements that function, and `selectorCount` is not the number of its functions. An address with no indexed code answers 404.
+    /// The 4-byte selectors found as constants in a contract's bytecode, each resolved to a known signature and name where one exists, with how many known signatures share the selector. `decodeStatus` says how confident each resolution is. The list holds the contract's own functions together with the selectors of functions it calls on other contracts and of its custom errors, not told apart: a selector here is not proof the contract implements that function, and `selectorCount` is not the number of its functions. An address with no indexed code answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-selectors>
-    pub async fn selectors(&self, address: impl AsRef<str>) -> Result<ContractSelectorsResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/selectors", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn selectors(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractSelectorsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/selectors", &[address.as_ref()]), Vec::new())
     }
 
-    /// How a contract's storage was read and written, per day
+    /// How a contract's storage was read and written, per day.
     ///
-    /// TraceFast live Ethereum data: for each UTC day of a window, oldest first, how many transactions touched a contract's storage, read it, wrote it, or only read it without writing (a dependency on its state); the SLOAD and SSTORE opcode counts (reverted frames included — opcodes, not distinct slots); the transient storage opcodes TLOAD and TSTORE (EIP-1153); and the slot touches (distinct slots per transaction, summed). Only days with activity have a row: a missing day is not a zero stated. The last day is partial — it holds the blocks through `readThroughBlock`.
+    /// For each UTC day of a window, oldest first, how many transactions touched a contract's storage, read it, wrote it, or only read it without writing (a dependency on its state); the SLOAD and SSTORE opcode counts (reverted frames included — opcodes, not distinct slots); the transient storage opcodes TLOAD and TSTORE (EIP-1153); and the slot touches (distinct slots per transaction, summed). Only days with activity have a row: a missing day is not a zero stated. The last day is partial — it holds the blocks through `readThroughBlock`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-storage-activity>
-    pub async fn storage_activity(&self, address: impl AsRef<str>, params: &ContractsStorageActivityParams) -> Result<ContractStorageActivityResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/storage/activity", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn storage_activity(self, address: impl AsRef<str>, params: &ContractsStorageActivityParams) -> ResponseFuture<'a, ContractStorageActivityResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/storage/activity", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// The storage slots of a contract that changed most recently
+    /// The storage slots of a contract that changed most recently.
     ///
-    /// TraceFast live Ethereum data: the 25 storage slots of a contract whose value changed in the most blocks of a recent window, with how many blocks each changed in and the last one, plus how many slots changed in the window in all. A change is a block in which the value differs: several writes in one block are one change, and a write of the value already held is none. A slot not listed changed in fewer blocks than the 25 listed, or not at all: `totalSlotsInWindow` counts every slot that changed. An empty window answers `slots: []` with `lastChangeBlock`, the contract's newest change before the window, when it is known. The window ends at the newest block known (`windowToBlock`). Pass a slot to the slot history method for its values.
+    /// The 25 storage slots of a contract whose value changed in the most blocks of a recent window, with how many blocks each changed in and the last one, plus how many slots changed in the window in all. A change is a block in which the value differs: several writes in one block are one change, and a write of the value already held is none. A slot not listed changed in fewer blocks than the 25 listed, or not at all: `totalSlotsInWindow` counts every slot that changed. An empty window answers `slots: []` with `lastChangeBlock`, the contract's newest change before the window, when it is known. The window ends at the newest block known (`windowToBlock`). Pass a slot to the slot history method for its values.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-hot-slots>
-    pub async fn hot_slots(&self, address: impl AsRef<str>, params: &ContractsHotSlotsParams) -> Result<ContractHotSlotsResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/storage/hot-slots", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn hot_slots(self, address: impl AsRef<str>, params: &ContractsHotSlotsParams) -> ResponseFuture<'a, ContractHotSlotsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/storage/hot-slots", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// The direct storage slots of a contract (its declared variables) and their values
+    /// The direct storage slots of a contract (its declared variables) and their values.
     ///
-    /// TraceFast live Ethereum data: the DIRECT storage slots of a contract — the slots below 2^64 that hold its declared variables, packed fields and fixed-array elements (not mapping entries) — in slot order, each with how many blocks changed its value, the first and last of them, and its current value. `currentValueStatus` says whether the value can be stated: `observed` (then `currentValue`), `system_writes` (a protocol system contract rewrites its storage outside transactions), `ambiguous_order` (the last transaction wrote the slot more than once with different values, in blocks old enough that the order of writes inside a transaction is not recorded), `storage_cleared` (a self-destruct wiped the storage after the last change), `no_transaction_write` (no transaction wrote the slot in the block it last changed: a protocol system call or a clearing), or `not_computed` (the newest blocks are not processed yet; retry); `currentValue` is absent in every state but `observed`, never a zero. Variable names are not stated. Only slots whose value ever changed are listed: absence is not "no such variable". Continue with `nextCursor`.
+    /// The DIRECT storage slots of a contract — the slots below 2^64 that hold its declared variables, packed fields and fixed-array elements (not mapping entries) — in slot order, each with how many blocks changed its value, the first and last of them, and its current value. `currentValueStatus` says whether the value can be stated: `observed` (then `currentValue`), `system_writes` (a protocol system contract rewrites its storage outside transactions), `ambiguous_order` (the last transaction wrote the slot more than once with different values, in blocks old enough that the order of writes inside a transaction is not recorded), `storage_cleared` (a self-destruct wiped the storage after the last change), `no_transaction_write` (no transaction wrote the slot in the block it last changed: a protocol system call or a clearing), or `not_computed` (the newest blocks are not processed yet; retry); `currentValue` is absent in every state but `observed`, never a zero. Variable names are not stated. Only slots whose value ever changed are listed: absence is not "no such variable". Continue with `nextCursor`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-storage-parameters>
-    pub async fn storage_parameters(&self, address: impl AsRef<str>, params: &ContractsStorageParametersParams) -> Result<ContractStorageParametersResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/storage/parameters", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn storage_parameters(self, address: impl AsRef<str>, params: &ContractsStorageParametersParams) -> ResponseFuture<'a, ContractStorageParametersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/storage/parameters", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`storage_parameters`](Self::storage_parameters), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-storage-parameters>
-    pub fn storage_parameters_pages(&self, address: impl AsRef<str>, params: &ContractsStorageParametersParams) -> Pager<ContractStorageParametersResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/storage/parameters", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn storage_parameters_pages(self, address: impl AsRef<str>, params: &ContractsStorageParametersParams) -> Pager<ContractStorageParametersResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/storage/parameters", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Totals of a contract's storage writes
+    /// Every row of `data.slots` over all pages of [`storage_parameters`](Self::storage_parameters), one by one; see [`storage_parameters_pages`](Self::storage_parameters_pages).
     ///
-    /// TraceFast live Ethereum data: the totals of every write to a contract's storage over its history — how many writes, how many distinct slots, callers and executing code addresses (estimates on large contracts), the first and last block written, how many writes ran through DELEGATECALL (code borrowed from another contract, as in a proxy) and their share, and the deepest call depth a write happened at. The totals are refreshed hourly: the newest writes are not counted yet, and an address whose first write is that recent answers 404 like one that never wrote. No names are stated.
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-storage-parameters>
+    pub fn storage_parameters_items(self, address: impl AsRef<str>, params: &ContractsStorageParametersParams) -> Items<ContractStorageParametersResponse> {
+        self.storage_parameters_pages(address, params).into_items()
+    }
+
+    /// Totals of a contract's storage writes.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// The totals of every write to a contract's storage over its history — how many writes, how many distinct slots, callers and executing code addresses (estimates on large contracts), the first and last block written, how many writes ran through DELEGATECALL (code borrowed from another contract, as in a proxy) and their share, and the deepest call depth a write happened at. The totals are refreshed hourly: the newest writes are not counted yet, and an address whose first write is that recent answers 404 like one that never wrote. No names are stated.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-storage-profile>
-    pub async fn storage_profile(&self, address: impl AsRef<str>) -> Result<ContractStorageProfileResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/storage/profile", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn storage_profile(self, address: impl AsRef<str>) -> ResponseFuture<'a, ContractStorageProfileResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/storage/profile", &[address.as_ref()]), Vec::new())
     }
 
-    /// Who writes a contract's storage
+    /// Who writes a contract's storage.
     ///
-    /// TraceFast live Ethereum data: the accounts that wrote a contract's storage, ranked by the number of writes — each row a pair of the CALLER (who called the frame that wrote) and the EXECUTION address (whose code ran in it: the contract itself, or an implementation it delegated to) — with the writes, the transactions (an estimate on large contracts), and the first and last block. `totalPairs` counts every pair; the list is the top `limit` of them, not a page of a feed, ties broken by caller and then execution address. The ranking and its pairs are refreshed once a day: a pair that started writing, or overtook another, since then is not reflected yet; the counts and blocks are refreshed hourly. No names are stated.
+    /// The accounts that wrote a contract's storage, ranked by the number of writes — each row a pair of the CALLER (who called the frame that wrote) and the EXECUTION address (whose code ran in it: the contract itself, or an implementation it delegated to) — with the writes, the transactions (an estimate on large contracts), and the first and last block. `totalPairs` counts every pair; the list is the top `limit` of them, not a page of a feed, ties broken by caller and then execution address. The ranking and its pairs are refreshed once a day: a pair that started writing, or overtook another, since then is not reflected yet; the counts and blocks are refreshed hourly. No names are stated.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-storage-writers>
-    pub async fn storage_writers(&self, address: impl AsRef<str>, params: &ContractsStorageWritersParams) -> Result<ContractStorageWritersResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/storage/writers", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn storage_writers(self, address: impl AsRef<str>, params: &ContractsStorageWritersParams) -> ResponseFuture<'a, ContractStorageWritersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/storage/writers", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// How one storage slot of a contract changed over time
+    /// How one storage slot of a contract changed over time.
     ///
-    /// TraceFast live Ethereum data: every block in which one storage slot of a contract CHANGED value, newest first — the value before and after the block, and the transactions that wrote the slot in it. One entry per block: several writes in one block are one change, and a write of the value already held is none. `valueAfter` is absent on the newest change when it is not stated; it is never a zero standing in. `writerTxs` is empty for a system write with no transaction, and absent until the block is attributed (usually seconds after it lands). `readThroughBlock` is the newest block the page was read through. A page can be shorter than `limit` and still have a `nextCursor`: one request reads a bounded span of history. Continue with `nextCursor`.
+    /// Every block in which one storage slot of a contract CHANGED value, newest first — the value before and after the block, and the transactions that wrote the slot in it. One entry per block: several writes in one block are one change, and a write of the value already held is none. `valueAfter` is absent on the newest change when it is not stated; it is never a zero standing in. `writerTxs` is empty for a system write with no transaction, and absent until the block is attributed (usually seconds after it lands). `readThroughBlock` is the newest block the page was read through. A page can be shorter than `limit` and still have a `nextCursor`: one request reads a bounded span of history. Continue with `nextCursor`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The contract, `0x` + 40 hex, any case.
-    /// - `key` — The 32-byte slot key, `0x` + 64 hex.
+    /// - `address`: The contract, `0x` + 40 hex, any case.
+    /// - `key`: The 32-byte slot key, `0x` + 64 hex.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-slot-history>
-    pub async fn slot_history(&self, address: impl AsRef<str>, key: impl AsRef<str>, params: &ContractsSlotHistoryParams) -> Result<ContractSlotHistoryResponse, Error> {
-        self.client.get(&format!("/chains/{}/contracts/{}/storage/{}/history", self.client.chain_id(), encode_path(address.as_ref()), encode_path(key.as_ref())), &params.query()).await
+    pub fn slot_history(self, address: impl AsRef<str>, key: impl AsRef<str>, params: &ContractsSlotHistoryParams) -> ResponseFuture<'a, ContractSlotHistoryResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/contracts/{address}/storage/{key}/history", &[address.as_ref(), key.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`slot_history`](Self::slot_history), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/contract-slot-history>
-    pub fn slot_history_pages(&self, address: impl AsRef<str>, key: impl AsRef<str>, params: &ContractsSlotHistoryParams) -> Pager<ContractSlotHistoryResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/contracts/{}/storage/{}/history", self.client.chain_id(), encode_path(address.as_ref()), encode_path(key.as_ref())), params.query())
+    pub fn slot_history_pages(self, address: impl AsRef<str>, key: impl AsRef<str>, params: &ContractsSlotHistoryParams) -> Pager<ContractSlotHistoryResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/contracts/{address}/storage/{key}/history", &[address.as_ref(), key.as_ref()]), QueryParams::pairs(params))
+    }
+
+    /// Every row of `data.changes` over all pages of [`slot_history`](Self::slot_history), one by one; see [`slot_history_pages`](Self::slot_history_pages).
+    ///
+    /// Documentation: <https://docs.tracefast.xyz/api/contract-slot-history>
+    pub fn slot_history_items(self, address: impl AsRef<str>, key: impl AsRef<str>, params: &ContractsSlotHistoryParams) -> Items<ContractSlotHistoryResponse> {
+        self.slot_history_pages(address, key, params).into_items()
     }
 }
 
-/// `client.addresses()` — the addresses methods of the TraceFast API.
+/// `client.addresses()`: the addresses methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.addresses().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct AddressesApi<'a> {
     client: &'a Client,
 }
 
-impl AddressesApi<'_> {
-    /// One address
+impl<'a> AddressesApi<'a> {
+    /// One address.
     ///
-    /// TraceFast live Ethereum data: one address as the chain sees it now — how it exists (an account whose state was touched, or an address only ever mentioned by other operations), whether it holds code, for an account its EIP-7702 delegation (`eip7702`: delegated now — to which contract and since which block — revoked, never, or unknown), its native balance and nonce, when it was first mentioned and last active in any form, and its direct-transaction counters. No names, labels or prices: those are other methods. An address mentioned nowhere on chain answers 404.
+    /// One address as the chain sees it now — how it exists (an account whose state was touched, or an address only ever mentioned by other operations), whether it holds code, for an account its EIP-7702 delegation (`eip7702`: delegated now — to which contract and since which block — revoked, never, or unknown), its native balance and nonce, when it was first mentioned and last active in any form, and its direct-transaction counters. No names, labels or prices: those are other methods. An address mentioned nowhere on chain answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address>
-    pub async fn get(&self, address: impl AsRef<str>) -> Result<EntityOverviewResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn get(self, address: impl AsRef<str>) -> ResponseFuture<'a, EntityOverviewResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}", &[address.as_ref()]), Vec::new())
     }
 
-    /// Activity of an address
+    /// Activity of an address.
     ///
-    /// TraceFast live Ethereum data: three different questions about when an address was active, each answered separately — when it was first mentioned anywhere on chain; when its own account state last changed and how many times it changed; and the newest block at which it took part in anything (a top-level transaction, a token transfer, an emitted log, a value-bearing call), with the sources that answer was computed over. Read `lastActivity` as "last active": a contract only ever called by other contracts never changes its own state after deployment.
+    /// Three different questions about when an address was active, each answered separately — when it was first mentioned anywhere on chain; when its own account state last changed and how many times it changed; and the newest block at which it took part in anything (a top-level transaction, a token transfer, an emitted log, a value-bearing call), with the sources that answer was computed over. Read `lastActivity` as "last active": a contract only ever called by other contracts never changes its own state after deployment.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-activity>
-    pub async fn activity(&self, address: impl AsRef<str>) -> Result<EntityActivityResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/activity", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn activity(self, address: impl AsRef<str>) -> ResponseFuture<'a, EntityActivityResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/activity", &[address.as_ref()]), Vec::new())
     }
 
-    /// Attributes of an address
+    /// Attributes of an address.
     ///
-    /// TraceFast knowledge graph: the facts proven about one Ethereum address — what kind of account it is, how it has been used, what it is known to be. Returns the list of proven attribute ids (`family:name`), the evaluation detail of each (result and the block height it was evaluated at), and, while the graph has not yet reached the address, a provisional classification from on-chain evidence. An attribute that is absent is not proven; absence never means the opposite.
+    /// The facts proven about one Ethereum address — what kind of account it is, how it has been used, what it is known to be. Returns the list of proven attribute ids (`family:name`), the evaluation detail of each (result and the block height it was evaluated at), and, while the graph has not yet reached the address, a provisional classification from on-chain evidence. An attribute that is absent is not proven; absence never means the opposite.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-attributes>
-    pub async fn attributes(&self, address: impl AsRef<str>) -> Result<EntityAttributesResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/attributes", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn attributes(self, address: impl AsRef<str>) -> ResponseFuture<'a, EntityAttributesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/attributes", &[address.as_ref()]), Vec::new())
     }
 
-    /// Attributes of an address at a block
+    /// Attributes of an address at a block.
     ///
-    /// TraceFast knowledge graph: the attributes an address held at the end of one block, each with the window it held for. Answered from the attribute history, which covers the families named in `coveredFamilies` and the single ids named in `coveredAttributeIds` — any other attribute is not listed whether or not it held, so its absence is not a negative; compare with the current-attributes method for those. `behavior` is named in `coveredFamilies` only when `block` is at or below the height that family has been computed to. A block past the covered history is refused with the highest answerable block.
+    /// The attributes an address held at the end of one block, each with the window it held for. Answered from the attribute history, which covers the families named in `coveredFamilies` and the single ids named in `coveredAttributeIds` — any other attribute is not listed whether or not it held, so its absence is not a negative; compare with the current-attributes method for those. `behavior` is named in `coveredFamilies` only when `block` is at or below the height that family has been computed to. A block past the covered history is refused with the highest answerable block.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-attributes-at-block>
-    pub async fn attributes_at_block(&self, address: impl AsRef<str>, params: &AddressesAttributesAtBlockParams) -> Result<AttributesAtBlockResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/attributes/at-block", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn attributes_at_block(self, address: impl AsRef<str>, params: &AddressesAttributesAtBlockParams) -> ResponseFuture<'a, AttributesAtBlockResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/attributes/at-block", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Attribute history of an address
+    /// Attribute history of an address.
     ///
-    /// TraceFast knowledge graph: every attribute interval an address has held, oldest first — when it became a contract, when its code was removed, when it first held state. Covers the attribute families named in `coveredFamilies`; an empty or short timeline says nothing about the other families. Intervals of the `behavior` family state an observed pattern, not a verdict, and the most recent of them are evaluated again as later blocks arrive: they may shorten or disappear. `truncated` is `true` when the timeline was cut at `limit`.
+    /// Every attribute interval an address has held, oldest first — when it became a contract, when its code was removed, when it first held state. Covers the attribute families named in `coveredFamilies`; an empty or short timeline says nothing about the other families. Intervals of the `behavior` family state an observed pattern, not a verdict, and the most recent of them are evaluated again as later blocks arrive: they may shorten or disappear. `truncated` is `true` when the timeline was cut at `limit`.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-attribute-history>
-    pub async fn attribute_history(&self, address: impl AsRef<str>, params: &AddressesAttributeHistoryParams) -> Result<AttributeHistoryResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/attributes/history", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn attribute_history(self, address: impl AsRef<str>, params: &AddressesAttributeHistoryParams) -> ResponseFuture<'a, AttributeHistoryResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/attributes/history", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Proof of one attribute of an address
+    /// Proof of one attribute of an address.
     ///
-    /// TraceFast knowledge graph: the evidence behind one proven attribute of an address — the facts that were checked with their expected and observed values, the conditions that had to be false, the sources the evidence was read from, and the block the evaluation was pinned to. Nothing is summarised: the record is the evaluator's own, so the claim can be checked rather than trusted. An attribute with no recorded proof answers 404.
+    /// The evidence behind one proven attribute of an address — the facts that were checked with their expected and observed values, the conditions that had to be false, the sources the evidence was read from, and the block the evaluation was pinned to. Nothing is summarised: the record is the evaluator's own, so the claim can be checked rather than trusted. An attribute with no recorded proof answers 404.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
-    /// - `attribute_id` — The attribute id, `family:name`, as listed by the attributes method.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `attribute_id`: The attribute id, `family:name`, as listed by the attributes method.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-attribute-proof>
-    pub async fn attribute_proof(&self, address: impl AsRef<str>, attribute_id: impl AsRef<str>) -> Result<ProofResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/attributes/{}/proof", self.client.chain_id(), encode_path(address.as_ref()), encode_path(attribute_id.as_ref())), &[]).await
+    pub fn attribute_proof(self, address: impl AsRef<str>, attribute_id: impl AsRef<str>) -> ResponseFuture<'a, ProofResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/attributes/{attribute_id}/proof", &[address.as_ref(), attribute_id.as_ref()]), Vec::new())
     }
 
-    /// Native balance history of an address
+    /// Native balance history of an address.
     ///
-    /// TraceFast live Ethereum data: the address's native balance at the end of each day it changed, oldest first, with the net change and the number of balance-changing events per day, the USD value at each closed day's last hour, and totals over the window. Days without a balance change have no point; the current, unfinished day carries no USD value. Daily granularity only, stated in `granularity`.
+    /// The address's native balance at the end of each day it changed, oldest first, with the net change and the number of balance-changing events per day, the USD value at each closed day's last hour, and totals over the window. Days without a balance change have no point; the current, unfinished day carries no USD value. Daily granularity only, stated in `granularity`.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-balance-history>
-    pub async fn balance_history(&self, address: impl AsRef<str>, params: &AddressesBalanceHistoryParams) -> Result<BalanceHistoryResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/balance-history", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn balance_history(self, address: impl AsRef<str>, params: &AddressesBalanceHistoryParams) -> ResponseFuture<'a, BalanceHistoryResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/balance-history", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Transactions that called an address
+    /// Transactions that called an address.
     ///
-    /// TraceFast live Ethereum data: every transaction with a call frame in this address's context — it was called, as the transaction's own target or from inside another contract, reverted or not, with ETH or without — newest first: the block, the transaction, its sender and whether it succeeded, how many frames ran in the address's context and how many of them failed by themselves, their kinds and whether any carried ETH. `txSender` sent the transaction; the direct caller may be a contract it reached. A proxy's frames include the ones in which it runs its implementation (`delegatecall`); an implementation behind a proxy is therefore NOT listed for those runs — they happen in the proxy's context. A contract's own deployment is not one of its calls. The list is known up to `meta.asOfBlock`, which trails the chain head: a newer call is not listed yet, and an empty list means no call up to that block. Continue with `nextCursor`.
+    /// Every transaction with a call frame in this address's context — it was called, as the transaction's own target or from inside another contract, reverted or not, with ETH or without — newest first: the block, the transaction, its sender and whether it succeeded, how many frames ran in the address's context and how many of them failed by themselves, their kinds and whether any carried ETH. `txSender` sent the transaction; the direct caller may be a contract it reached. A proxy's frames include the ones in which it runs its implementation (`delegatecall`); an implementation behind a proxy is therefore NOT listed for those runs — they happen in the proxy's context. A contract's own deployment is not one of its calls. The list is known up to `meta.asOfBlock`, which trails the chain head: a newer call is not listed yet, and an empty list means no call up to that block. Continue with `nextCursor`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x` + 40 hex, any case.
+    /// - `address`: The address, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-calls-received>
-    pub async fn calls_received(&self, address: impl AsRef<str>, params: &AddressesCallsReceivedParams) -> Result<EntityCallsReceivedResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/calls-received", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn calls_received(self, address: impl AsRef<str>, params: &AddressesCallsReceivedParams) -> ResponseFuture<'a, EntityCallsReceivedResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/calls-received", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`calls_received`](Self::calls_received), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-calls-received>
-    pub fn calls_received_pages(&self, address: impl AsRef<str>, params: &AddressesCallsReceivedParams) -> Pager<EntityCallsReceivedResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/calls-received", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn calls_received_pages(self, address: impl AsRef<str>, params: &AddressesCallsReceivedParams) -> Pager<EntityCallsReceivedResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/calls-received", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Top counterparties of an address
+    /// Every row of `data.calls` over all pages of [`calls_received`](Self::calls_received), one by one; see [`calls_received_pages`](Self::calls_received_pages).
     ///
-    /// TraceFast knowledge graph: the addresses one address has INTERACTED with most, ranked by successful transactions. An interaction is any of three: a top-level transaction between the two, whether or not it carried ETH (so a contract the address called, such as a token contract it sent `transfer` to, is listed as a counterparty); an internal ETH transfer; or a token `Transfer` event naming both. Token events are counted as emitted: they are not checked against a balance change and zero amounts are included, so events planted by address-poisoning contracts appear as interactions. `sentTxCount` counts transactions in which the address is the sending side of such an interaction, not transactions it signed. A counterparty here is not proof that value moved between the two. Returns up to 100 counterparties in ranking order, each with its transaction counts, first and last block of interaction, the surfaces the relation was seen on and the token classes involved, plus `corpus` — how many counterparties the ranking covered. With `block`, the ranking as it stood at the end of that block, reconstructed from the full history up to it; very large addresses are refused for that question with the bound stated, never answered with a narrowed set.
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-calls-received>
+    pub fn calls_received_items(self, address: impl AsRef<str>, params: &AddressesCallsReceivedParams) -> Items<EntityCallsReceivedResponse> {
+        self.calls_received_pages(address, params).into_items()
+    }
+
+    /// Top counterparties of an address.
+    ///
+    /// The addresses one address has INTERACTED with most, ranked by successful transactions. An interaction is any of three: a top-level transaction between the two, whether or not it carried ETH (so a contract the address called, such as a token contract it sent `transfer` to, is listed as a counterparty); an internal ETH transfer; or a token `Transfer` event naming both. Token events are counted as emitted: they are not checked against a balance change and zero amounts are included, so events planted by address-poisoning contracts appear as interactions. `sentTxCount` counts transactions in which the address is the sending side of such an interaction, not transactions it signed. A counterparty here is not proof that value moved between the two. Returns up to 100 counterparties in ranking order, each with its transaction counts, first and last block of interaction, the surfaces the relation was seen on and the token classes involved, plus `corpus` — how many counterparties the ranking covered. With `block`, the ranking as it stood at the end of that block, reconstructed from the full history up to it; very large addresses are refused for that question with the bound stated, never answered with a narrowed set.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-counterparties>
-    pub async fn counterparties(&self, address: impl AsRef<str>, params: &AddressesCounterpartiesParams) -> Result<CounterpartyRankingResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/counterparties", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn counterparties(self, address: impl AsRef<str>, params: &AddressesCounterpartiesParams) -> ResponseFuture<'a, CounterpartyRankingResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/counterparties", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Daily activity of an address
+    /// Daily activity of an address.
     ///
-    /// TraceFast live Ethereum data: for each day in a window, how many blocks changed the address's own account state and which kind of change it was (balance, nonce, code, creation). The window ends at the latest day the daily aggregate holds; days without activity have no entry. Activity that does not touch the address's own state (receiving a token, being called) is not counted here; see the activity method for that.
+    /// For each day in a window, how many blocks changed the address's own account state and which kind of change it was (balance, nonce, code, creation). The window ends at the latest day the daily aggregate holds; days without activity have no entry. Activity that does not touch the address's own state (receiving a token, being called) is not counted here; see the activity method for that.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-daily-activity>
-    pub async fn daily_activity(&self, address: impl AsRef<str>, params: &AddressesDailyActivityParams) -> Result<DailyActivityResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/daily-activity", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn daily_activity(self, address: impl AsRef<str>, params: &AddressesDailyActivityParams) -> ResponseFuture<'a, DailyActivityResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/daily-activity", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Contracts an address created
+    /// Contracts an address created.
     ///
-    /// TraceFast live Ethereum data: every contract creation this address made — each successful CREATE or CREATE2 frame it called — oldest first: the created contract, the block, the transaction, CREATE or CREATE2, and the code it deployed. The address is the DIRECT caller of the creation: for a factory that is the factory, and the wallet that signed the transaction is `originAddress` on each row; a wallet's deployments made through a factory are listed under the factory, not here. A row is a creation event: `outcome: rolled_back` means the transaction (or a frame above the creation) failed afterwards and no contract came from it. An address can appear more than once — re-created after self-destruction, or rolled-back attempts. An empty list means no creation is recorded up to `meta.asOfBlock`. Continue with `nextCursor`.
+    /// Every contract creation this address made — each successful CREATE or CREATE2 frame it called — oldest first: the created contract, the block, the transaction, CREATE or CREATE2, and the code it deployed. The address is the DIRECT caller of the creation: for a factory that is the factory, and the wallet that signed the transaction is `originAddress` on each row; a wallet's deployments made through a factory are listed under the factory, not here. A row is a creation event: `outcome: rolled_back` means the transaction (or a frame above the creation) failed afterwards and no contract came from it. An address can appear more than once — re-created after self-destruction, or rolled-back attempts. An empty list means no creation is recorded up to `meta.asOfBlock`. Continue with `nextCursor`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The creating address, `0x` + 40 hex, any case.
+    /// - `address`: The creating address, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-deployments>
-    pub async fn deployments(&self, address: impl AsRef<str>, params: &AddressesDeploymentsParams) -> Result<EntityDeploymentsResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/deployments", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn deployments(self, address: impl AsRef<str>, params: &AddressesDeploymentsParams) -> ResponseFuture<'a, EntityDeploymentsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/deployments", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`deployments`](Self::deployments), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-deployments>
-    pub fn deployments_pages(&self, address: impl AsRef<str>, params: &AddressesDeploymentsParams) -> Pager<EntityDeploymentsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/deployments", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn deployments_pages(self, address: impl AsRef<str>, params: &AddressesDeploymentsParams) -> Pager<EntityDeploymentsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/deployments", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// DEX trades an address took part in
+    /// Every row of `data.deployments` over all pages of [`deployments`](Self::deployments), one by one; see [`deployments_pages`](Self::deployments_pages).
     ///
-    /// TraceFast live Ethereum data: the swaps on DEX pools this address sent or received the output of, newest first — the venue and its version, the pool, the tokens sold and bought with their raw amounts, and an estimated USD value at the hour of the trade. Coverage is what the DEX index holds: swaps on pools it has not discovered are missing, and Balancer V2 swaps (whose event names no trader) are not listed, so an empty list is not proof the address never traded. The address is matched as the swap event's sender or recipient: a trade routed through a contract is listed under the contract. Continue with `nextCursor`.
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-deployments>
+    pub fn deployments_items(self, address: impl AsRef<str>, params: &AddressesDeploymentsParams) -> Items<EntityDeploymentsResponse> {
+        self.deployments_pages(address, params).into_items()
+    }
+
+    /// DEX trades an address took part in.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// The swaps on DEX pools this address sent or received the output of, newest first — the venue and its version, the pool, the tokens sold and bought with their raw amounts, and an estimated USD value at the hour of the trade. Coverage is what the DEX index holds: swaps on pools it has not discovered are missing, and Balancer V2 swaps (whose event names no trader) are not listed, so an empty list is not proof the address never traded. The address is matched as the swap event's sender or recipient: a trade routed through a contract is listed under the contract. Continue with `nextCursor`.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x` + 40 hex, any case.
+    /// - `address`: The address, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-dex-trades>
-    pub async fn dex_trades(&self, address: impl AsRef<str>, params: &AddressesDexTradesParams) -> Result<EntityDexTradesResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/dex-trades", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn dex_trades(self, address: impl AsRef<str>, params: &AddressesDexTradesParams) -> ResponseFuture<'a, EntityDexTradesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/dex-trades", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`dex_trades`](Self::dex_trades), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-dex-trades>
-    pub fn dex_trades_pages(&self, address: impl AsRef<str>, params: &AddressesDexTradesParams) -> Pager<EntityDexTradesResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/dex-trades", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn dex_trades_pages(self, address: impl AsRef<str>, params: &AddressesDexTradesParams) -> Pager<EntityDexTradesResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/dex-trades", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Internal transfers of an address
+    /// Every row of `data.trades` over all pages of [`dex_trades`](Self::dex_trades), one by one; see [`dex_trades_pages`](Self::dex_trades_pages).
     ///
-    /// TraceFast live Ethereum data: the value-carrying call frames an address sent or received inside transactions, newest first — each with its position in the call tree, its depth, the kind of call, the value it moved and its own outcome. The transaction's own top-level call is NOT one of these; it is the transaction, and it rides the transactions feed. Paged by an opaque cursor.
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-dex-trades>
+    pub fn dex_trades_items(self, address: impl AsRef<str>, params: &AddressesDexTradesParams) -> Items<EntityDexTradesResponse> {
+        self.dex_trades_pages(address, params).into_items()
+    }
+
+    /// Internal transfers of an address.
+    ///
+    /// The value-carrying call frames an address sent or received inside transactions, newest first — each with its position in the call tree, its depth, the kind of call, the value it moved and its own outcome. The transaction's own top-level call is NOT one of these; it is the transaction, and it rides the transactions feed. Paged by an opaque cursor.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-internal-transfers>
-    pub async fn internal_transfers(&self, address: impl AsRef<str>, params: &AddressesInternalTransfersParams) -> Result<EntityInternalTransfersResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/internal-transfers", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn internal_transfers(self, address: impl AsRef<str>, params: &AddressesInternalTransfersParams) -> ResponseFuture<'a, EntityInternalTransfersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/internal-transfers", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`internal_transfers`](Self::internal_transfers), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-internal-transfers>
-    pub fn internal_transfers_pages(&self, address: impl AsRef<str>, params: &AddressesInternalTransfersParams) -> Pager<EntityInternalTransfersResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/internal-transfers", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn internal_transfers_pages(self, address: impl AsRef<str>, params: &AddressesInternalTransfersParams) -> Pager<EntityInternalTransfersResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/internal-transfers", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Portfolio of an address
+    /// Every row of `data.transfers` over all pages of [`internal_transfers`](Self::internal_transfers), one by one; see [`internal_transfers_pages`](Self::internal_transfers_pages).
     ///
-    /// TraceFast live Ethereum data: everything an address holds, valued in USD — its token balances and its native ETH, each with the balance, the hourly USD price, the USD value and the share of the total. Returns up to 100 positions in descending USD value, plus `totalUsd`, `pricedCount` and `hiddenCount` over the whole holding. A position is listed only when it can be valued (a USD price for the hour, known decimals, and a value within what that price can vouch for — a thin-market price is not applied to an amount far beyond what its market trades); anything else the address holds is counted in `hiddenCount`, never listed. Token balances are served for the covered tokens (`coveredTokenCount`, growing continuously); a balance in a token outside that set is absent, not zero. No NFTs, no DeFi positions, no liquidity-pool shares. With `block`, the exact state at the end of that block, priced at that block's hour.
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-internal-transfers>
+    pub fn internal_transfers_items(self, address: impl AsRef<str>, params: &AddressesInternalTransfersParams) -> Items<EntityInternalTransfersResponse> {
+        self.internal_transfers_pages(address, params).into_items()
+    }
+
+    /// Portfolio of an address.
+    ///
+    /// Everything an address holds, valued in USD — its token balances and its native ETH, each with the balance, the hourly USD price, the USD value and the share of the total. Returns up to 100 positions in descending USD value, plus `totalUsd`, `pricedCount` and `hiddenCount` over the whole holding. A position is listed only when it can be valued (a USD price for the hour, known decimals, and a value within what that price can vouch for — a thin-market price is not applied to an amount far beyond what its market trades); anything else the address holds is counted in `hiddenCount`, never listed. Token balances are served for the covered tokens (`coveredTokenCount`, growing continuously); a balance in a token outside that set is absent, not zero. No NFTs, no DeFi positions, no liquidity-pool shares. With `block`, the exact state at the end of that block, priced at that block's hour.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-portfolio>
-    pub async fn portfolio(&self, address: impl AsRef<str>, params: &AddressesPortfolioParams) -> Result<PortfolioResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/portfolio", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn portfolio(self, address: impl AsRef<str>, params: &AddressesPortfolioParams) -> ResponseFuture<'a, PortfolioResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/portfolio", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Relations of an address
+    /// Relations of an address.
     ///
-    /// TraceFast knowledge graph: the relations an address holds now — which implementation a proxy points at, which beacon it reads, who administers it, where an account has delegated, which lending market lists a token — as the subject (`direction=subject`: what it points at, default) or as the object (`direction=object`: who points at it). One page per call, ordered by relation id then counterpart; pass `nextCursor` back as `cursor` until it is absent. On the object side one implementation can be pointed at by millions of proxies, so the first page of `direction=object` also states `counts`: how many addresses point at this one per relation id, as of the graph's latest hourly refresh.
+    /// The relations an address holds now — which implementation a proxy points at, which beacon it reads, who administers it, where an account has delegated, which lending market lists a token — as the subject (`direction=subject`: what it points at, default) or as the object (`direction=object`: who points at it). One page per call, ordered by relation id then counterpart; pass `nextCursor` back as `cursor` until it is absent. On the object side one implementation can be pointed at by millions of proxies, so the first page of `direction=object` also states `counts`: how many addresses point at this one per relation id, as of the graph's latest hourly refresh.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-relations>
-    pub async fn relations(&self, address: impl AsRef<str>, params: &AddressesRelationsParams) -> Result<RelationsResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/relations", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn relations(self, address: impl AsRef<str>, params: &AddressesRelationsParams) -> ResponseFuture<'a, RelationsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/relations", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`relations`](Self::relations), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-relations>
-    pub fn relations_pages(&self, address: impl AsRef<str>, params: &AddressesRelationsParams) -> Pager<RelationsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/relations", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn relations_pages(self, address: impl AsRef<str>, params: &AddressesRelationsParams) -> Pager<RelationsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/relations", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Relations of an address at a block
+    /// Every row of `data.relations` over all pages of [`relations`](Self::relations), one by one; see [`relations_pages`](Self::relations_pages).
     ///
-    /// TraceFast knowledge graph: the relations an address was the subject of at the end of one block — which implementation a proxy pointed at, which beacon it read, who administered it, where an account had delegated — each with the window it held for. Answered from the relation history, which covers the relation ids named in `coveredFamilies`. A block past the covered history is refused with the highest answerable block.
+    /// Documentation: <https://docs.tracefast.xyz/api/address-relations>
+    pub fn relations_items(self, address: impl AsRef<str>, params: &AddressesRelationsParams) -> Items<RelationsResponse> {
+        self.relations_pages(address, params).into_items()
+    }
+
+    /// Relations of an address at a block.
+    ///
+    /// The relations an address was the subject of at the end of one block — which implementation a proxy pointed at, which beacon it read, who administered it, where an account had delegated — each with the window it held for. Answered from the relation history, which covers the relation ids named in `coveredFamilies`. A block past the covered history is refused with the highest answerable block.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-relations-at-block>
-    pub async fn relations_at_block(&self, address: impl AsRef<str>, params: &AddressesRelationsAtBlockParams) -> Result<RelationsAtBlockResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/relations/at-block", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn relations_at_block(self, address: impl AsRef<str>, params: &AddressesRelationsAtBlockParams) -> ResponseFuture<'a, RelationsAtBlockResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/relations/at-block", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Relation history of an address
+    /// Relation history of an address.
     ///
-    /// TraceFast knowledge graph: every relation interval an address has held, oldest first (`order=desc`: newest first) — as the subject (`direction=subject`: what it pointed at, default) or as the object (`direction=object`: who pointed at it). Covers the relation ids named in `coveredFamilies`; an empty or short timeline says nothing about relations outside that list. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent (`truncated` is `true` exactly when it is present). `total` counts the address's intervals as the subject; there is no total on the object side, where one implementation can be pointed at by millions of proxies.
+    /// Every relation interval an address has held, oldest first (`order=desc`: newest first) — as the subject (`direction=subject`: what it pointed at, default) or as the object (`direction=object`: who pointed at it). Covers the relation ids named in `coveredFamilies`; an empty or short timeline says nothing about relations outside that list. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent (`truncated` is `true` exactly when it is present). `total` counts the address's intervals as the subject; there is no total on the object side, where one implementation can be pointed at by millions of proxies.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-relation-history>
-    pub async fn relation_history(&self, address: impl AsRef<str>, params: &AddressesRelationHistoryParams) -> Result<RelationHistoryResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/relations/history", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn relation_history(self, address: impl AsRef<str>, params: &AddressesRelationHistoryParams) -> ResponseFuture<'a, RelationHistoryResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/relations/history", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`relation_history`](Self::relation_history), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-relation-history>
-    pub fn relation_history_pages(&self, address: impl AsRef<str>, params: &AddressesRelationHistoryParams) -> Pager<RelationHistoryResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/relations/history", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn relation_history_pages(self, address: impl AsRef<str>, params: &AddressesRelationHistoryParams) -> Pager<RelationHistoryResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/relations/history", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Proof of one relation of an address
+    /// Every row of `data.intervals` over all pages of [`relation_history`](Self::relation_history), one by one; see [`relation_history_pages`](Self::relation_history_pages).
     ///
-    /// TraceFast knowledge graph: the evidence behind one proven relation between two addresses — the facts checked with their expected and observed values, the conditions that had to be false, the sources read, and the block the evaluation was pinned to. The record is the evaluator's own. A relation with no recorded proof answers 404.
+    /// Documentation: <https://docs.tracefast.xyz/api/address-relation-history>
+    pub fn relation_history_items(self, address: impl AsRef<str>, params: &AddressesRelationHistoryParams) -> Items<RelationHistoryResponse> {
+        self.relation_history_pages(address, params).into_items()
+    }
+
+    /// Proof of one relation of an address.
+    ///
+    /// The evidence behind one proven relation between two addresses — the facts checked with their expected and observed values, the conditions that had to be false, the sources read, and the block the evaluation was pinned to. The record is the evaluator's own. A relation with no recorded proof answers 404.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The subject address, `0x`-prefixed, 40 hex characters, any case.
-    /// - `attribute_id` — The relation id, `relation:name`, as listed by the relations method.
-    /// - `object` — The object address of the relation, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The subject address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `attribute_id`: The relation id, `relation:name`, as listed by the relations method.
+    /// - `object`: The object address of the relation, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-relation-proof>
-    pub async fn relation_proof(&self, address: impl AsRef<str>, attribute_id: impl AsRef<str>, object: impl AsRef<str>) -> Result<ProofResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/relations/{}/{}/proof", self.client.chain_id(), encode_path(address.as_ref()), encode_path(attribute_id.as_ref()), encode_path(object.as_ref())), &[]).await
+    pub fn relation_proof(self, address: impl AsRef<str>, attribute_id: impl AsRef<str>, object: impl AsRef<str>) -> ResponseFuture<'a, ProofResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/relations/{attribute_id}/{object}/proof", &[address.as_ref(), attribute_id.as_ref(), object.as_ref()]), Vec::new())
     }
 
-    /// Every block that changed an account's balance, nonce or code
+    /// Every block that changed an account's balance, nonce or code.
     ///
-    /// TraceFast live Ethereum data: the history of one account's own state, newest first — one entry per block that changed its balance, nonce or code, with the values before and after the block (the net change over the whole block, not per transaction) and whether the account came into existence in it. A change made by someone else counts too: receiving ETH from a transaction or a validator withdrawal, being self-destructed into. The list is known up to `meta.asOfBlock`, which is published in steps and can trail the chain head by a few minutes: a newer change is not listed yet. Continue with `nextCursor`.
+    /// The history of one account's own state, newest first — one entry per block that changed its balance, nonce or code, with the values before and after the block (the net change over the whole block, not per transaction) and whether the account came into existence in it. A change made by someone else counts too: receiving ETH from a transaction or a validator withdrawal, being self-destructed into. The list is known up to `meta.asOfBlock`, which is published in steps and can trail the chain head by a few minutes: a newer change is not listed yet. Continue with `nextCursor`.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `address` — The account, `0x` + 40 hex, any case.
+    /// - `address`: The account, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-state-changes>
-    pub async fn state_changes(&self, address: impl AsRef<str>, params: &AddressesStateChangesParams) -> Result<EntityStateChangesResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/state-changes", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn state_changes(self, address: impl AsRef<str>, params: &AddressesStateChangesParams) -> ResponseFuture<'a, EntityStateChangesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/state-changes", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`state_changes`](Self::state_changes), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-state-changes>
-    pub fn state_changes_pages(&self, address: impl AsRef<str>, params: &AddressesStateChangesParams) -> Pager<EntityStateChangesResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/state-changes", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn state_changes_pages(self, address: impl AsRef<str>, params: &AddressesStateChangesParams) -> Pager<EntityStateChangesResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/state-changes", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Token transfers of an address
+    /// Every row of `data.changes` over all pages of [`state_changes`](Self::state_changes), one by one; see [`state_changes_pages`](Self::state_changes_pages).
     ///
-    /// TraceFast live Ethereum data: the token transfers an address sent or received, newest first — the token as its contract declares itself, the raw amount (unscaled), the parties, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor. A transfer the address made to itself is shown once.
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-state-changes>
+    pub fn state_changes_items(self, address: impl AsRef<str>, params: &AddressesStateChangesParams) -> Items<EntityStateChangesResponse> {
+        self.state_changes_pages(address, params).into_items()
+    }
+
+    /// Token transfers of an address.
+    ///
+    /// The token transfers an address sent or received, newest first — the token as its contract declares itself, the raw amount (unscaled), the parties, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor. A transfer the address made to itself is shown once.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-token-transfers>
-    pub async fn token_transfers(&self, address: impl AsRef<str>, params: &AddressesTokenTransfersParams) -> Result<EntityTokenTransfersResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/token-transfers", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn token_transfers(self, address: impl AsRef<str>, params: &AddressesTokenTransfersParams) -> ResponseFuture<'a, EntityTokenTransfersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/token-transfers", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`token_transfers`](Self::token_transfers), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-token-transfers>
-    pub fn token_transfers_pages(&self, address: impl AsRef<str>, params: &AddressesTokenTransfersParams) -> Pager<EntityTokenTransfersResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/token-transfers", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn token_transfers_pages(self, address: impl AsRef<str>, params: &AddressesTokenTransfersParams) -> Pager<EntityTokenTransfersResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/token-transfers", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Balance of one token on an address
+    /// Every row of `data.transfers` over all pages of [`token_transfers`](Self::token_transfers), one by one; see [`token_transfers_pages`](Self::token_transfers_pages).
     ///
-    /// TraceFast live Ethereum data: the balance of one token contract on one address — the value `balanceOf(address)` returns at the end of a block. Served for the covered token contracts (a growing set); a token outside it is refused with 422 `token_not_covered` rather than answered with a meaningless zero, so a `balance` of `"0"` is always a real zero. With `block`, the exact balance at the end of that block; a pair with no recorded balance at or before it is refused with 422 `balance_not_available`.
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-token-transfers>
+    pub fn token_transfers_items(self, address: impl AsRef<str>, params: &AddressesTokenTransfersParams) -> Items<EntityTokenTransfersResponse> {
+        self.token_transfers_pages(address, params).into_items()
+    }
+
+    /// Balance of one token on an address.
+    ///
+    /// The balance of one token contract on one address — the value `balanceOf(address)` returns at the end of a block. Served for the covered token contracts (a growing set); a token outside it is refused with 422 `token_not_covered` rather than answered with a meaningless zero, so a `balance` of `"0"` is always a real zero. With `block`, the exact balance at the end of that block; a pair with no recorded balance at or before it is refused with 422 `balance_not_available`.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The holder address, `0x`-prefixed, 40 hex characters, any case.
-    /// - `token` — The token contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The holder address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `token`: The token contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/address-token-balance>
-    pub async fn token_balance(&self, address: impl AsRef<str>, token: impl AsRef<str>, params: &AddressesTokenBalanceParams) -> Result<TokenBalanceResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/tokens/{}/balance", self.client.chain_id(), encode_path(address.as_ref()), encode_path(token.as_ref())), &params.query()).await
+    pub fn token_balance(self, address: impl AsRef<str>, token: impl AsRef<str>, params: &AddressesTokenBalanceParams) -> ResponseFuture<'a, TokenBalanceResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/tokens/{token}/balance", &[address.as_ref(), token.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Transactions of an address
+    /// Transactions of an address.
     ///
-    /// TraceFast live Ethereum data: the transactions an address sent or received, newest first — each with sender, recipient, value, fee, the called function where its selector is known, the receipt's outcome, and which side of it this address is on (`sender`, `receiver`, or `self` when it is both). Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs.
+    /// The transactions an address sent or received, newest first — each with sender, recipient, value, fee, the called function where its selector is known, the receipt's outcome, and which side of it this address is on (`sender`, `receiver`, or `self` when it is both). Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `address`: The address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-transactions>
-    pub async fn transactions(&self, address: impl AsRef<str>, params: &AddressesTransactionsParams) -> Result<EntityTransactionsResponse, Error> {
-        self.client.get(&format!("/chains/{}/entities/{}/transactions", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn transactions(self, address: impl AsRef<str>, params: &AddressesTransactionsParams) -> ResponseFuture<'a, EntityTransactionsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/entities/{address}/transactions", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`transactions`](Self::transactions), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/entity-transactions>
-    pub fn transactions_pages(&self, address: impl AsRef<str>, params: &AddressesTransactionsParams) -> Pager<EntityTransactionsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/entities/{}/transactions", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn transactions_pages(self, address: impl AsRef<str>, params: &AddressesTransactionsParams) -> Pager<EntityTransactionsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/entities/{address}/transactions", &[address.as_ref()]), QueryParams::pairs(params))
+    }
+
+    /// Every row of `data.transactions` over all pages of [`transactions`](Self::transactions), one by one; see [`transactions_pages`](Self::transactions_pages).
+    ///
+    /// Documentation: <https://docs.tracefast.xyz/api/entity-transactions>
+    pub fn transactions_items(self, address: impl AsRef<str>, params: &AddressesTransactionsParams) -> Items<EntityTransactionsResponse> {
+        self.transactions_pages(address, params).into_items()
     }
 }
 
-/// `client.pools()` — the pools methods of the TraceFast API.
+/// `client.pools()`: the pools methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.pools().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct PoolsApi<'a> {
     client: &'a Client,
 }
 
-impl PoolsApi<'_> {
-    /// The DEX pools that hold two given tokens
+impl<'a> PoolsApi<'a> {
+    /// The DEX pools that hold two given tokens.
     ///
-    /// TraceFast live Ethereum data: every DEX pool whose tokens include both `tokenA` and `tokenB` (in either order, and pools of three or more tokens that hold both), newest created first — each with its protocol and version, fee tier where the source records one, approximate creation block and its tokens. Uniswap v4 pools are included and named by their PoolId. At most 200 pools; `truncated` says when more exist.
+    /// Every DEX pool whose tokens include both `tokenA` and `tokenB` (in either order, and pools of three or more tokens that hold both), newest created first — each with its protocol and version, fee tier where the source records one, approximate creation block and its tokens. Uniswap v4 pools are included and named by their PoolId. At most 200 pools; `truncated` says when more exist.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pools-by-pair>
-    pub async fn for_pair(&self, params: &PoolsForPairParams) -> Result<PoolsForPairResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/by-pair", self.client.chain_id()), &params.query()).await
+    pub fn for_pair(self, params: &PoolsForPairParams) -> ResponseFuture<'a, PoolsForPairResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/by-pair", &[]), QueryParams::pairs(params))
     }
 
-    /// The largest liquidity removals from DEX pools
+    /// The largest liquidity removals from DEX pools.
     ///
-    /// TraceFast live Ethereum data: the largest removals of liquidity from DEX pools over the last 24 hours, 7 days or 30 days of blocks up to the events' reach, by USD removed — each with the pool, its protocol, the provider, the transaction and how many of its token legs could be priced. Only events with at least one priced leg rank, and their USD covers the priced legs only. Uniswap v4 pools are not covered: their liquidity events are not recorded.
+    /// The largest removals of liquidity from DEX pools over the last 24 hours, 7 days or 30 days of blocks up to the events' reach, by USD removed — each with the pool, its protocol, the provider, the transaction and how many of its token legs could be priced. Only events with at least one priced leg rank, and their USD covers the priced legs only. Uniswap v4 pools are not covered: their liquidity events are not recorded.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pools-liquidity-removals>
-    pub async fn largest_liquidity_removals(&self, params: &PoolsLargestLiquidityRemovalsParams) -> Result<LiquidityRemovalsResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/liquidity-removals", self.client.chain_id()), &params.query()).await
+    pub fn largest_liquidity_removals(self, params: &PoolsLargestLiquidityRemovalsParams) -> ResponseFuture<'a, LiquidityRemovalsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/liquidity-removals", &[]), QueryParams::pairs(params))
     }
 
-    /// The newest DEX pools, by their first swap
+    /// The newest DEX pools, by their first swap.
     ///
-    /// TraceFast live Ethereum data: DEX pools in order of their first swap, newest first — the pool (its address, or for a Uniswap v4 pool its PoolId), its protocol and the first swap's block, time, transaction, tokens and amounts in token units. A pool appears once it has swapped; one created but never traded is not listed. No USD value is stated for the first swap: a new pool's price is the least reliable one. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// DEX pools in order of their first swap, newest first — the pool (its address, or for a Uniswap v4 pool its PoolId), its protocol and the first swap's block, time, transaction, tokens and amounts in token units. A pool appears once it has swapped; one created but never traded is not listed. No USD value is stated for the first swap: a new pool's price is the least reliable one. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pools-new>
-    pub async fn new_pools(&self, params: &PoolsNewPoolsParams) -> Result<NewPoolsResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/new", self.client.chain_id()), &params.query()).await
+    pub fn new_pools(self, params: &PoolsNewPoolsParams) -> ResponseFuture<'a, NewPoolsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/new", &[]), QueryParams::pairs(params))
     }
 
     /// Every page of [`new_pools`](Self::new_pools), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pools-new>
-    pub fn new_pools_pages(&self, params: &PoolsNewPoolsParams) -> Pager<NewPoolsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/pools/new", self.client.chain_id()), params.query())
+    pub fn new_pools_pages(self, params: &PoolsNewPoolsParams) -> Pager<NewPoolsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/pools/new", &[]), QueryParams::pairs(params))
     }
 
-    /// A DEX pool
+    /// Every row of `data.pools` over all pages of [`new_pools`](Self::new_pools), one by one; see [`new_pools_pages`](Self::new_pools_pages).
     ///
-    /// TraceFast live Ethereum data: one DEX pool — its protocol and version, its tokens (address, the symbol, name and decimals the token contract declares — verbatim, not verified — and role), the fee tier and tick spacing where the source records them, the factory, hook, vault, gauge and LP token where the pool has them, when it was created, and its USD volume and swap count over the last 24 hours and 7 days. A volume over days with swaps but no USD price is a partial sum, and the unpriced days are counted beside it. A pool that trades but is not in TraceFast's pool registry answers with what its swaps show (`registered: false`). `{pool}` is the pool's address, or a Uniswap v4 PoolId. No names, no verdicts.
+    /// Documentation: <https://docs.tracefast.xyz/api/pools-new>
+    pub fn new_pools_items(self, params: &PoolsNewPoolsParams) -> Items<NewPoolsResponse> {
+        self.new_pools_pages(params).into_items()
+    }
+
+    /// A DEX pool.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// One DEX pool — its protocol and version, its tokens (address, the symbol, name and decimals the token contract declares — verbatim, not verified — and role), the fee tier and tick spacing where the source records them, the factory, hook, vault, gauge and LP token where the pool has them, when it was created, and its USD volume and swap count over the last 24 hours and 7 days. A volume over days with swaps but no USD price is a partial sum, and the unpriced days are counted beside it. A pool that trades but is not in TraceFast's pool registry answers with what its swaps show (`registered: false`). `{pool}` is the pool's address, or a Uniswap v4 PoolId. No names, no verdicts.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `pool` — The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64 hex); any case.
+    /// - `pool`: The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64 hex); any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool>
-    pub async fn get(&self, pool: impl AsRef<str>) -> Result<PoolResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/{}", self.client.chain_id(), encode_path(pool.as_ref())), &[]).await
+    pub fn get(self, pool: impl AsRef<str>) -> ResponseFuture<'a, PoolResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/{pool}", &[pool.as_ref()]), Vec::new())
     }
 
-    /// Who added and removed liquidity in a DEX pool
+    /// Who added and removed liquidity in a DEX pool.
     ///
-    /// TraceFast live Ethereum data: every liquidity event of the pool in a block window, newest first — the block, time and transaction, the provider, whether liquidity was added or removed and the event as the pool names it, and the USD value added or removed over the legs that could be priced (`pricedLegs` / `unpricedLegs` say how many; absent when none could). The window is `fromBlock`..`toBlock`, at most 30 days of blocks (216 000); by default the 7 days up to the events' reach. Uniswap v4 pools are not covered: their liquidity events are not recorded, and such a pool answers 422 `pool_not_covered`. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// Every liquidity event of the pool in a block window, newest first — the block, time and transaction, the provider, whether liquidity was added or removed and the event as the pool names it, and the USD value added or removed over the legs that could be priced (`pricedLegs` / `unpricedLegs` say how many; absent when none could). The window is `fromBlock`..`toBlock`, at most 30 days of blocks (216 000); by default the 7 days up to the events' reach. Uniswap v4 pools are not covered: their liquidity events are not recorded, and such a pool answers 422 `pool_not_covered`. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `pool` — The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+    /// - `pool`: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-liquidity-events>
-    pub async fn liquidity_events(&self, pool: impl AsRef<str>, params: &PoolsLiquidityEventsParams) -> Result<PoolLiquidityEventsResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/{}/liquidity-events", self.client.chain_id(), encode_path(pool.as_ref())), &params.query()).await
+    pub fn liquidity_events(self, pool: impl AsRef<str>, params: &PoolsLiquidityEventsParams) -> ResponseFuture<'a, PoolLiquidityEventsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/{pool}/liquidity-events", &[pool.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`liquidity_events`](Self::liquidity_events), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-liquidity-events>
-    pub fn liquidity_events_pages(&self, pool: impl AsRef<str>, params: &PoolsLiquidityEventsParams) -> Pager<PoolLiquidityEventsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/pools/{}/liquidity-events", self.client.chain_id(), encode_path(pool.as_ref())), params.query())
+    pub fn liquidity_events_pages(self, pool: impl AsRef<str>, params: &PoolsLiquidityEventsParams) -> Pager<PoolLiquidityEventsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/pools/{pool}/liquidity-events", &[pool.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Liquidity added to and removed from a DEX pool per day
+    /// Every row of `data.events` over all pages of [`liquidity_events`](Self::liquidity_events), one by one; see [`liquidity_events_pages`](Self::liquidity_events_pages).
     ///
-    /// TraceFast live Ethereum data: per UTC day over the last `days` days (today included), oldest first, the USD value of the liquidity added to and removed from the pool and the net flow, how many add and remove events there were and how many distinct providers made them, and how many of the events' token legs could be priced (`pricedLegs` of `totalLegs`: below it the USD figures cover the priced legs only). A day without liquidity events is absent. Uniswap v4 pools are not covered: their liquidity events are not recorded, and such a pool answers 422 `pool_not_covered` rather than an empty list.
+    /// Documentation: <https://docs.tracefast.xyz/api/pool-liquidity-events>
+    pub fn liquidity_events_items(self, pool: impl AsRef<str>, params: &PoolsLiquidityEventsParams) -> Items<PoolLiquidityEventsResponse> {
+        self.liquidity_events_pages(pool, params).into_items()
+    }
+
+    /// Liquidity added to and removed from a DEX pool per day.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Per UTC day over the last `days` days (today included), oldest first, the USD value of the liquidity added to and removed from the pool and the net flow, how many add and remove events there were and how many distinct providers made them, and how many of the events' token legs could be priced (`pricedLegs` of `totalLegs`: below it the USD figures cover the priced legs only). A day without liquidity events is absent. Uniswap v4 pools are not covered: their liquidity events are not recorded, and such a pool answers 422 `pool_not_covered` rather than an empty list.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `pool` — The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+    /// - `pool`: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-liquidity-flow>
-    pub async fn liquidity_flow(&self, pool: impl AsRef<str>, params: &PoolsLiquidityFlowParams) -> Result<PoolLiquidityFlowResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/{}/liquidity-flow", self.client.chain_id(), encode_path(pool.as_ref())), &params.query()).await
+    pub fn liquidity_flow(self, pool: impl AsRef<str>, params: &PoolsLiquidityFlowParams) -> ResponseFuture<'a, PoolLiquidityFlowResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/{pool}/liquidity-flow", &[pool.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// What a DEX pool holds now
+    /// What a DEX pool holds now.
     ///
-    /// TraceFast live Ethereum data: the pool's current reserves, token by token — the raw amount, the amount in token units where the decimals are known, and its USD value where the token has a price TraceFast trusts at that size — and their USD total over the trusted legs only (`totalTvlUsd`; absent when no leg can be valued). The total comes with how far it can be relied on: `reserveStatus`, `accuracyBand` and `accuracyDeltaBps` (how far the figure is off a direct read of the pool), `isTvlTrusted`, and the block and age of the snapshot. It is an estimate, not an accounting value. A pool outside the reserves TraceFast tracks answers 404.
+    /// The pool's current reserves, token by token — the raw amount, the amount in token units where the decimals are known, and its USD value where the token has a price TraceFast trusts at that size — and their USD total over the trusted legs only (`totalTvlUsd`; absent when no leg can be valued). The total comes with how far it can be relied on: `reserveStatus`, `accuracyBand` and `accuracyDeltaBps` (how far the figure is off a direct read of the pool), `isTvlTrusted`, and the block and age of the snapshot. It is an estimate, not an accounting value. A pool outside the reserves TraceFast tracks answers 404.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `pool` — The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64 hex); any case.
+    /// - `pool`: The pool's address (`0x` + 40 hex), or a Uniswap v4 PoolId (`0x` + 64 hex); any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-reserves>
-    pub async fn reserves(&self, pool: impl AsRef<str>) -> Result<PoolReservesResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/{}/reserves", self.client.chain_id(), encode_path(pool.as_ref())), &[]).await
+    pub fn reserves(self, pool: impl AsRef<str>) -> ResponseFuture<'a, PoolReservesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/{pool}/reserves", &[pool.as_ref()]), Vec::new())
     }
 
-    /// A DEX pool's swaps, newest first
+    /// A DEX pool's swaps, newest first.
     ///
-    /// TraceFast live Ethereum data: every swap of the pool, newest first — the block, time and transaction, the sender and recipient as the pool's event states them, the token sold in and bought out with their raw amounts, decimals and declared symbols, and an estimated USD value at the hour of the swap (the bought leg at that hour's price, else the sold one; a leg larger than its price can vouch for is left unvalued, never capped). The swaps are those of the pools TraceFast decodes. `{pool}` is the pool's address, or the pool's own 32-byte id (a Uniswap v4 PoolId, or a Balancer v2 poolId). Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// Every swap of the pool, newest first — the block, time and transaction, the sender and recipient as the pool's event states them, the token sold in and bought out with their raw amounts, decimals and declared symbols, and an estimated USD value at the hour of the swap (the bought leg at that hour's price, else the sold one; a leg larger than its price can vouch for is left unvalued, never capped). The swaps are those of the pools TraceFast decodes. `{pool}` is the pool's address, or the pool's own 32-byte id (a Uniswap v4 PoolId, or a Balancer v2 poolId). Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `pool` — The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+    /// - `pool`: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-swaps>
-    pub async fn swaps(&self, pool: impl AsRef<str>, params: &PoolsSwapsParams) -> Result<PoolSwapsResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/{}/swaps", self.client.chain_id(), encode_path(pool.as_ref())), &params.query()).await
+    pub fn swaps(self, pool: impl AsRef<str>, params: &PoolsSwapsParams) -> ResponseFuture<'a, PoolSwapsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/{pool}/swaps", &[pool.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`swaps`](Self::swaps), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-swaps>
-    pub fn swaps_pages(&self, pool: impl AsRef<str>, params: &PoolsSwapsParams) -> Pager<PoolSwapsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/pools/{}/swaps", self.client.chain_id(), encode_path(pool.as_ref())), params.query())
+    pub fn swaps_pages(self, pool: impl AsRef<str>, params: &PoolsSwapsParams) -> Pager<PoolSwapsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/pools/{pool}/swaps", &[pool.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// A DEX pool's daily volume
+    /// Every row of `data.swaps` over all pages of [`swaps`](Self::swaps), one by one; see [`swaps_pages`](Self::swaps_pages).
     ///
-    /// TraceFast live Ethereum data: the pool's trading per UTC day over the last `days` days (today included), oldest first — USD volume, swaps, the volume of each of its two tokens in token units and how many distinct addresses sent swaps — with the totals. Today's row is still being counted. A day's USD volume adds the hours that could be priced: a day with swaps but no priced hour has no `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in part is not marked. A day without swaps is absent. The pool must be in TraceFast's pool registry. `{pool}` is the pool's address, or a Uniswap v4 PoolId.
+    /// Documentation: <https://docs.tracefast.xyz/api/pool-swaps>
+    pub fn swaps_items(self, pool: impl AsRef<str>, params: &PoolsSwapsParams) -> Items<PoolSwapsResponse> {
+        self.swaps_pages(pool, params).into_items()
+    }
+
+    /// A DEX pool's daily volume.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// The pool's trading per UTC day over the last `days` days (today included), oldest first — USD volume, swaps, the volume of each of its two tokens in token units and how many distinct addresses sent swaps — with the totals. Today's row is still being counted. A day's USD volume adds the hours that could be priced: a day with swaps but no priced hour has no `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in part is not marked. A day without swaps is absent. The pool must be in TraceFast's pool registry. `{pool}` is the pool's address, or a Uniswap v4 PoolId.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `pool` — The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
+    /// - `pool`: The pool's address (`0x` + 40 hex), or its own 32-byte id (`0x` + 64 hex: a Uniswap v4 PoolId, or a Balancer v2 poolId); any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/pool-volume>
-    pub async fn volume(&self, pool: impl AsRef<str>, params: &PoolsVolumeParams) -> Result<PoolVolumeResponse, Error> {
-        self.client.get(&format!("/chains/{}/pools/{}/volume", self.client.chain_id(), encode_path(pool.as_ref())), &params.query()).await
+    pub fn volume(self, pool: impl AsRef<str>, params: &PoolsVolumeParams) -> ResponseFuture<'a, PoolVolumeResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/pools/{pool}/volume", &[pool.as_ref()]), QueryParams::pairs(params))
     }
 }
 
-/// `client.risk()` — the risk methods of the TraceFast API.
+/// `client.risk()`: the risk methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.risk().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct RiskApi<'a> {
     client: &'a Client,
 }
 
-impl RiskApi<'_> {
-    /// Every blacklist event on the chain, newest first
+impl<'a> RiskApi<'a> {
+    /// Every blacklist event on the chain, newest first.
     ///
-    /// TraceFast live Ethereum data: every blacklist event any issuer contract recorded on the chain — an address listed (`add`), unlisted (`remove`) or enforced against (`enforce`: funds destroyed or frozen) — newest first, with the address, the issuer and its weight. Facts recorded on-chain by the issuer contracts themselves; no external sanctions lists, no names. Optionally narrowed to one issuer or one kind of event. To see what changed since an earlier read, page until the events reach the block you last saw. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// Every blacklist event any issuer contract recorded on the chain — an address listed (`add`), unlisted (`remove`) or enforced against (`enforce`: funds destroyed or frozen) — newest first, with the address, the issuer and its weight. Facts recorded on-chain by the issuer contracts themselves; no external sanctions lists, no names. Optionally narrowed to one issuer or one kind of event. To see what changed since an earlier read, page until the events reach the block you last saw. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-feed>
-    pub async fn blacklist_feed(&self, params: &RiskBlacklistFeedParams) -> Result<BlacklistFeedResponse, Error> {
-        self.client.get(&format!("/chains/{}/risk/blacklist-events", self.client.chain_id()), &params.query()).await
+    pub fn blacklist_feed(self, params: &RiskBlacklistFeedParams) -> ResponseFuture<'a, BlacklistFeedResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/risk/blacklist-events", &[]), QueryParams::pairs(params))
     }
 
     /// Every page of [`blacklist_feed`](Self::blacklist_feed), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-feed>
-    pub fn blacklist_feed_pages(&self, params: &RiskBlacklistFeedParams) -> Pager<BlacklistFeedResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/risk/blacklist-events", self.client.chain_id()), params.query())
+    pub fn blacklist_feed_pages(self, params: &RiskBlacklistFeedParams) -> Pager<BlacklistFeedResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/risk/blacklist-events", &[]), QueryParams::pairs(params))
     }
 
-    /// The issuer contracts that keep blacklists
+    /// Every row of `data.events` over all pages of [`blacklist_feed`](Self::blacklist_feed), one by one; see [`blacklist_feed_pages`](Self::blacklist_feed_pages).
     ///
-    /// TraceFast live Ethereum data: every contract that ever recorded a blacklist event, with its weight and token symbol where it has one, and how many addresses it lists now, has a recorded listing of and enforced against — the top `limit` by addresses listed now, ties by contract address. Also the totals: issuers, listed (address, issuer) pairs and distinct listed addresses. The counts are refreshed a few minutes behind the newest events; `meta.asOfBlock` states the block they reach. Facts recorded on-chain by the issuer contracts themselves; no names.
+    /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-feed>
+    pub fn blacklist_feed_items(self, params: &RiskBlacklistFeedParams) -> Items<BlacklistFeedResponse> {
+        self.blacklist_feed_pages(params).into_items()
+    }
+
+    /// The issuer contracts that keep blacklists.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Every contract that ever recorded a blacklist event, with its weight and token symbol where it has one, and how many addresses it lists now, has a recorded listing of and enforced against — the top `limit` by addresses listed now, ties by contract address. Also the totals: issuers, listed (address, issuer) pairs and distinct listed addresses. The counts are refreshed a few minutes behind the newest events; `meta.asOfBlock` states the block they reach. Facts recorded on-chain by the issuer contracts themselves; no names.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-issuers>
-    pub async fn blacklist_issuers(&self, params: &RiskBlacklistIssuersParams) -> Result<BlacklistIssuersResponse, Error> {
-        self.client.get(&format!("/chains/{}/risk/blacklist-issuers", self.client.chain_id()), &params.query()).await
+    pub fn blacklist_issuers(self, params: &RiskBlacklistIssuersParams) -> ResponseFuture<'a, BlacklistIssuersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/risk/blacklist-issuers", &[]), QueryParams::pairs(params))
     }
 
-    /// The addresses issuer contracts list now
+    /// The addresses issuer contracts list now.
     ///
-    /// TraceFast live Ethereum data: every (address, issuer contract) pair where the issuer's blacklist holds the address now — with the issuer's weight, the block it first listed the address and its latest event about it. An address listed by two issuers appears twice. Facts recorded on-chain by the issuer contracts themselves; no external sanctions lists, no names. In address order, optionally narrowed to one issuer. The listings are refreshed a few minutes behind the newest events, which `getBlacklistFeed` shows first; `meta.asOfBlock` states the block they reach. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// Every (address, issuer contract) pair where the issuer's blacklist holds the address now — with the issuer's weight, the block it first listed the address and its latest event about it. An address listed by two issuers appears twice. Facts recorded on-chain by the issuer contracts themselves; no external sanctions lists, no names. In address order, optionally narrowed to one issuer. The listings are refreshed a few minutes behind the newest events, which `getBlacklistFeed` shows first; `meta.asOfBlock` states the block they reach. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklisted>
-    pub async fn blacklisted_addresses(&self, params: &RiskBlacklistedAddressesParams) -> Result<BlacklistedPairsResponse, Error> {
-        self.client.get(&format!("/chains/{}/risk/blacklisted", self.client.chain_id()), &params.query()).await
+    pub fn blacklisted_addresses(self, params: &RiskBlacklistedAddressesParams) -> ResponseFuture<'a, BlacklistedPairsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/risk/blacklisted", &[]), QueryParams::pairs(params))
     }
 
     /// Every page of [`blacklisted_addresses`](Self::blacklisted_addresses), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklisted>
-    pub fn blacklisted_addresses_pages(&self, params: &RiskBlacklistedAddressesParams) -> Pager<BlacklistedPairsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/risk/blacklisted", self.client.chain_id()), params.query())
+    pub fn blacklisted_addresses_pages(self, params: &RiskBlacklistedAddressesParams) -> Pager<BlacklistedPairsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/risk/blacklisted", &[]), QueryParams::pairs(params))
     }
 
-    /// Which issuer contracts list one address
+    /// Every row of `data.pairs` over all pages of [`blacklisted_addresses`](Self::blacklisted_addresses), one by one; see [`blacklisted_addresses_pages`](Self::blacklisted_addresses_pages).
     ///
-    /// TraceFast live Ethereum data: every issuer contract that ever placed the address on its on-chain blacklist — one row each, currently listed or not, with the issuer's weight (`authorityTier`), the first and latest events and the transition counts — plus, as a separate fact, the issuers that enforced against it (funds destroyed or frozen). Facts recorded on-chain by the issuer contracts themselves (blacklist / unblacklist / enforcement events); no external sanctions lists. There is no single verdict: a listing is one issuer's decision. Empty lists mean no issuer recorded anything about the address as of `meta.asOfBlock`.
+    /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklisted>
+    pub fn blacklisted_addresses_items(self, params: &RiskBlacklistedAddressesParams) -> Items<BlacklistedPairsResponse> {
+        self.blacklisted_addresses_pages(params).into_items()
+    }
+
+    /// Which issuer contracts list one address.
+    ///
+    /// Every issuer contract that ever placed the address on its on-chain blacklist — one row each, currently listed or not, with the issuer's weight (`authorityTier`), the first and latest events and the transition counts — plus, as a separate fact, the issuers that enforced against it (funds destroyed or frozen). Facts recorded on-chain by the issuer contracts themselves (blacklist / unblacklist / enforcement events); no external sanctions lists. There is no single verdict: a listing is one issuer's decision. Empty lists mean no issuer recorded anything about the address as of `meta.asOfBlock`.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, any case.
+    /// - `address`: The address, `0x`-prefixed, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-status>
-    pub async fn blacklist_status(&self, address: impl AsRef<str>) -> Result<BlacklistStatusResponse, Error> {
-        self.client.get(&format!("/chains/{}/risk/blacklists/{}", self.client.chain_id(), encode_path(address.as_ref())), &[]).await
+    pub fn blacklist_status(self, address: impl AsRef<str>) -> ResponseFuture<'a, BlacklistStatusResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/risk/blacklists/{address}", &[address.as_ref()]), Vec::new())
     }
 
-    /// Blacklist events about one address
+    /// Blacklist events about one address.
     ///
-    /// TraceFast live Ethereum data: every blacklist event any issuer contract recorded about the address — listed (`add`), unlisted (`remove`) or enforced against (`enforce`: funds destroyed or frozen) — newest first, with the issuer and its weight. Facts recorded on-chain by the issuer contracts themselves (blacklist / unblacklist / enforcement events); no external sanctions lists. Optionally narrowed to one issuer or one kind of event. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// Every blacklist event any issuer contract recorded about the address — listed (`add`), unlisted (`remove`) or enforced against (`enforce`: funds destroyed or frozen) — newest first, with the issuer and its weight. Facts recorded on-chain by the issuer contracts themselves (blacklist / unblacklist / enforcement events); no external sanctions lists. Optionally narrowed to one issuer or one kind of event. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `address` — The address, `0x`-prefixed, any case.
+    /// - `address`: The address, `0x`-prefixed, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-events>
-    pub async fn blacklist_events(&self, address: impl AsRef<str>, params: &RiskBlacklistEventsParams) -> Result<BlacklistEventsResponse, Error> {
-        self.client.get(&format!("/chains/{}/risk/blacklists/{}/events", self.client.chain_id(), encode_path(address.as_ref())), &params.query()).await
+    pub fn blacklist_events(self, address: impl AsRef<str>, params: &RiskBlacklistEventsParams) -> ResponseFuture<'a, BlacklistEventsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/risk/blacklists/{address}/events", &[address.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`blacklist_events`](Self::blacklist_events), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-events>
-    pub fn blacklist_events_pages(&self, address: impl AsRef<str>, params: &RiskBlacklistEventsParams) -> Pager<BlacklistEventsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/risk/blacklists/{}/events", self.client.chain_id(), encode_path(address.as_ref())), params.query())
+    pub fn blacklist_events_pages(self, address: impl AsRef<str>, params: &RiskBlacklistEventsParams) -> Pager<BlacklistEventsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/risk/blacklists/{address}/events", &[address.as_ref()]), QueryParams::pairs(params))
+    }
+
+    /// Every row of `data.events` over all pages of [`blacklist_events`](Self::blacklist_events), one by one; see [`blacklist_events_pages`](Self::blacklist_events_pages).
+    ///
+    /// Documentation: <https://docs.tracefast.xyz/api/risk-blacklist-events>
+    pub fn blacklist_events_items(self, address: impl AsRef<str>, params: &RiskBlacklistEventsParams) -> Items<BlacklistEventsResponse> {
+        self.blacklist_events_pages(address, params).into_items()
     }
 }
 
-/// `client.tokens()` — the tokens methods of the TraceFast API.
+/// `client.tokens()`: the tokens methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.tokens().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct TokensApi<'a> {
     client: &'a Client,
 }
 
-impl TokensApi<'_> {
-    /// Token statistics of the network
+impl<'a> TokensApi<'a> {
+    /// Token statistics of the network.
     ///
-    /// TraceFast live Ethereum data: how many token contracts, transfer events and holder positions the chain holds, in total and per standard (ERC-20, ERC-721, ERC-1155, ERC-777, ERC-4626). A holder position is one address holding one token, so `holderCount` is not a number of distinct addresses. Recomputed daily.
+    /// How many token contracts, transfer events and holder positions the chain holds, in total and per standard (ERC-20, ERC-721, ERC-1155, ERC-777, ERC-4626). A holder position is one address holding one token, so `holderCount` is not a number of distinct addresses. Recomputed daily.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-stats>
-    pub async fn stats(&self) -> Result<TokenStatsResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/stats", self.client.chain_id()), &[]).await
+    pub fn stats(self) -> ResponseFuture<'a, TokenStatsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/stats", &[]), Vec::new())
     }
 
-    /// One token contract
+    /// One token contract.
     ///
-    /// TraceFast live Ethereum data: one token contract — its standard as observed from its events (`erc20`, `erc721`, `erc1155`), the symbol, name and decimals it declares (verbatim, not verified), its all-time transfer count, how many addresses hold it now (`holderCount`, the holders method's number; absent where holders are not covered, such as NFT collections) and how many ever held it (`holderCountAllTime`, where indexed). A contract with no transfer events answers 404. No price: prices are served with the portfolio, where they carry their own source and time.
+    /// One token contract — its standard as observed from its events (`erc20`, `erc721`, `erc1155`), the symbol, name and decimals it declares (verbatim, not verified), its all-time transfer count, how many addresses hold it now (`holderCount`, the holders method's number; absent where holders are not covered, such as NFT collections) and how many ever held it (`holderCountAllTime`, where indexed). A contract with no transfer events answers 404. No price: prices are served with the portfolio, where they carry their own source and time.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `token`: The token contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token>
-    pub async fn get(&self, token: impl AsRef<str>) -> Result<TokenResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}", self.client.chain_id(), encode_path(token.as_ref())), &[]).await
+    pub fn get(self, token: impl AsRef<str>) -> ResponseFuture<'a, TokenResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}", &[token.as_ref()]), Vec::new())
     }
 
-    /// A token's daily DEX volume
+    /// A token's daily DEX volume.
     ///
-    /// TraceFast live Ethereum data: the token's DEX trading per UTC day over the last `days` days (today included), oldest first — the USD volume and how many swaps sold the token into a pool and bought it out of one — with the totals. Today's row is still being counted and grows through the day. A day's USD volume adds the hours that could be priced: a day with swaps but no priced hour has no `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in part is not marked. A day without swaps is absent. The volume counts the pools TraceFast has decoded, which may lag a newly created pool.
+    /// The token's DEX trading per UTC day over the last `days` days (today included), oldest first — the USD volume and how many swaps sold the token into a pool and bought it out of one — with the totals. Today's row is still being counted and grows through the day. A day's USD volume adds the hours that could be priced: a day with swaps but no priced hour has no `volumeUsd` and is counted in `unpricedDays` (then `totalVolumeUsd` is a partial sum); a day priced only in part is not marked. A day without swaps is absent. The volume counts the pools TraceFast has decoded, which may lag a newly created pool.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract, `0x` + 40 hex, any case.
+    /// - `token`: The token contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-dex-volume>
-    pub async fn dex_volume(&self, token: impl AsRef<str>, params: &TokensDexVolumeParams) -> Result<TokenDexVolumeResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}/dex-volume", self.client.chain_id(), encode_path(token.as_ref())), &params.query()).await
+    pub fn dex_volume(self, token: impl AsRef<str>, params: &TokensDexVolumeParams) -> ResponseFuture<'a, TokenDexVolumeResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}/dex-volume", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Top holders of a token
+    /// Top holders of a token.
     ///
-    /// TraceFast live Ethereum data: the largest current holders of a token contract. Returns up to 100 holders in descending balance order with the balance in the token's smallest unit, plus `holderCount` — how many addresses hold a positive balance now — the same balances the balance method answers. Only the current ranking is served — a past block is refused.
+    /// The largest current holders of a token contract. Returns up to 100 holders in descending balance order with the balance in the token's smallest unit, plus `holderCount` — how many addresses hold a positive balance now — the same balances the balance method answers. Only the current ranking is served — a past block is refused.
     ///
     /// Plan: Intelligence or higher.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `token`: The token contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-holders>
-    pub async fn holders(&self, token: impl AsRef<str>, params: &TokensHoldersParams) -> Result<TokenHoldersResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}/holders", self.client.chain_id(), encode_path(token.as_ref())), &params.query()).await
+    pub fn holders(self, token: impl AsRef<str>, params: &TokensHoldersParams) -> ResponseFuture<'a, TokenHoldersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}/holders", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// The DEX pools holding a token
+    /// The DEX pools holding a token.
     ///
-    /// TraceFast live Ethereum data: the DEX pools that hold the token, newest created first — each with its protocol and version, fee tier, approximate creation block, its tokens (address, symbol, decimals, role, weight where the pool declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no address of its own and is named by its `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10 000 most recently created pools of a token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
+    /// The DEX pools that hold the token, newest created first — each with its protocol and version, fee tier, approximate creation block, its tokens (address, symbol, decimals, role, weight where the pool declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no address of its own and is named by its `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10 000 most recently created pools of a token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract, `0x` + 40 hex, any case.
+    /// - `token`: The token contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-pools>
-    pub async fn pools(&self, token: impl AsRef<str>, params: &TokensPoolsParams) -> Result<TokenPoolsResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}/pools", self.client.chain_id(), encode_path(token.as_ref())), &params.query()).await
+    pub fn pools(self, token: impl AsRef<str>, params: &TokensPoolsParams) -> ResponseFuture<'a, TokenPoolsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}/pools", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`pools`](Self::pools), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-pools>
-    pub fn pools_pages(&self, token: impl AsRef<str>, params: &TokensPoolsParams) -> Pager<TokenPoolsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/tokens/{}/pools", self.client.chain_id(), encode_path(token.as_ref())), params.query())
+    pub fn pools_pages(self, token: impl AsRef<str>, params: &TokensPoolsParams) -> Pager<TokenPoolsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/tokens/{token}/pools", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// A token's USD price, now or as of a past time or block
+    /// Every row of `data.pools` over all pages of [`pools`](Self::pools), one by one; see [`pools_pages`](Self::pools_pages).
     ///
-    /// TraceFast live Ethereum data: the USD price of a token for one hour — the newest hour by default, or the hour holding `timestamp` or the block's time. The answer is the newest priced hour at or before that time (`hour`), what the price is (`priceSource`: an oracle reading, a DEX observation, a peg, or one carried over from an earlier hour — `observedHour` says which hour it was observed in), and the largest USD value it may vouch for (`maxTrustedValueUsd`; absent means no bound): an amount worth more at this price is not valued by it. The DEX and the oracle side it was chosen from are separate blocks, with how far they disagree. TraceFast prices a selected set of tokens; any other answers 404.
+    /// Documentation: <https://docs.tracefast.xyz/api/token-pools>
+    pub fn pools_items(self, token: impl AsRef<str>, params: &TokensPoolsParams) -> Items<TokenPoolsResponse> {
+        self.pools_pages(token, params).into_items()
+    }
+
+    /// A token's USD price, now or as of a past time or block.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// The USD price of a token for one hour — the newest hour by default, or the hour holding `timestamp` or the block's time. The answer is the newest priced hour at or before that time (`hour`), what the price is (`priceSource`: an oracle reading, a DEX observation, a peg, or one carried over from an earlier hour — `observedHour` says which hour it was observed in), and the largest USD value it may vouch for (`maxTrustedValueUsd`; absent means no bound): an amount worth more at this price is not valued by it. The DEX and the oracle side it was chosen from are separate blocks, with how far they disagree. TraceFast prices a selected set of tokens; any other answers 404.
+    ///
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract, `0x` + 40 hex, any case.
+    /// - `token`: The token contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-price>
-    pub async fn price(&self, token: impl AsRef<str>, params: &TokensPriceParams) -> Result<TokenPriceResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}/price", self.client.chain_id(), encode_path(token.as_ref())), &params.query()).await
+    pub fn price(self, token: impl AsRef<str>, params: &TokensPriceParams) -> ResponseFuture<'a, TokenPriceResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}/price", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// A token's hourly USD prices over a window
+    /// A token's hourly USD prices over a window.
     ///
-    /// TraceFast live Ethereum data: the token's USD price for every priced hour in `[from, to]` (Unix seconds; the last 7 days by default, at most 90 days), oldest first — each with what the price is (`priceSource`), whether it was carried over from an earlier hour (`carried`), the largest USD value it may vouch for (`maxTrustedValueUsd`; absent means no bound) and the DEX and oracle prices of the hour where they exist. An hour without a price is absent, not zero. TraceFast prices a selected set of tokens; any other answers an empty list.
+    /// The token's USD price for every priced hour in `[from, to]` (Unix seconds; the last 7 days by default, at most 90 days), oldest first — each with what the price is (`priceSource`), whether it was carried over from an earlier hour (`carried`), the largest USD value it may vouch for (`maxTrustedValueUsd`; absent means no bound) and the DEX and oracle prices of the hour where they exist. An hour without a price is absent, not zero. TraceFast prices a selected set of tokens; any other answers an empty list.
     ///
-    /// Plan: Intelligence or higher. **Beta** — the shape may still change.
+    /// Plan: Intelligence or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract, `0x` + 40 hex, any case.
+    /// - `token`: The token contract, `0x` + 40 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-price-history>
-    pub async fn price_history(&self, token: impl AsRef<str>, params: &TokensPriceHistoryParams) -> Result<TokenPriceHistoryResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}/price-history", self.client.chain_id(), encode_path(token.as_ref())), &params.query()).await
+    pub fn price_history(self, token: impl AsRef<str>, params: &TokensPriceHistoryParams) -> ResponseFuture<'a, TokenPriceHistoryResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}/price-history", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Transfers of a token
+    /// Transfers of a token.
     ///
-    /// TraceFast live Ethereum data: the transfer events of one token contract, newest first — the parties, the raw amount (unscaled) or token id, the event kind, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and are answered only inside a block window on a very active token; the refusal names the window it needs.
+    /// The transfer events of one token contract, newest first — the parties, the raw amount (unscaled) or token id, the event kind, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and are answered only inside a block window on a very active token; the refusal names the window it needs.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `token` — The token contract address, `0x`-prefixed, 40 hex characters, any case.
+    /// - `token`: The token contract address, `0x`-prefixed, 40 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-transfers>
-    pub async fn transfers(&self, token: impl AsRef<str>, params: &TokensTransfersParams) -> Result<TokenTransfersResponse, Error> {
-        self.client.get(&format!("/chains/{}/tokens/{}/transfers", self.client.chain_id(), encode_path(token.as_ref())), &params.query()).await
+    pub fn transfers(self, token: impl AsRef<str>, params: &TokensTransfersParams) -> ResponseFuture<'a, TokenTransfersResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/tokens/{token}/transfers", &[token.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`transfers`](Self::transfers), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/token-transfers>
-    pub fn transfers_pages(&self, token: impl AsRef<str>, params: &TokensTransfersParams) -> Pager<TokenTransfersResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/tokens/{}/transfers", self.client.chain_id(), encode_path(token.as_ref())), params.query())
+    pub fn transfers_pages(self, token: impl AsRef<str>, params: &TokensTransfersParams) -> Pager<TokenTransfersResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/tokens/{token}/transfers", &[token.as_ref()]), QueryParams::pairs(params))
+    }
+
+    /// Every row of `data.transfers` over all pages of [`transfers`](Self::transfers), one by one; see [`transfers_pages`](Self::transfers_pages).
+    ///
+    /// Documentation: <https://docs.tracefast.xyz/api/token-transfers>
+    pub fn transfers_items(self, token: impl AsRef<str>, params: &TokensTransfersParams) -> Items<TokenTransfersResponse> {
+        self.transfers_pages(token, params).into_items()
     }
 }
 
-/// `client.traces()` — the traces methods of the TraceFast API.
+/// `client.traces()`: the traces methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.traces().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct TracesApi<'a> {
     client: &'a Client,
 }
 
-impl TracesApi<'_> {
-    /// Execution trace of a transaction
+impl<'a> TracesApi<'a> {
+    /// Execution trace of a transaction.
     ///
-    /// TraceFast live Ethereum data: every call frame a transaction executed, the order it ran — the caller and target of each, the kind of call, the value and gas it moved, its own outcome, and why it reverted where it did. A `delegatecall` names both the storage context and the address whose code ran, which is what makes a proxy call readable. `create` and `create2` frames name the address they deployed. Calldata and output heads are opt-in. At most `limit` frames in the order they ran (default and maximum 1 000), with `framesTruncated` saying when the tree is larger; the frame-level method pages the whole tree.
+    /// Every call frame a transaction executed, the order it ran — the caller and target of each, the kind of call, the value and gas it moved, its own outcome, and why it reverted where it did. A `delegatecall` names both the storage context and the address whose code ran, which is what makes a proxy call readable. `create` and `create2` frames name the address they deployed. Calldata and output heads are opt-in. At most `limit` frames in the order they ran (default and maximum 1 000), with `framesTruncated` saying when the tree is larger; the frame-level method pages the whole tree.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/trace>
-    pub async fn get(&self, hash: impl AsRef<str>, params: &TracesGetParams) -> Result<TransactionTraceResponse, Error> {
-        self.client.get(&format!("/chains/{}/traces/{}", self.client.chain_id(), encode_path(hash.as_ref())), &params.query()).await
+    pub fn get(self, hash: impl AsRef<str>, params: &TracesGetParams) -> ResponseFuture<'a, TransactionTraceResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/traces/{hash}", &[hash.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Call frames of a transaction, paged
+    /// Call frames of a transaction, paged.
     ///
-    /// TraceFast live Ethereum data: the whole call tree of a transaction, frame by frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what the trace summary carries plus, always, the first 260 bytes of its calldata and output with their full sizes, and the positions of the event logs it emitted. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames than `limit` when their calldata is large, and continues from the last frame served. `meta.coverage` names the first block from which the frame schema (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are computed; both bounds move as history is filled in.
+    /// The whole call tree of a transaction, frame by frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what the trace summary carries plus, always, the first 260 bytes of its calldata and output with their full sizes, and the positions of the event logs it emitted. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames than `limit` when their calldata is large, and continues from the last frame served. `meta.coverage` names the first block from which the frame schema (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are computed; both bounds move as history is filled in.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/trace-frames>
-    pub async fn frames(&self, hash: impl AsRef<str>, params: &TracesFramesParams) -> Result<TransactionFramesResponse, Error> {
-        self.client.get(&format!("/chains/{}/traces/{}/frames", self.client.chain_id(), encode_path(hash.as_ref())), &params.query()).await
+    pub fn frames(self, hash: impl AsRef<str>, params: &TracesFramesParams) -> ResponseFuture<'a, TransactionFramesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/traces/{hash}/frames", &[hash.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`frames`](Self::frames), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/trace-frames>
-    pub fn frames_pages(&self, hash: impl AsRef<str>, params: &TracesFramesParams) -> Pager<TransactionFramesResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/traces/{}/frames", self.client.chain_id(), encode_path(hash.as_ref())), params.query())
+    pub fn frames_pages(self, hash: impl AsRef<str>, params: &TracesFramesParams) -> Pager<TransactionFramesResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/traces/{hash}/frames", &[hash.as_ref()]), QueryParams::pairs(params))
+    }
+
+    /// Every row of `data.frames` over all pages of [`frames`](Self::frames), one by one; see [`frames_pages`](Self::frames_pages).
+    ///
+    /// Documentation: <https://docs.tracefast.xyz/api/trace-frames>
+    pub fn frames_items(self, hash: impl AsRef<str>, params: &TracesFramesParams) -> Items<TransactionFramesResponse> {
+        self.frames_pages(hash, params).into_items()
     }
 }
 
-/// `client.transactions()` — the transactions methods of the TraceFast API.
+/// `client.transactions()`: the transactions methods of the TraceFast API.
+///
+/// A copyable handle. Each method takes it by value and returns a future that borrows only the client, so `client.transactions().method(…)` can be built in a loop and the futures awaited together.
 #[derive(Debug, Clone, Copy)]
 pub struct TransactionsApi<'a> {
     client: &'a Client,
 }
 
-impl TransactionsApi<'_> {
-    /// One transaction
+impl<'a> TransactionsApi<'a> {
+    /// One transaction.
     ///
-    /// TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index). Served from seconds after inclusion; a hash that is not known answers 404.
+    /// One transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index). Served from seconds after inclusion; a hash that is not known answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction>
-    pub async fn get(&self, hash: impl AsRef<str>) -> Result<TransactionResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn get(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}", &[hash.as_ref()]), Vec::new())
     }
 
-    /// Accounts a transaction changed
+    /// Accounts a transaction changed.
     ///
-    /// TraceFast live Ethereum data: every account one transaction changed, with its balance, nonce and code hash before and after, whether it existed before, still exists after, and whether its storage was wiped — the net effect of the whole transaction, inner calls included, ETH and gas fee included. Two rules of the source: the fee recipient has no row when its only change is the priority fee, and an account created and destroyed within the transaction has no row. A transaction whose execution is not computed yet (usually minutes) answers 422, never an empty list.
+    /// Every account one transaction changed, with its balance, nonce and code hash before and after, whether it existed before, still exists after, and whether its storage was wiped — the net effect of the whole transaction, inner calls included, ETH and gas fee included. Two rules of the source: the fee recipient has no row when its only change is the priority fee, and an account created and destroyed within the transaction has no row. A transaction whose execution is not computed yet (usually minutes) answers 422, never an empty list.
     ///
-    /// Plan: Enriched Data or higher. **Beta** — the shape may still change.
+    /// Plan: Enriched Data or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-account-changes>
-    pub async fn account_changes(&self, hash: impl AsRef<str>) -> Result<TransactionAccountChangesResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/account-changes", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn account_changes(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionAccountChangesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/account-changes", &[hash.as_ref()]), Vec::new())
     }
 
-    /// Event logs of a transaction
+    /// Event logs of a transaction.
     ///
-    /// TraceFast live Ethereum data: the event logs a transaction emitted, in emission order, each with the emitting contract, topics and data, and — when the event signature is known — the decoded event name and arguments with a stated confidence. Decoding covers the common token, DeFi and protocol events; an unknown signature is returned raw with `decodeStatus: abi_missing`, and a known one whose layout does not fit the log with `failed` — raw as well, without `decoded`. Paged by an opaque cursor; a page holds at most `limit` logs and may hold fewer when their `data` is large — the page is bounded by size, a log is never cut. A hash that is not known answers 404.
+    /// The event logs a transaction emitted, in emission order, each with the emitting contract, topics and data, and — when the event signature is known — the decoded event name and arguments with a stated confidence. Decoding covers the common token, DeFi and protocol events; an unknown signature is returned raw with `decodeStatus: abi_missing`, and a known one whose layout does not fit the log with `failed` — raw as well, without `decoded`. Paged by an opaque cursor; a page holds at most `limit` logs and may hold fewer when their `data` is large — the page is bounded by size, a log is never cut. A hash that is not known answers 404.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-events>
-    pub async fn events(&self, hash: impl AsRef<str>, params: &TransactionsEventsParams) -> Result<TransactionEventsResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/events", self.client.chain_id(), encode_path(hash.as_ref())), &params.query()).await
+    pub fn events(self, hash: impl AsRef<str>, params: &TransactionsEventsParams) -> ResponseFuture<'a, TransactionEventsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/events", &[hash.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`events`](Self::events), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-events>
-    pub fn events_pages(&self, hash: impl AsRef<str>, params: &TransactionsEventsParams) -> Pager<TransactionEventsResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/transactions/{}/events", self.client.chain_id(), encode_path(hash.as_ref())), params.query())
+    pub fn events_pages(self, hash: impl AsRef<str>, params: &TransactionsEventsParams) -> Pager<TransactionEventsResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/transactions/{hash}/events", &[hash.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// How heavy a transaction was inside the EVM
+    /// Every row of `data.events` over all pages of [`events`](Self::events), one by one; see [`events_pages`](Self::events_pages).
     ///
-    /// TraceFast live Ethereum data: opcode counts of one transaction over every frame, the reverted ones included — SLOAD / SSTORE / TLOAD / TSTORE / KECCAK256 executions, precompile calls, CREATE and SELFDESTRUCT, whether a DELEGATECALL ran, distinct contracts whose storage it touched, and the gas spent in frames that reverted. Executions, not committed effects: `sstoreTotal` is not the number of committed writes. A transaction whose execution is not computed yet (usually minutes) answers 422.
+    /// Documentation: <https://docs.tracefast.xyz/api/transaction-events>
+    pub fn events_items(self, hash: impl AsRef<str>, params: &TransactionsEventsParams) -> Items<TransactionEventsResponse> {
+        self.events_pages(hash, params).into_items()
+    }
+
+    /// How heavy a transaction was inside the EVM.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Opcode counts of one transaction over every frame, the reverted ones included — SLOAD / SSTORE / TLOAD / TSTORE / KECCAK256 executions, precompile calls, CREATE and SELFDESTRUCT, whether a DELEGATECALL ran, distinct contracts whose storage it touched, and the gas spent in frames that reverted. Executions, not committed effects: `sstoreTotal` is not the number of committed writes. A transaction whose execution is not computed yet (usually minutes) answers 422.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-execution-profile>
-    pub async fn execution_profile(&self, hash: impl AsRef<str>) -> Result<TransactionExecutionProfileResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/execution-profile", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn execution_profile(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionExecutionProfileResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/execution-profile", &[hash.as_ref()]), Vec::new())
     }
 
-    /// Why a transaction reverted
+    /// Why a transaction reverted.
     ///
-    /// TraceFast live Ethereum data: the failed call frames of a reverted transaction — for each, its position in the call tree, caller and target, the kind of failure (revert, panic, custom error, out of gas, …), the revert payload with its selector, and the error name when the selector is known. Root frame first, then nested frames in tree order, at most 100 (`framesTruncated` says when there are more). A successful transaction, and one that is not known, answer an empty list: absence of a recorded failure is not a statement of success. A transaction whose block the failure classification has not reached yet answers 422 — an empty list there would read as success.
+    /// The failed call frames of a reverted transaction — for each, its position in the call tree, caller and target, the kind of failure (revert, panic, custom error, out of gas, …), the revert payload with its selector, and the error name when the selector is known. Root frame first, then nested frames in tree order, at most 100 (`framesTruncated` says when there are more). A successful transaction, and one that is not known, answer an empty list: absence of a recorded failure is not a statement of success. A transaction whose block the failure classification has not reached yet answers 422 — an empty list there would read as success.
     ///
     /// Plan: Enriched Data or higher.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-failures>
-    pub async fn failures(&self, hash: impl AsRef<str>) -> Result<TransactionFailuresResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/failures", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn failures(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionFailuresResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/failures", &[hash.as_ref()]), Vec::new())
     }
 
-    /// Flash loans taken inside a transaction
+    /// Flash loans taken inside a transaction.
     ///
-    /// TraceFast live Ethereum data: the flash loans taken inside one transaction from the lenders TraceFast indexes — Aave V2 and V3 (its official markets), Balancer V2 and Uniswap V3 flash — in log order: the protocol, the lending contract, the borrower and initiator where the event states them, the token and the raw amount. Some Aave V2 forks are listed too, under their own name (`radiant`, `aave_fork`): they are not Aave. An empty list means none FROM THESE LENDERS (a Uniswap V2 flash swap, a Maker, Morpho, Euler or Balancer V3 flash loan is not covered), and is stated only once the index has reached the transaction's block; before that (usually under half an hour) the method answers 422 `coverage_gap` with the bound, never an empty list. Pass `tokenAddress` to get_token for the decimals.
+    /// The flash loans taken inside one transaction from the lenders TraceFast indexes — Aave V2 and V3 (its official markets), Balancer V2 and Uniswap V3 flash — in log order: the protocol, the lending contract, the borrower and initiator where the event states them, the token and the raw amount. Some Aave V2 forks are listed too, under their own name (`radiant`, `aave_fork`): they are not Aave. An empty list means none FROM THESE LENDERS (a Uniswap V2 flash swap, a Maker, Morpho, Euler or Balancer V3 flash loan is not covered), and is stated only once the index has reached the transaction's block; before that (usually under half an hour) the method answers 422 `coverage_gap` with the bound, never an empty list. Pass `tokenAddress` to get_token for the decimals.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-flash-loans>
-    pub async fn flash_loans(&self, hash: impl AsRef<str>) -> Result<TransactionFlashLoansResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/flash-loans", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn flash_loans(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionFlashLoansResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/flash-loans", &[hash.as_ref()]), Vec::new())
     }
 
-    /// The DEX liquidity added and removed in a transaction
+    /// The DEX liquidity added and removed in a transaction.
     ///
-    /// TraceFast live Ethereum data: every liquidity event in the transaction, in log order — the pool, its protocol, the provider, whether liquidity was added or removed, and each token leg: the token with its declared symbol and decimals (verbatim, not verified), the raw amount and in token units, and its USD value with the price and how it was valued, as the source states them. An empty list means no liquidity event happened in the transaction. A transaction past the events' reach answers 422 rather than an empty list. Uniswap v4 liquidity events are not recorded.
+    /// Every liquidity event in the transaction, in log order — the pool, its protocol, the provider, whether liquidity was added or removed, and each token leg: the token with its declared symbol and decimals (verbatim, not verified), the raw amount and in token units, and its USD value with the price and how it was valued, as the source states them. An empty list means no liquidity event happened in the transaction. A transaction past the events' reach answers 422 rather than an empty list. Uniswap v4 liquidity events are not recorded.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `hash` — The transaction hash, `0x` + 64 hex, any case.
+    /// - `hash`: The transaction hash, `0x` + 64 hex, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-liquidity-events>
-    pub async fn liquidity_events(&self, hash: impl AsRef<str>) -> Result<TransactionLiquidityEventsResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/liquidity-events", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn liquidity_events(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionLiquidityEventsResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/liquidity-events", &[hash.as_ref()]), Vec::new())
     }
 
-    /// Transactions of the same block it depends on
+    /// Transactions of the same block it depends on.
     ///
-    /// TraceFast live Ethereum data: the read-after-write edges between one transaction and the other transactions of its block — slots it read that an earlier transaction had written (`role: reader`), and slots it wrote that a later one read (`role: writer`) — edge by edge and folded per pair of transactions. Facts of execution order only: no statement about intent. An empty answer for a computed transaction means no dependency. Not computed yet answers 422.
+    /// The read-after-write edges between one transaction and the other transactions of its block — slots it read that an earlier transaction had written (`role: reader`), and slots it wrote that a later one read (`role: writer`) — edge by edge and folded per pair of transactions. Facts of execution order only: no statement about intent. An empty answer for a computed transaction means no dependency. Not computed yet answers 422.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-state-dependencies>
-    pub async fn state_dependencies(&self, hash: impl AsRef<str>) -> Result<TransactionStateDependenciesResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/state-dependencies", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn state_dependencies(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionStateDependenciesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/state-dependencies", &[hash.as_ref()]), Vec::new())
     }
 
-    /// Storage writes of a transaction
+    /// Storage writes of a transaction.
     ///
-    /// TraceFast live Ethereum data: every contract storage slot a transaction wrote, in execution order — which contract's storage, which frame wrote it (with the address whose code ran, which on a `delegatecall` is not the storage owner), the slot, the value written, and the value the slot held before where that can be established. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. `meta.coverage` names the first block writes are computed from (`storageWritesFromBlock`) and the last block they have reached (`storageWritesThroughBlock`); a write whose prior value has not been computed yet says so per row (`valueBeforeStatus: not_computed`), which is not a statement that the slot was empty.
+    /// Every contract storage slot a transaction wrote, in execution order — which contract's storage, which frame wrote it (with the address whose code ran, which on a `delegatecall` is not the storage owner), the slot, the value written, and the value the slot held before where that can be established. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. `meta.coverage` names the first block writes are computed from (`storageWritesFromBlock`) and the last block they have reached (`storageWritesThroughBlock`); a write whose prior value has not been computed yet says so per row (`valueBeforeStatus: not_computed`), which is not a statement that the slot was empty.
     ///
     /// Plan: Investigation or higher.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-storage-writes>
-    pub async fn storage_writes(&self, hash: impl AsRef<str>, params: &TransactionsStorageWritesParams) -> Result<TransactionStorageWritesResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/storage-writes", self.client.chain_id(), encode_path(hash.as_ref())), &params.query()).await
+    pub fn storage_writes(self, hash: impl AsRef<str>, params: &TransactionsStorageWritesParams) -> ResponseFuture<'a, TransactionStorageWritesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/storage-writes", &[hash.as_ref()]), QueryParams::pairs(params))
     }
 
     /// Every page of [`storage_writes`](Self::storage_writes), following `data.nextCursor` until it is absent. The other parameters are sent unchanged with each page.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-storage-writes>
-    pub fn storage_writes_pages(&self, hash: impl AsRef<str>, params: &TransactionsStorageWritesParams) -> Pager<TransactionStorageWritesResponse> {
-        Pager::new(self.client.clone(), format!("/chains/{}/transactions/{}/storage-writes", self.client.chain_id(), encode_path(hash.as_ref())), params.query())
+    pub fn storage_writes_pages(self, hash: impl AsRef<str>, params: &TransactionsStorageWritesParams) -> Pager<TransactionStorageWritesResponse> {
+        Pager::new(self.client.clone(), self.client.path("/chains/{chainId}/transactions/{hash}/storage-writes", &[hash.as_ref()]), QueryParams::pairs(params))
     }
 
-    /// Transient storage a transaction wrote
+    /// Every row of `data.writes` over all pages of [`storage_writes`](Self::storage_writes), one by one; see [`storage_writes_pages`](Self::storage_writes_pages).
     ///
-    /// TraceFast live Ethereum data: the committed TSTORE writes (EIP-1153) of one transaction in execution order — the contract, the code that executed the write, its caller, slot, value, frame path and depth. Transient storage lives for one transaction; none exists before block 19 426 976. An empty list for a computed transaction means no transient writes. At most 5 000 (`truncated` says when there are more). Not computed yet answers 422.
+    /// Documentation: <https://docs.tracefast.xyz/api/transaction-storage-writes>
+    pub fn storage_writes_items(self, hash: impl AsRef<str>, params: &TransactionsStorageWritesParams) -> Items<TransactionStorageWritesResponse> {
+        self.storage_writes_pages(hash, params).into_items()
+    }
+
+    /// Transient storage a transaction wrote.
     ///
-    /// Plan: Investigation or higher. **Beta** — the shape may still change.
+    /// The committed TSTORE writes (EIP-1153) of one transaction in execution order — the contract, the code that executed the write, its caller, slot, value, frame path and depth. Transient storage lives for one transaction; none exists before block 19 426 976. An empty list for a computed transaction means no transient writes. At most 5 000 (`truncated` says when there are more). Not computed yet answers 422.
+    ///
+    /// Plan: Investigation or higher. **Beta**: the shape may still change.
     ///
     /// # Arguments
     ///
-    /// - `hash` — Transaction hash, `0x`-prefixed, 64 hex characters, any case.
+    /// - `hash`: Transaction hash, `0x`-prefixed, 64 hex characters, any case.
     ///
     /// Documentation: <https://docs.tracefast.xyz/api/transaction-transient-writes>
-    pub async fn transient_writes(&self, hash: impl AsRef<str>) -> Result<TransactionTransientWritesResponse, Error> {
-        self.client.get(&format!("/chains/{}/transactions/{}/transient-writes", self.client.chain_id(), encode_path(hash.as_ref())), &[]).await
+    pub fn transient_writes(self, hash: impl AsRef<str>) -> ResponseFuture<'a, TransactionTransientWritesResponse> {
+        self.client.fetch(self.client.path("/chains/{chainId}/transactions/{hash}/transient-writes", &[hash.as_ref()]), Vec::new())
     }
 }
+
+impl Sealed for BlockAddressesResponse {}
 
 impl Paged for BlockAddressesResponse {
+    type Item = BlockAddress;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlockAddress] {
+        &self.data.addresses
+    }
+
+    fn into_items(self) -> Vec<BlockAddress> {
+        self.data.addresses
+    }
 }
+
+impl Sealed for BlockAuthorizationsResponse {}
 
 impl Paged for BlockAuthorizationsResponse {
+    type Item = Authorization;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[Authorization] {
+        &self.data.authorizations
+    }
+
+    fn into_items(self) -> Vec<Authorization> {
+        self.data.authorizations
+    }
 }
+
+impl Sealed for BlockInternalTransfersResponse {}
 
 impl Paged for BlockInternalTransfersResponse {
+    type Item = BlockInternalTransferRow;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlockInternalTransferRow] {
+        &self.data.transfers
+    }
+
+    fn into_items(self) -> Vec<BlockInternalTransferRow> {
+        self.data.transfers
+    }
 }
+
+impl Sealed for BlockParticipantsResponse {}
 
 impl Paged for BlockParticipantsResponse {
+    type Item = BlockParticipantRow;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlockParticipantRow] {
+        &self.data.participants
+    }
+
+    fn into_items(self) -> Vec<BlockParticipantRow> {
+        self.data.participants
+    }
 }
+
+impl Sealed for BlockTokenTransfersResponse {}
 
 impl Paged for BlockTokenTransfersResponse {
+    type Item = BlockTokenTransfer;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlockTokenTransfer] {
+        &self.data.transfers
+    }
+
+    fn into_items(self) -> Vec<BlockTokenTransfer> {
+        self.data.transfers
+    }
 }
+
+impl Sealed for BlockTransactionsResponse {}
 
 impl Paged for BlockTransactionsResponse {
+    type Item = Transaction;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[Transaction] {
+        &self.data.transactions
+    }
+
+    fn into_items(self) -> Vec<Transaction> {
+        self.data.transactions
+    }
 }
+
+impl Sealed for BlockWithdrawalsResponse {}
 
 impl Paged for BlockWithdrawalsResponse {
+    type Item = BlockWithdrawal;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlockWithdrawal] {
+        &self.data.withdrawals
+    }
+
+    fn into_items(self) -> Vec<BlockWithdrawal> {
+        self.data.withdrawals
+    }
 }
+
+impl Sealed for ConsensusEpochsResponse {}
 
 impl Paged for ConsensusEpochsResponse {
+    type Item = ConsensusEpoch;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ConsensusEpoch] {
+        &self.data.epochs
+    }
+
+    fn into_items(self) -> Vec<ConsensusEpoch> {
+        self.data.epochs
+    }
 }
+
+impl Sealed for ConsensusMissedSlotsResponse {}
 
 impl Paged for ConsensusMissedSlotsResponse {
+    type Item = ConsensusMissedSlot;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ConsensusMissedSlot] {
+        &self.data.missed_slots
+    }
+
+    fn into_items(self) -> Vec<ConsensusMissedSlot> {
+        self.data.missed_slots
+    }
 }
+
+impl Sealed for ValidatorWithdrawalsResponse {}
 
 impl Paged for ValidatorWithdrawalsResponse {
+    type Item = ValidatorWithdrawal;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ValidatorWithdrawal] {
+        &self.data.withdrawals
+    }
+
+    fn into_items(self) -> Vec<ValidatorWithdrawal> {
+        self.data.withdrawals
+    }
 }
+
+impl Sealed for ContractClonesResponse {}
 
 impl Paged for ContractClonesResponse {
+    type Item = CodeClone;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[CodeClone] {
+        &self.data.contracts
+    }
+
+    fn into_items(self) -> Vec<CodeClone> {
+        self.data.contracts
+    }
 }
+
+impl Sealed for ContractControlHistoryResponse {}
 
 impl Paged for ContractControlHistoryResponse {
+    type Item = ControlChange;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ControlChange] {
+        &self.data.changes
+    }
+
+    fn into_items(self) -> Vec<ControlChange> {
+        self.data.changes
+    }
 }
+
+impl Sealed for ContractDecompilationResponse {}
 
 impl Paged for ContractDecompilationResponse {
+    type Item = DecompiledBody;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[DecompiledBody] {
+        self.data.bodies.as_ref().and_then(|r| r.as_deref()).unwrap_or(&[])
+    }
+
+    fn into_items(self) -> Vec<DecompiledBody> {
+        self.data.bodies.flatten().unwrap_or_default()
+    }
 }
+
+impl Sealed for ContractDisassemblyResponse {}
 
 impl Paged for ContractDisassemblyResponse {
+    type Item = Instruction;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[Instruction] {
+        &self.data.instructions
+    }
+
+    fn into_items(self) -> Vec<Instruction> {
+        self.data.instructions
+    }
 }
+
+impl Sealed for ContractEventsResponse {}
 
 impl Paged for ContractEventsResponse {
+    type Item = EventLog;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[EventLog] {
+        &self.data.events
+    }
+
+    fn into_items(self) -> Vec<EventLog> {
+        self.data.events
+    }
 }
+
+impl Sealed for ContractStorageParametersResponse {}
 
 impl Paged for ContractStorageParametersResponse {
+    type Item = StorageParameterRow;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[StorageParameterRow] {
+        &self.data.slots
+    }
+
+    fn into_items(self) -> Vec<StorageParameterRow> {
+        self.data.slots
+    }
 }
+
+impl Sealed for ContractSlotHistoryResponse {}
 
 impl Paged for ContractSlotHistoryResponse {
+    type Item = SlotValueChange;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[SlotValueChange] {
+        &self.data.changes
+    }
+
+    fn into_items(self) -> Vec<SlotValueChange> {
+        self.data.changes
+    }
 }
+
+impl Sealed for EntityCallsReceivedResponse {}
 
 impl Paged for EntityCallsReceivedResponse {
+    type Item = ReceivedCall;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ReceivedCall] {
+        &self.data.calls
+    }
+
+    fn into_items(self) -> Vec<ReceivedCall> {
+        self.data.calls
+    }
 }
+
+impl Sealed for EntityDeploymentsResponse {}
 
 impl Paged for EntityDeploymentsResponse {
+    type Item = ContractCreation;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ContractCreation] {
+        &self.data.deployments
+    }
+
+    fn into_items(self) -> Vec<ContractCreation> {
+        self.data.deployments
+    }
 }
+
+impl Sealed for EntityDexTradesResponse {}
 
 impl Paged for EntityDexTradesResponse {
+    type Item = DexTrade;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[DexTrade] {
+        &self.data.trades
+    }
+
+    fn into_items(self) -> Vec<DexTrade> {
+        self.data.trades
+    }
 }
+
+impl Sealed for EntityInternalTransfersResponse {}
 
 impl Paged for EntityInternalTransfersResponse {
+    type Item = FeedInternalTransfer;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[FeedInternalTransfer] {
+        &self.data.transfers
+    }
+
+    fn into_items(self) -> Vec<FeedInternalTransfer> {
+        self.data.transfers
+    }
 }
+
+impl Sealed for RelationsResponse {}
 
 impl Paged for RelationsResponse {
+    type Item = Relation;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[Relation] {
+        &self.data.relations
+    }
+
+    fn into_items(self) -> Vec<Relation> {
+        self.data.relations
+    }
 }
+
+impl Sealed for RelationHistoryResponse {}
 
 impl Paged for RelationHistoryResponse {
+    type Item = RelationInterval;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[RelationInterval] {
+        &self.data.intervals
+    }
+
+    fn into_items(self) -> Vec<RelationInterval> {
+        self.data.intervals
+    }
 }
+
+impl Sealed for EntityStateChangesResponse {}
 
 impl Paged for EntityStateChangesResponse {
+    type Item = AccountStateChange;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[AccountStateChange] {
+        &self.data.changes
+    }
+
+    fn into_items(self) -> Vec<AccountStateChange> {
+        self.data.changes
+    }
 }
+
+impl Sealed for EntityTokenTransfersResponse {}
 
 impl Paged for EntityTokenTransfersResponse {
+    type Item = FeedTokenTransfer;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[FeedTokenTransfer] {
+        &self.data.transfers
+    }
+
+    fn into_items(self) -> Vec<FeedTokenTransfer> {
+        self.data.transfers
+    }
 }
+
+impl Sealed for EntityTransactionsResponse {}
 
 impl Paged for EntityTransactionsResponse {
+    type Item = FeedTransaction;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[FeedTransaction] {
+        &self.data.transactions
+    }
+
+    fn into_items(self) -> Vec<FeedTransaction> {
+        self.data.transactions
+    }
 }
+
+impl Sealed for NewPoolsResponse {}
 
 impl Paged for NewPoolsResponse {
+    type Item = NewPool;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[NewPool] {
+        &self.data.pools
+    }
+
+    fn into_items(self) -> Vec<NewPool> {
+        self.data.pools
+    }
 }
+
+impl Sealed for PoolLiquidityEventsResponse {}
 
 impl Paged for PoolLiquidityEventsResponse {
+    type Item = PoolLiquidityEvent;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[PoolLiquidityEvent] {
+        &self.data.events
+    }
+
+    fn into_items(self) -> Vec<PoolLiquidityEvent> {
+        self.data.events
+    }
 }
+
+impl Sealed for PoolSwapsResponse {}
 
 impl Paged for PoolSwapsResponse {
+    type Item = PoolSwap;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[PoolSwap] {
+        &self.data.swaps
+    }
+
+    fn into_items(self) -> Vec<PoolSwap> {
+        self.data.swaps
+    }
 }
+
+impl Sealed for BlacklistFeedResponse {}
 
 impl Paged for BlacklistFeedResponse {
+    type Item = BlacklistFeedEvent;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlacklistFeedEvent] {
+        &self.data.events
+    }
+
+    fn into_items(self) -> Vec<BlacklistFeedEvent> {
+        self.data.events
+    }
 }
+
+impl Sealed for BlacklistedPairsResponse {}
 
 impl Paged for BlacklistedPairsResponse {
+    type Item = BlacklistedPair;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlacklistedPair] {
+        &self.data.pairs
+    }
+
+    fn into_items(self) -> Vec<BlacklistedPair> {
+        self.data.pairs
+    }
 }
+
+impl Sealed for BlacklistEventsResponse {}
 
 impl Paged for BlacklistEventsResponse {
+    type Item = BlacklistEvent;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[BlacklistEvent] {
+        &self.data.events
+    }
+
+    fn into_items(self) -> Vec<BlacklistEvent> {
+        self.data.events
+    }
 }
+
+impl Sealed for TokenPoolsResponse {}
 
 impl Paged for TokenPoolsResponse {
+    type Item = TokenPoolEntry;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[TokenPoolEntry] {
+        &self.data.pools
+    }
+
+    fn into_items(self) -> Vec<TokenPoolEntry> {
+        self.data.pools
+    }
 }
+
+impl Sealed for TokenTransfersResponse {}
 
 impl Paged for TokenTransfersResponse {
+    type Item = TokenTransfer;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[TokenTransfer] {
+        &self.data.transfers
+    }
+
+    fn into_items(self) -> Vec<TokenTransfer> {
+        self.data.transfers
+    }
 }
+
+impl Sealed for TransactionFramesResponse {}
 
 impl Paged for TransactionFramesResponse {
+    type Item = ExecutionFrame;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[ExecutionFrame] {
+        &self.data.frames
+    }
+
+    fn into_items(self) -> Vec<ExecutionFrame> {
+        self.data.frames
+    }
 }
+
+impl Sealed for TransactionEventsResponse {}
 
 impl Paged for TransactionEventsResponse {
+    type Item = EventLog;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
     }
+
+    fn items(&self) -> &[EventLog] {
+        &self.data.events
+    }
+
+    fn into_items(self) -> Vec<EventLog> {
+        self.data.events
+    }
 }
 
+impl Sealed for TransactionStorageWritesResponse {}
+
 impl Paged for TransactionStorageWritesResponse {
+    type Item = StorageWrite;
+
     fn next_cursor(&self) -> Option<&str> {
         self.data.next_cursor.as_ref().and_then(|c| c.as_deref())
+    }
+
+    fn items(&self) -> &[StorageWrite] {
+        &self.data.writes
+    }
+
+    fn into_items(self) -> Vec<StorageWrite> {
+        self.data.writes
     }
 }

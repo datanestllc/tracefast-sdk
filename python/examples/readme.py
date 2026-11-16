@@ -1,65 +1,129 @@
-"""Every example of the README, type-checked with mypy; not run."""
+"""Every example of the README, checked by `mypy --strict`; not run (they need a key)."""
 
 from __future__ import annotations
 
 import asyncio
 import os
+from itertools import islice
 
-from tracefast import AsyncTraceFast, TraceFast, TraceFastError
+import httpx
+
+from tracefast import (
+    CATALOGUE_VERSION,
+    AsyncTraceFast,
+    NotFoundError,
+    PermissionDeniedError,
+    TraceFast,
+    TraceFastError,
+    UnprocessableEntityError,
+)
+from tracefast.types import ProxyImplementation, TokenClass
 
 
-def readme(address: str, usdc: str) -> None:
-    with TraceFast(api_key=os.environ["TRACEFAST_API_KEY"], timeout=30.0, max_retries=2, user_agent="my-app/1.4") as tf:
+def quick_start() -> None:
+    with TraceFast(api_key=os.environ["TRACEFAST_API_KEY"]) as tf:
+        # The newest block.
         block = tf.blocks.latest()["data"]
-        print(block["number"], block["hash"])
+        print(block["number"], block["hash"], block["txCount"])
 
-        caps = tf.contracts.capabilities("0xdac17f958d2ee523a2206206994597c13d831ec7")["data"]
-        for c in caps["capabilities"]:
-            print(c["power"], "inCode" in c, "availableNow" in c, "usedBefore" in c)
-
-        found = tf.resolve(q="usdc")
-        print(found["data"])
-
-        res = tf.addresses.attributes_at_block(address, block=20_000_000)
-        print(res["meta"].get("asOfBlock"), res["meta"]["docs"])
-
-        for impl in tf.contracts.proxy(usdc)["data"]["implementations"]:
+        # Every implementation the USDC proxy has delegated to, newest first.
+        proxy = tf.contracts.proxy("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")["data"]
+        for impl in proxy["implementations"]:
             if "supersededBy" not in impl:
-                state = "not stated"
+                state = "storage cannot say"
             elif impl["supersededBy"] is None:
                 state = "current"
             else:
                 state = f"replaced by {impl['supersededBy']}"
-            print(state)
+            print(impl["implementation"], impl["firstSeenBlock"], state)
 
-        try:
-            tf.addresses.portfolio(address, block=30_000_000)
-        except TraceFastError as e:
-            if e.code == "block_not_available" and e.details is not None:
-                print("covered up to", e.details["maxAvailableBlock"])
-            else:
-                raise
-
-        for page in tf.addresses.transactions_pages(address, limit=100):
-            for tx in page["data"]["transactions"]:
-                print(tx["hash"])
-
-        tf.addresses.transactions(address, direction="in", limit=100)
-        tf.blocks.at_time(timestamp=1767225600)
-        tf.tokens.price_history(usdc, from_=1767225600, to=1767312000)
-        tf.pools.for_pair(token_a=usdc, token_b="0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2")
-        tf.risk.blacklist_status(address)
-        tf.consensus.missed_slots()
-        tf.transactions.storage_writes("0x" + "0" * 64)
+        # One transaction by hash.
+        tx = tf.transactions.get("0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5")["data"]
+        print(tx["from"], tx.get("to"), tx["valueWei"], tx.get("status"))
 
 
-async def readme_async(address: str) -> None:
+def plan_refusal(tf: TraceFast) -> None:
+    try:
+        tf.addresses.transactions("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", limit=10)
+    except PermissionDeniedError as e:
+        if e.reason != "plan_scope_missing":
+            raise
+        details = e.details or {}
+        print("needs", details.get("minimumPlan"), "- you have", details.get("currentPlan"))
+
+
+def configuration() -> None:
+    tf = TraceFast(
+        api_key=os.environ["TRACEFAST_API_KEY"],
+        timeout=30.0,
+        max_retries=2,
+        max_retry_wait=60.0,
+        user_agent="my-app/1.4",
+    )
+
+
+def own_http_client() -> None:
+    with httpx.Client(proxy="http://proxy.example:3128") as http:
+        tf = TraceFast(api_key=os.environ["TRACEFAST_API_KEY"], http_client=http)
+        print(tf.blocks.latest()["data"]["number"])
+
+
+def slow_part(tf: TraceFast) -> None:
+    patient = tf.with_options(timeout=120.0, max_retries=4)
+    print(patient.traces.get("0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5")["meta"]["docs"])
+
+
+def responses(tf: TraceFast) -> None:
+    res = tf.addresses.get("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48")
+    print(res["data"]["address"])
+    print(res["meta"].get("asOfBlock"))  # the block the answer is true at
+    print(res["meta"]["docs"])  # the documentation page of the method
+    print(res["meta"]["cached"])  # True when the answer came from the cache
+
+
+def errors(tf: TraceFast) -> None:
+    try:
+        tf.blocks.transactions(30_000_000, limit=10)
+    except NotFoundError:
+        print("no such block yet")
+    except UnprocessableEntityError as e:
+        if e.code != "block_not_available":
+            raise
+        print("served up to block", (e.details or {}).get("maxAvailableBlock"))
+    except TraceFastError as e:
+        print(e.status, e.code, e.reason, e.request_id)
+        raise
+
+
+def pagination(tf: TraceFast) -> None:
+    for tx in tf.blocks.transactions_items(25_920_000, limit=100, max_items=250):
+        print(tx["hash"], tx["valueWei"])
+
+    for page in tf.tokens.transfers_pages("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", limit=100, max_pages=3):
+        print(len(page["data"]["transfers"]), page["meta"].get("asOfBlock"))
+
+    first = list(islice(tf.blocks.withdrawals_items(25_920_000), 5))
+    print(first)
+
+
+async def main() -> None:
     async with AsyncTraceFast(api_key=os.environ["TRACEFAST_API_KEY"]) as tf:
-        latest = await tf.blocks.latest()
-        print(latest["data"]["number"])
-        async for page in tf.addresses.transactions_pages(address, limit=100):
-            print(page["meta"]["docs"])
+        block, proxy = await asyncio.gather(
+            tf.blocks.latest(),
+            tf.contracts.proxy("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+        )
+        print(block["data"]["number"], len(proxy["data"]["implementations"]))
+
+        async for tx in tf.blocks.transactions_items(25_920_000, max_items=20):
+            print(tx["hash"])
+
+        latest = await asyncio.wait_for(tf.blocks.latest(), timeout=10)
+        print(latest["meta"]["timestamp"])
+
+
+def describe(impl: ProxyImplementation, kind: TokenClass) -> str:
+    return f"{impl['implementation']} ({kind}), catalogue {CATALOGUE_VERSION}"
 
 
 if __name__ == "__main__":
-    asyncio.run(readme_async("0x"))
+    quick_start()

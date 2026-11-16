@@ -21,14 +21,15 @@ jobs:
       - run: node codegen/lint.mjs
 
   typescript:
-    name: TypeScript
+    name: TypeScript (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: typescript
     strategy:
+      fail-fast: false
       matrix:
-        node: [20, 22, 24]
+        node: ['20.19', '22', '24']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,29 +38,37 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm run build
+      - run: npm run smoke
+      # The tests run the sources directly, which needs type stripping (Node 22.6+).
       - run: npm test
-        if: matrix.node != 20
+        if: matrix.node != '20.19'
+      - run: npm pack --dry-run
 
   python:
-    name: Python
+    name: Python ${{ matrix.python }}
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: python
     strategy:
+      fail-fast: false
       matrix:
-        python: ['3.10', '3.12', '3.13']
+        python: ['3.10', '3.12', '3.13', '3.14']
     steps:
       - uses: actions/checkout@v4
+      # The tests read the generator's model, which needs Node.
       - uses: actions/setup-node@v4
         with:
           node-version: 24
       - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python }}
-      - run: uv pip install -e '.[dev]'
-      - run: uv run mypy --strict src examples
+      - run: uv sync --group dev
+      - run: uv run mypy --strict
       - run: uv run pytest -q
+      - run: uv build
+      - name: The sdist ships no tests or examples
+        run: "! tar tzf dist/tracefast-*.tar.gz | grep -E '(^|/)(tests|examples)/'"
 
   rust:
     name: Rust
@@ -79,8 +88,14 @@ jobs:
         with:
           workspaces: rust
       - run: cargo fmt --check
-      - run: cargo clippy --all-targets -- -D warnings
-      - run: cargo test
-      - run: cargo doc --no-deps
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo clippy --all-targets --no-default-features -- -D warnings
+      - run: cargo test --all-features
+      - run: cargo doc --no-deps --all-features
         env:
           RUSTDOCFLAGS: -D warnings
+      - name: The package ships LICENSE and no tests
+        run: |
+          cargo package --list --allow-dirty > files.txt
+          grep -qx LICENSE files.txt
+          ! grep -q '^tests/' files.txt

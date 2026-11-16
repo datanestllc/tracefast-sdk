@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { TraceFast } from '../src/index.ts'
 import { ir, samples, fixture, validate, mockFetch, json } from './helpers.ts'
 
-const camel = (s: string) => s.replace(/_(\w)/g, (_, c) => c.toUpperCase())
 
 for (const op of ir.operations) {
   test(`${op.namespace ?? 'client'}.${op.name} — request, envelope and fixture shape`, async () => {
@@ -29,6 +28,5 @@ for (const op of ir.operations) {
     const problems: string[] = []
     validate(body, op.response, op.id, problems)
     assert.deepEqual(problems, [], 'the fixture matches the catalogue')
-    void camel
   })
 }

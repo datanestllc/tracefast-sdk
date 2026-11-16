@@ -107,6 +107,11 @@ impl Case {
         self.query.get(name).cloned()
     }
 
+    /// How many rows the fixture holds in `data.<field>`.
+    pub fn rows(&self, field: &str) -> usize {
+        self.body["data"][field].as_array().map_or(0, Vec::len)
+    }
+
     /// The request was the right one, and the typed response is the fixture —
     /// every field known, nothing dropped, `null` and absent kept apart.
     pub async fn check<T: Serialize>(&self, path_template: &str, response: &T) {

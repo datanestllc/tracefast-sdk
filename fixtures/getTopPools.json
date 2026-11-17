@@ -18,8 +18,8 @@
             "symbol": "WETH"
           }
         ],
-        "volumeUsd": 1344227905.532793,
-        "swaps": 46385
+        "volumeUsd": 1390658340.3425624,
+        "swaps": 48612
       },
       {
         "poolId": "0x3b1b1f2e775a6db1664f8e7d59ad568605ea2406312c11aef03146c0cf89d5b9",
@@ -35,8 +35,8 @@
             "symbol": "USDS"
           }
         ],
-        "volumeUsd": 1162221123.7568054,
-        "swaps": 12428
+        "volumeUsd": 1197129502.8627477,
+        "swaps": 12932
       }
     ]
   },

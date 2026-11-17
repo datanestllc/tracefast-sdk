@@ -2,27 +2,27 @@
   "data": {
     "chainId": 1,
     "head": {
-      "slot": 15674522,
-      "observedAt": 1794918289
+      "slot": 15677002,
+      "observedAt": 1794948048
     },
     "finalized": {
-      "slot": 15674432,
-      "observedAt": 1794917974
+      "slot": 15676928,
+      "observedAt": 1794947926
     },
-    "finalizationLagSlots": 90,
+    "finalizationLagSlots": 74,
     "publishedSlot": {
-      "slot": 15674432,
-      "epoch": 489826,
-      "executionBlockNumber": 26434658,
-      "slotTime": 1794917207
+      "slot": 15676928,
+      "epoch": 489904,
+      "executionBlockNumber": 26437145,
+      "slotTime": 1794947159
     },
     "missedSlots24h": {
-      "slots": 7110,
-      "missed": 26,
-      "missedRatio": 0.0036568213783403658
+      "slots": 7125,
+      "missed": 25,
+      "missedRatio": 0.0035087719298245615
     },
     "reorgs24h": {
-      "count": 5,
+      "count": 2,
       "lastObservedAt": 1794899940,
       "reorgs": [
         {
@@ -49,32 +49,32 @@
     },
     "observation24h": {
       "windowSlots": 7200,
-      "fromSlot": 15667322,
-      "headEvents": 7171,
-      "firstObservedAt": 1794831900,
-      "lastObservedAt": 1794918289,
+      "fromSlot": 15669802,
+      "headEvents": 7169,
+      "firstObservedAt": 1794861660,
+      "lastObservedAt": 1794948048,
       "largestGapSeconds": 121
     },
     "missedSlots": [
       {
-        "slot": 15674313,
-        "epoch": 489822,
-        "slotTime": 1794915779,
+        "slot": 15676556,
+        "epoch": 489892,
+        "slotTime": 1794942695,
         "dutyStatus": "recorded",
-        "validatorIndex": 5144
+        "validatorIndex": 495793
       },
       {
-        "slot": 15673818,
-        "epoch": 489806,
-        "slotTime": 1794909839,
+        "slot": 15676493,
+        "epoch": 489890,
+        "slotTime": 1794941939,
         "dutyStatus": "recorded",
-        "validatorIndex": 92236
+        "validatorIndex": 260865
       }
     ],
     "ages": {
-      "headSeconds": 13,
-      "finalitySeconds": 328,
-      "publishedSlotSeconds": 1095
+      "headSeconds": 16,
+      "finalitySeconds": 138,
+      "publishedSlotSeconds": 905
     }
   },
   "meta": {

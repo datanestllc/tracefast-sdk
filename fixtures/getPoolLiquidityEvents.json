@@ -2,47 +2,47 @@
   "data": {
     "chainId": 1,
     "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
-    "fromBlock": 26384036,
-    "toBlock": 26434435,
+    "fromBlock": 26386436,
+    "toBlock": 26436835,
     "events": [
       {
-        "blockNumber": 26433121,
-        "txIndex": 86,
-        "logIndex": 331,
-        "timestamp": 1794898679,
-        "txHash": "0x45679939998036cf24c783044d7c0f6c21b62966ec670d3f06800dca1deb2f1d",
+        "blockNumber": 26436192,
+        "txIndex": 150,
+        "logIndex": 330,
+        "timestamp": 1794935687,
+        "txHash": "0xc49148891c2d3a6dcdcdd733aaeab01e219ae8c55026a1894cfd5fb7f5169274",
         "provider": "0x0ea041260095b20feda41ef4fdbef7d801f4c438",
         "action": "remove",
         "eventType": "burn",
         "usdAdded": 0,
-        "usdRemoved": 25401849.83686915,
+        "usdRemoved": 25119596.174281713,
         "pricedLegs": 2,
         "unpricedLegs": 0,
         "tokenCount": 2
       },
       {
-        "blockNumber": 26433121,
-        "txIndex": 86,
-        "logIndex": 291,
-        "timestamp": 1794898679,
-        "txHash": "0x45679939998036cf24c783044d7c0f6c21b62966ec670d3f06800dca1deb2f1d",
+        "blockNumber": 26436192,
+        "txIndex": 150,
+        "logIndex": 290,
+        "timestamp": 1794935687,
+        "txHash": "0xc49148891c2d3a6dcdcdd733aaeab01e219ae8c55026a1894cfd5fb7f5169274",
         "provider": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
         "action": "add",
         "eventType": "mint",
-        "usdAdded": 25401849.83687046,
+        "usdAdded": 25119596.17428277,
         "usdRemoved": 0,
         "pricedLegs": 2,
         "unpricedLegs": 0,
         "tokenCount": 2
       }
     ],
-    "nextCursor": "AVsyNjM4NDAzNiwyNjQzNDQzNSwyNjQzMzEyMSw4NiwyOTFdZ7akSmwi1HvY-EAmqEZ9HQ"
+    "nextCursor": "AVsyNjM4NjQzNiwyNjQzNjgzNSwyNjQzNjE5MiwxNTAsMjkwXZ_99WY8m0kvl7Jc9T0fTiU"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434435,
+    "asOfBlock": 26436835,
     "docs": "https://docs.tracefast.xyz/api/pool-liquidity-events"
   }
 }

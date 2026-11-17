@@ -2,129 +2,112 @@
   "data": {
     "chainId": 1,
     "windowBlocks": 7200,
-    "fromBlock": 26427556,
-    "toBlock": 26434755,
+    "fromBlock": 26430022,
+    "toBlock": 26437221,
     "counts": {
-      "delegate_executed": 195598,
-      "delegated_outflow": 75349,
-      "delegation_set": 73916,
-      "delegation_then_sweep": 1569,
-      "flash_loan_tx": 4945,
-      "frozen_holder_activity": 35,
-      "governance_proposal_executed": 2,
-      "governance_proposal_queued": 5,
-      "sweep_collector": 61,
-      "timelock_call_cancelled": 2,
-      "timelock_call_executed": 181,
-      "timelock_call_scheduled": 238,
-      "timelock_min_delay_changed": 6
+      "delegate_executed": 190345,
+      "delegated_outflow": 73372,
+      "delegation_set": 67867,
+      "delegation_then_sweep": 1598,
+      "flash_loan_tx": 4579,
+      "frozen_holder_activity": 24,
+      "governance_proposal_executed": 1,
+      "governance_proposal_queued": 3,
+      "sweep_collector": 41,
+      "timelock_call_cancelled": 1,
+      "timelock_call_executed": 154,
+      "timelock_call_scheduled": 274,
+      "timelock_min_delay_changed": 5
     },
     "flashLoans": {
-      "arbitrage": 2482,
-      "liquidation": 4,
-      "other": 2230,
-      "position_change": 229
+      "arbitrage": 2079,
+      "liquidation": 5,
+      "other": 2233,
+      "position_change": 262
     },
     "coverage": {
       "approvals": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "control": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "dex_launch": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26407692,
         "coveredBlocks": 7199
       },
       "dex_liquidity": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "dex_sells": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "drains": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26429725,
-        "coveredBlocks": 5030
+        "coveredBlocks": 7199
       },
       "eip7702": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "flash_loans": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "followon": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406319,
         "coveredBlocks": 7199
       },
       "governance": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "initialize": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "lending": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26408399,
         "coveredBlocks": 7199
       },
       "poisoning": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26412452,
         "coveredBlocks": 7199
       },
       "proxy_upgrade": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "pulls": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "safe": {
-        "processedThroughBlock": 26434754,
+        "processedThroughBlock": 26437220,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       }
     },
     "topOutflows": [
-      {
-        "signalId": "0x0e0507bc2fcb7c3f20539648299f45b4c8d9035b45f1ff87aa0561452da1320c",
-        "subject": "0xa03321c1da61ba3eb18072b9dbc26a4973efbf86",
-        "txHash": "0x68957654dd80d5295d6fb1c7828ae46e6b5ad69b505f9e2627c71c935fb79a52",
-        "blockNumber": 26428501,
-        "blockTimestamp": 1794843059,
-        "ethNetOutWei": "119549665379175846313",
-        "tokensOut": [
-          {
-            "token": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-            "amount": "2462370",
-            "decimals": 6,
-            "symbol": "USDT"
-          }
-        ],
-        "tokensTruncated": false
-      },
       {
         "signalId": "0xe06420b3367035c83a36d6a1361ccfd9c8a77a9bc1d176bfc961fac569026313",
         "subject": "0xa4f652905af1e734ed01475b5365fef39f1d91c6",
@@ -134,14 +117,24 @@
         "ethNetOutWei": "78100000000000000000",
         "tokensOut": [],
         "tokensTruncated": false
+      },
+      {
+        "signalId": "0x8081fbaa7f7af5d009ee513f8f6da7f23052d9cc5a711872c0100b401e24ac3f",
+        "subject": "0xa4f652905af1e734ed01475b5365fef39f1d91c6",
+        "txHash": "0x0c93e21f41aa2a3ce740e3844d3eca1eccd416f56b881500424c466bfc2dc3db",
+        "blockNumber": 26433996,
+        "blockTimestamp": 1794909227,
+        "ethNetOutWei": "78000000000000000000",
+        "tokensOut": [],
+        "tokensTruncated": false
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
-    "asOfBlock": 26434755,
+    "cached": false,
+    "asOfBlock": 26437221,
     "docs": "https://docs.tracefast.xyz/api/signal-rates"
   }
 }

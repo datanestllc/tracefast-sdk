@@ -25,10 +25,10 @@
     "factory": "0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f",
     "creationBlock": 10008355,
     "creationTxHash": "0xd07cbde817318492092cc7a27b3064a69bd893c01cb593d6029683ffd290ab3a",
-    "volumeUsd2d": 1064543.7859797077,
-    "swaps2d": 1045,
-    "volumeUsd8d": 8505262.058691077,
-    "swaps8d": 6760
+    "volumeUsd2d": 1596950.146286596,
+    "swaps2d": 1340,
+    "volumeUsd8d": 9037668.418997966,
+    "swaps8d": 7055
   },
   "meta": {
     "chain": "ethereum",

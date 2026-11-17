@@ -10,29 +10,29 @@
       "sinceBlock": 23459292,
       "delegationCount": 1,
       "delegateCount": 1,
-      "coveredThroughBlock": 26434752
+      "coveredThroughBlock": 26437219
     },
     "balanceWei": "5798969845714110716",
     "nonce": 5970,
     "firstSeenBlock": 302086,
     "firstSeenTimestamp": 1443428683,
-    "lastActiveBlock": 26429715,
-    "lastActiveTimestamp": 1794857699,
-    "lastInteractionBlock": 26429715,
-    "lastInteractionTimestamp": 1794857699,
+    "lastActiveBlock": 26436309,
+    "lastActiveTimestamp": 1794937103,
+    "lastInteractionBlock": 26435981,
+    "lastInteractionTimestamp": 1794933155,
     "createdAtBlock": 302086,
     "createdAtTimestamp": 1443428683,
-    "directTxCount": 78455,
+    "directTxCount": 78456,
     "sentTxCount": 5969,
-    "receivedTxCount": 72486,
+    "receivedTxCount": 72487,
     "totalFeesPaidWei": "24622648713141360898",
-    "txStatsAsOfBlock": 26434603
+    "txStatsAsOfBlock": 26437114
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434638,
+    "asOfBlock": 26437137,
     "docs": "https://docs.tracefast.xyz/api/address"
   }
 }

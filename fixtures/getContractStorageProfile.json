@@ -2,14 +2,14 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "totalWrites": 980400692,
-    "uniqueSlots": 64394403,
-    "uniqueCallers": 35790647,
+    "totalWrites": 981004181,
+    "uniqueSlots": 64430576,
+    "uniqueCallers": 35812090,
     "uniqueExecutors": 5,
     "firstWriteBlock": 6082465,
-    "lastWriteBlock": 26434414,
-    "delegatecallWrites": 980400679,
-    "delegatecallShare": 99.99999867401155,
+    "lastWriteBlock": 26437153,
+    "delegatecallWrites": 981004168,
+    "delegatecallShare": 99.99999867482727,
     "maxCallDepth": 188
   },
   "meta": {

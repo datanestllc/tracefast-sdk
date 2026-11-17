@@ -6,9 +6,9 @@
     "symbol": "USDC",
     "name": "USD Coin",
     "decimals": 6,
-    "transferCount": 415010750,
-    "holderCount": 9200753,
-    "holderCountAllTime": 44066275
+    "transferCount": 415246825,
+    "holderCount": 9205554,
+    "holderCountAllTime": 44083634
   },
   "meta": {
     "chain": "ethereum",

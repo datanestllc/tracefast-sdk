@@ -7,14 +7,14 @@
     "symbol": "USDC",
     "window": {
       "kind": "current",
-      "asOfBlock": 26434116
+      "asOfBlock": 26436825
     }
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434116,
+    "asOfBlock": 26436825,
     "docs": "https://docs.tracefast.xyz/api/address-token-balance"
   }
 }

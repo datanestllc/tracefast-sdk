@@ -4,10 +4,10 @@
     "period": "7d",
     "windowDays": 7,
     "groupBy": "validator",
-    "asOfSlot": 15674432,
-    "asOfTime": "2026-11-17T12:06:47Z",
-    "totalBlocks": 50164,
-    "distinctProposers": 37859,
+    "asOfSlot": 15676928,
+    "asOfTime": "2026-11-17T20:25:59Z",
+    "totalBlocks": 50179,
+    "distinctProposers": 37830,
     "validators": [
       {
         "validatorIndex": 2195932,
@@ -16,9 +16,9 @@
         "credentialType": 2
       },
       {
-        "validatorIndex": 563246,
-        "blocksProposed": 8,
-        "withdrawalAddress": "0xc83251987b19427abb7b072b606adde167700527",
+        "validatorIndex": 2236660,
+        "blocksProposed": 9,
+        "withdrawalAddress": "0x8df4ef8b5871ae3a9e0438369b3867f69a733776",
         "credentialType": 2
       }
     ]

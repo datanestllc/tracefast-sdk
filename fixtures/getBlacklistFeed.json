@@ -3,6 +3,18 @@
     "chainId": 1,
     "events": [
       {
+        "blockNumber": 26435484,
+        "logIndex": 849,
+        "timestamp": 1794927167,
+        "txHash": "0xa632ec03013e4bcd6f3670892bbfc8f536333ef7bab7b40aecd9c4d10e685d13",
+        "address": "0x1a0386d0d62222f3e235e62c7619a3492c6a6fff",
+        "issuerContract": "0x3a54e9b53f32fd3441a87e1a95c853e595c8326f",
+        "authorityTier": "arbitrary_token",
+        "action": "add",
+        "statusEffect": "membership",
+        "eventName": "BlacklistUpdated"
+      },
+      {
         "blockNumber": 26434599,
         "logIndex": 101,
         "timestamp": 1794916487,
@@ -13,27 +25,15 @@
         "action": "remove",
         "statusEffect": "membership",
         "eventName": "UnBlacklisted"
-      },
-      {
-        "blockNumber": 26434599,
-        "logIndex": 100,
-        "timestamp": 1794916487,
-        "txHash": "0xfe8b0a81a509a3e09ae728924c4cf14b7221f07ede24332d15a92a86be210bee",
-        "address": "0x3e4994479267af5936e30f934c974d900f7a58d9",
-        "issuerContract": "0xdaf05c8680a06a5a30a8e3ffe25062ed4e4d21fb",
-        "authorityTier": "unknown",
-        "action": "enforce",
-        "statusEffect": "enforcement",
-        "eventName": "DestroyedBlackFunds"
       }
     ],
-    "nextCursor": "AVsyNjQzNDU5OSwxMDAsIjNlNDk5NDQ3OTI2N2FmNTkzNmUzMGY5MzRjOTc0ZDkwMGY3YTU4ZDkiXdadCD-M-Q6pUw4FNiHXklM"
+    "nextCursor": "AVsyNjQzNDU5OSwxMDEsIjNlNDk5NDQ3OTI2N2FmNTkzNmUzMGY5MzRjOTc0ZDkwMGY3YTU4ZDkiXW1WFLy8gs15gWs5MechCA8"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
-    "asOfBlock": 26434758,
+    "cached": false,
+    "asOfBlock": 26437220,
     "docs": "https://docs.tracefast.xyz/api/risk-blacklist-feed"
   }
 }

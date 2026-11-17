@@ -2,35 +2,35 @@
   "data": {
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "fromHour": 1794312000,
-    "toHour": 1794916800,
+    "fromHour": 1794340800,
+    "toHour": 1794945600,
     "points": [
       {
-        "hour": 1794312000,
+        "hour": 1794340800,
         "priceUsd": 1,
         "priceSource": "stable_peg",
         "carried": false,
         "dexPriceUsd": 1,
         "dexConfidenceTier": "high",
-        "oraclePriceUsd": 0.99977587,
-        "divergencePct": 0.022412999999998903
+        "oraclePriceUsd": 0.99978566,
+        "divergencePct": 0.021433999999997955
       },
       {
-        "hour": 1794315600,
+        "hour": 1794344400,
         "priceUsd": 1,
         "priceSource": "stable_peg",
         "carried": false,
         "dexPriceUsd": 1,
         "dexConfidenceTier": "high",
-        "oraclePriceUsd": 0.99977587,
-        "divergencePct": 0.022412999999998903
+        "oraclePriceUsd": 0.99978566,
+        "divergencePct": 0.021433999999997955
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/token-price-history"
   }
 }

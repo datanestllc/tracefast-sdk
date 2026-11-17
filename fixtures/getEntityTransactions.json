@@ -3,6 +3,24 @@
     "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "transactions": [
       {
+        "hash": "0x766f83db9c611cbff14150daaea08a2b1570c7bfe8c875dc60c6aaaaf6b5be46",
+        "blockNumber": 26435981,
+        "txIndex": 221,
+        "timestamp": 1794933155,
+        "from": "0xc2fc9e7bdf48cfa44a7c70960a33e538d6626780",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "valueWei": "0",
+        "feeWei": "64731728401800",
+        "methodId": "0x4920196d",
+        "nonce": 310,
+        "txType": 2,
+        "inputSize": 120,
+        "gasUsed": "25800",
+        "status": 1,
+        "role": "receiver",
+        "counterparty": "0xc2fc9e7bdf48cfa44a7c70960a33e538d6626780"
+      },
+      {
         "hash": "0x4661b78c22a4e85dd6c0842ce8e9f969faecb0858602f357bfe3a96a7eb6200d",
         "blockNumber": 26429715,
         "txIndex": 212,
@@ -18,27 +36,9 @@
         "status": 0,
         "role": "receiver",
         "counterparty": "0x90969f2da0e9596a5175f75a15c6a71a4fa6663c"
-      },
-      {
-        "hash": "0xabcd0c3ba3c9befdab0c15189c752fede82819f1c9d5e6cad8e835594579e9a8",
-        "blockNumber": 26384365,
-        "txIndex": 7,
-        "timestamp": 1794311939,
-        "from": "0xb18d53f1d83fa9ce61a4175f67b315152c642368",
-        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
-        "valueWei": "200611100000000",
-        "feeWei": "3400145656320",
-        "methodId": "0x48657920",
-        "nonce": 0,
-        "txType": 2,
-        "inputSize": 147,
-        "gasUsed": "26880",
-        "status": 1,
-        "role": "receiver",
-        "counterparty": "0xb18d53f1d83fa9ce61a4175f67b315152c642368"
       }
     ],
-    "nextCursor": "AVsyNjM4NDM2NSw3LDBdOjbHiROLhQ8JPRCTzVXI6A"
+    "nextCursor": "AVsyNjQyOTcxNSwyMTIsMF2csf6NJN4W2oq1ij60ToIu"
   },
   "meta": {
     "chain": "ethereum",

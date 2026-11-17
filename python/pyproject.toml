@@ -28,7 +28,6 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Libraries",
   "Typing :: Typed",
-  "Private :: Do Not Upload",
 ]
 
 [project.urls]

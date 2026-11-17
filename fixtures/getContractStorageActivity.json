@@ -4,7 +4,7 @@
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     "fromDate": "2026-08-20",
     "toDate": "2026-11-17",
-    "readThroughBlock": 26434300,
+    "readThroughBlock": 26437111,
     "series": [
       {
         "date": "2026-08-20",
@@ -38,7 +38,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434300,
+    "asOfBlock": 26437111,
     "docs": "https://docs.tracefast.xyz/api/contract-storage-activity"
   }
 }

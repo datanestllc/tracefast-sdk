@@ -15,15 +15,17 @@ the app at [tracefast.xyz](https://tracefast.xyz).
 These are the official clients for the [TraceFast API](https://docs.tracefast.xyz/api),
 for TypeScript, Python and Rust.
 
-| Language | Package | Docs | Status |
+| Language | Package | Docs | Version |
 |---|---|---|---|
-| TypeScript / JavaScript | `@tracefast/sdk` | [typescript/README.md](typescript/README.md) | private preview |
-| Python | `tracefast` | [python/README.md](python/README.md) | private preview |
-| Rust | `tracefast` | [rust/README.md](rust/README.md) | private preview |
+| TypeScript / JavaScript | `@tracefast/sdk` | [typescript/README.md](typescript/README.md) | 0.1 |
+| Python | `tracefast` | [python/README.md](python/README.md) | 0.1 |
+| Rust | `tracefast` | [rust/README.md](rust/README.md) | 0.1 |
 
-> **Private preview.** The packages are not published to npm, PyPI or
-> crates.io yet; installing them needs access to this repository. Their API may
-> change before 1.0.
+```bash
+npm install @tracefast/sdk    # TypeScript / JavaScript
+pip install tracefast         # Python
+cargo add tracefast           # Rust
+```
 
 ## Before you start
 

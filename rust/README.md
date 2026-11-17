@@ -16,8 +16,8 @@ the app at [tracefast.xyz](https://tracefast.xyz).
 [TraceFast API](https://docs.tracefast.xyz/api): every method, typed, async on
 Tokio.
 
-> **Private preview.** The crate is not on crates.io. You can install it only
-> with access to the private repository, and the API may still change before 1.0.
+> **Before 1.0**, a minor version may change the crate's API — see
+> [Versioning and stability](#versioning-and-stability).
 
 ## Contents
 
@@ -39,7 +39,7 @@ Tokio.
 
 ## Requirements
 
-- Rust 1.85 or later.
+- Rust 1.88 or later.
 - A Tokio runtime.
 - A TraceFast API key on a paid plan — see <https://tracefast.xyz/pricing>.
 
@@ -47,7 +47,7 @@ Tokio.
 
 ```toml
 [dependencies]
-tracefast = { git = "https://github.com/datanestllc/tracefast-sdk" }
+tracefast = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
@@ -62,7 +62,7 @@ backend with the crate features:
 | `gzip`, `brotli` | accept compressed answers |
 | `stream` | `futures_core::Stream` for the page and row walkers |
 
-For example, `tracefast = { git = "…", default-features = false, features = ["native-tls"] }`.
+For example, `tracefast = { version = "0.1", default-features = false, features = ["native-tls"] }`.
 
 ## Quick start
 

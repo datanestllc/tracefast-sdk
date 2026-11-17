@@ -40,7 +40,7 @@
     "asOfBlock": 25920000,
     "docs": "https://docs.tracefast.xyz/api/block-authorizations",
     "coverage": {
-      "authorizationsThroughBlock": 26434603
+      "authorizationsThroughBlock": 26437114
     }
   }
 }

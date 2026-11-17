@@ -14857,7 +14857,7 @@
       "name": ""
     },
     "title": "TraceFast API",
-    "version": "0.1.0+f6ac003e"
+    "version": "0.2.0+f6ac003e"
   },
   "openapi": "3.1.0",
   "paths": {

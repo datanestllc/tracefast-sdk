@@ -1,7 +1,6 @@
 {
   "name": "@tracefast/sdk",
   "version": "0.1.0",
-  "private": true,
   "description": "The official TypeScript SDK for the TraceFast API — Ethereum blocks, transactions, traces, tokens, contracts, DEX pools, the consensus layer, and what TraceFast states about an address.",
   "license": "MIT",
   "author": "TraceFast",
@@ -36,6 +35,10 @@
     "typescript"
   ],
   "type": "module",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
   },

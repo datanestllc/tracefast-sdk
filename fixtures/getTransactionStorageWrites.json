@@ -44,7 +44,7 @@
     "docs": "https://docs.tracefast.xyz/api/transaction-storage-writes",
     "coverage": {
       "storageWritesFromBlock": 49018,
-      "storageWritesThroughBlock": 26434600
+      "storageWritesThroughBlock": 26437111
     }
   }
 }

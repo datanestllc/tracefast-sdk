@@ -23,7 +23,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434414,
+    "asOfBlock": 26436847,
     "docs": "https://docs.tracefast.xyz/api/address-attribute-history"
   }
 }

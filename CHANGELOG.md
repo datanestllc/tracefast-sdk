@@ -2,10 +2,10 @@
 
 All three packages share one version and one changelog. Dates are UTC.
 
-## 0.1.0 — unreleased (private preview)
+## 0.1.0 — 2026-11-17
 
 First version of the TypeScript, Python and Rust SDKs, generated from API
-catalogue `0.1.0+f6ac003e`.
+catalogue `0.2.0+f6ac003e`.
 
 - Every method of the catalogue — 109 — typed, grouped in 12 namespaces plus
   `resolve`. All of them are stable.

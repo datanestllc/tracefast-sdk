@@ -16,9 +16,8 @@ the app at [tracefast.xyz](https://tracefast.xyz).
 [TraceFast API](https://docs.tracefast.xyz/api): every method, typed, with a
 synchronous and an `asyncio` client.
 
-> **Private preview.** The package is not on PyPI yet. Only people with access
-> to the private repository can install it, and its interface may change before
-> 1.0.
+> **Before 1.0**, a minor version may change the package's interface — see
+> [Versioning and stability](#versioning-and-stability).
 
 ## Contents
 
@@ -47,15 +46,11 @@ synchronous and an `asyncio` client.
 
 ## Install
 
-Install from the private repository:
-
 ```bash
-pip install "git+https://github.com/datanestllc/tracefast-sdk.git#subdirectory=python"
+pip install tracefast
 # or
-uv add "tracefast @ git+https://github.com/datanestllc/tracefast-sdk.git#subdirectory=python"
+uv add tracefast
 ```
-
-When the package is published, the command will be `pip install tracefast`.
 
 ## Quick start
 

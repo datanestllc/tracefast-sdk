@@ -32,7 +32,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434116,
+    "asOfBlock": 26436824,
     "docs": "https://docs.tracefast.xyz/api/contract-control-history"
   }
 }

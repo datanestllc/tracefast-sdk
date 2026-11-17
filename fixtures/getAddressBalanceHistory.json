@@ -47,7 +47,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26434638,
+    "asOfBlock": 26437137,
     "docs": "https://docs.tracefast.xyz/api/address-balance-history"
   }
 }

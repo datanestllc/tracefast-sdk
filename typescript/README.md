@@ -16,8 +16,8 @@ the app at [tracefast.xyz](https://tracefast.xyz).
 [TraceFast API](https://docs.tracefast.xyz/api): every method, typed, for Node.js,
 Bun, Deno and edge runtimes.
 
-> **Private preview.** Not on npm yet, and installable only by people with
-> access to the private repository. The API may change before 1.0.
+> **Before 1.0**, a minor version may change the package's API — see
+> [Versioning and stability](#versioning-and-stability).
 
 ## Contents
 
@@ -45,16 +45,13 @@ Bun, Deno and edge runtimes.
 
 ## Install
 
-While the package is private, build it from the repository:
-
 ```bash
-git clone https://github.com/datanestllc/tracefast-sdk.git
-cd tracefast-sdk/typescript && npm install && npm pack
-# in your project:
-npm install /path/to/tracefast-sdk/typescript/tracefast-sdk-0.1.0.tgz
+npm install @tracefast/sdk
+# or
+pnpm add @tracefast/sdk
+# or
+bun add @tracefast/sdk
 ```
-
-Once published: `npm install @tracefast/sdk`.
 
 ## Quick start
 

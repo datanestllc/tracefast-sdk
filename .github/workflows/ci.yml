@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
@@ -99,3 +100,21 @@ jobs:
           cargo package --list --allow-dirty > files.txt
           grep -qx LICENSE files.txt
           ! grep -q '^tests/' files.txt
+
+  rust-msrv:
+    name: Rust 1.88 (the package's rust-version)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: dtolnay/rust-toolchain@1.88
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: rust
+      - run: cargo test --all-features
+      - run: cargo test --no-default-features

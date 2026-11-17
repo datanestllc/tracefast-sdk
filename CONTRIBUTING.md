@@ -31,3 +31,6 @@ These need access the public repository does not give:
   base URL in `TRACEFAST_FIXTURE_BASE`.
 
 After either, regenerate and run every test suite.
+
+Releases — the steps and the one-time registry setup — are in
+[RELEASING.md](RELEASING.md).

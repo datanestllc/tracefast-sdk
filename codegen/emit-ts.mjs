@@ -24,7 +24,9 @@ const ts = (t) => {
     case 'array':
       return `Array<${ts(t.items)}>`
     case 'map':
-      return `Partial<Record<string, ${ts(t.values)}>>`
+      // An index signature rather than Partial<Record<…>>: the same type, and
+      // one a recursive alias (CheckValue) may name itself in.
+      return `{ [key: string]: ${ts(t.values)} | undefined }`
     case 'enum':
       return `${t.values.map((v) => JSON.stringify(v)).join(' | ')} | (string & {})`
     case 'union':

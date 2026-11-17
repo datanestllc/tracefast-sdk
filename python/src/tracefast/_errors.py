@@ -17,8 +17,8 @@ class TraceFastError(Exception):
         code: The stable word to branch on: the API's error registry
             (`bad_request`, `invalid_cursor`, `not_found`, `block_not_available`,
             `quota_exceeded`, …), the gateway's (`auth_failed`, `forbidden`,
-            `rate_limited`, `concurrency_limited`), or the SDK's own
-            (`unexpected_response`, `connection_error`, `timeout`).
+            `rate_limited`, `concurrency_limited`, `service_degraded`), or the
+            SDK's own (`unexpected_response`, `connection_error`, `timeout`).
         reason: The stable sub-code: `error.reason` on the gateway's key, plan
             and limit refusals (`api_key_required`, `plan_scope_missing`, …),
             otherwise `details["reason"]`.

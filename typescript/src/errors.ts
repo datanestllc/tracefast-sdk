@@ -24,6 +24,7 @@ export type ErrorCode =
   | 'forbidden'
   | 'rate_limited'
   | 'concurrency_limited'
+  | 'service_degraded'
   | 'unexpected_response'
   | 'connection_error'
   | 'timeout'

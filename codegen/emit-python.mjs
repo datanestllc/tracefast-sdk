@@ -30,10 +30,12 @@ const isIdent = (n) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(n) && !KEYWORDS.has(n)
 const str = (s) => JSON.stringify(s) // a JSON string is a valid Python string literal
 
 /** A type reference → its Python annotation text. */
-export const pyType = (t) => {
+// `self`: the alias being written. A recursive alias names itself in quotes —
+// a forward reference that mypy and typing.get_type_hints both resolve.
+export const pyType = (t, self) => {
   switch (t.kind) {
     case 'ref':
-      return t.name
+      return t.name === self ? JSON.stringify(t.name) : t.name
     case 'string':
       return 'str'
     case 'integer':
@@ -43,13 +45,13 @@ export const pyType = (t) => {
     case 'boolean':
       return 'bool'
     case 'array':
-      return `list[${pyType(t.items)}]`
+      return `list[${pyType(t.items, self)}]`
     case 'map':
-      return `dict[str, ${pyType(t.values)}]`
+      return `dict[str, ${pyType(t.values, self)}]`
     case 'enum':
       return `Literal[${t.values.map(str).join(', ')}] | str`
     case 'union':
-      return t.variants.map((v) => pyType(v.type)).join(' | ')
+      return t.variants.map((v) => pyType(v.type, self)).join(' | ')
     default:
       return 'Any'
   }
@@ -113,18 +115,24 @@ function emitTypes(ir, header) {
   const refsOf = (t) => (t.kind === 'ref' ? [t.name] : [t.items, t.values, ...(t.variants ?? []).map((v) => v.type)].filter(Boolean).flatMap(refsOf))
   // An alias is evaluated at runtime (typing.get_type_hints reads it), so one
   // that names a class is written after every class.
-  let deferred = ''
+  // Aliases that name another type go after every class, in dependency order:
+  // an alias naming another such alias follows it; one naming itself quotes it.
+  const deferred = new Map()
   for (const [name, t] of sorted) {
     exported.push(name)
     if (t.kind === 'alias') {
-      const text = '\n\n' + comment(t.description, '') + `${name}: TypeAlias = ${pyType(t.type)}\n`
+      const text = '\n\n' + comment(t.description, '') + `${name}: TypeAlias = ${pyType(t.type, name)}\n`
       if (!hasRef(t.type)) {
         out += text
         continue
       }
-      for (const r of refsOf(t.type))
-        if (ir.types.get(r).kind !== 'object') throw new Error(`alias ${name} refers to alias ${r}; the Python emitter cannot order it`)
-      deferred += text
+      const after = new Set()
+      for (const r of refsOf(t.type)) {
+        if (r === name) continue
+        const k = ir.types.get(r)
+        if (k.kind === 'alias' && hasRef(k.type)) after.add(r)
+      }
+      deferred.set(name, { text, after })
       continue
     }
     out += '\n\n'
@@ -156,7 +164,16 @@ function emitTypes(ir, header) {
       out += docstring([f.description], '    ')
     })
   }
-  out += deferred
+  const written = new Set()
+  const write = (name, path = []) => {
+    if (written.has(name)) return
+    if (path.includes(name)) throw new Error(`aliases ${[...path, name].join(' → ')} refer to each other; the Python emitter cannot order them`)
+    const d = deferred.get(name)
+    for (const r of [...d.after].sort()) write(r, [...path, name])
+    written.add(name)
+    out += d.text
+  }
+  for (const name of deferred.keys()) write(name)
   out += `\n\n__all__ = [\n${exported.map((n) => `    ${str(n)},`).join('\n')}\n]\n`
   return out
 }

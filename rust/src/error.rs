@@ -147,7 +147,7 @@ impl Error {
     /// The stable word to branch on: the API's registry (`bad_request`,
     /// `invalid_cursor`, `not_found`, `block_not_available`, `coverage_gap`,
     /// `quota_exceeded`, `service_unavailable`, …), the gateway's (`auth_failed`,
-    /// `forbidden`, `rate_limited`, `concurrency_limited`), or the SDK's own:
+    /// `forbidden`, `rate_limited`, `concurrency_limited`, `service_degraded`), or the SDK's own:
     /// `unexpected_response`, `connection_error`, `timeout`, `invalid_argument`.
     pub fn code(&self) -> &str {
         &self.0.code

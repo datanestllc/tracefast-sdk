@@ -1,5 +1,5 @@
 {
-  "$comment": "Method names the default rule gets wrong. The rule: operationId without `get` and without the namespace's noun, lowerCamel; empty → `get`.",
+  "$comment": "Method names the default rule gets wrong. The rule: operationId without `get` and without the namespace's noun, lowerCamel; empty \u2192 `get`.",
   "namespaces": {
     "addresses": [
       "Address",
@@ -55,10 +55,6 @@
   },
   "untyped": {
     "$comment": "Fields the catalogue gives no schema; any other untyped field fails generation.",
-    "allow": [
-      "ProofCheck.expected",
-      "ProofCheck.observed",
-      "ProofCheck.threshold"
-    ]
+    "allow": []
   }
 }

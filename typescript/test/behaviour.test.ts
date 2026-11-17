@@ -185,6 +185,16 @@ test('503 is retried; 400/404/422/500 are not', async () => {
   }
 })
 
+test("the key check's 503 service_degraded is retried and keeps its fields", async () => {
+  const degraded = fail(503, { code: 'service_degraded', message: 'try again' }, { 'retry-after': '0', 'x-request-id': 'edge-1' })
+  const r = client([degraded, ok])
+  await r.tf.blocks.latest()
+  assert.equal(r.calls.length, 2)
+  const r2 = client([degraded])
+  await assert.rejects(r2.tf.blocks.latest({ maxRetries: 0 }), (e: TraceFastError) =>
+    e.status === 503 && e.code === 'service_degraded' && e.requestId === 'edge-1' && e.retryAfter === 0 && e.reason === undefined && e.bucket === undefined)
+})
+
 test('retries stop at maxRetries, per client or per call', async () => {
   const busy = fail(503, { code: 'service_unavailable', message: 'busy' }, { 'retry-after': '0' })
   const r = client([busy, busy, busy, busy])

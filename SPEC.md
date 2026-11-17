@@ -119,7 +119,7 @@ refusals and pagination.
     `invalid_cursor`, `not_found`, `chain_not_supported`, `block_not_available`,
     `coverage_gap`, `quota_exceeded`, `service_unavailable`, `internal_error`, …),
     the gateway's (`auth_failed`, `forbidden`, `rate_limited`,
-    `concurrency_limited`), or the SDK's own (`unexpected_response`,
+    `concurrency_limited`, `service_degraded`), or the SDK's own (`unexpected_response`,
     `connection_error`, `timeout`, `aborted`, and in Rust `invalid_argument`);
   - `reason` — the stable sub-code: `error.reason` on the gateway's key, plan and
     limit refusals (`api_key_required`, `plan_scope_missing`, …), otherwise

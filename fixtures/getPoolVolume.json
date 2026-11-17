@@ -5,17 +5,9 @@
     "token0": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
     "days": 30,
-    "totalVolumeUsd": 46746643.08346695,
-    "totalSwaps": 26335,
+    "totalVolumeUsd": 46729990.64609241,
+    "totalSwaps": 26433,
     "points": [
-      {
-        "day": "2026-10-18",
-        "volumeUsd": 434420.7185754924,
-        "swaps": 519,
-        "uniqueSenders": 0,
-        "volumeToken0": 227241.28122599996,
-        "volumeToken1": 87.32088827233372
-      },
       {
         "day": "2026-10-19",
         "volumeUsd": 585761.790199549,
@@ -23,13 +15,21 @@
         "uniqueSenders": 0,
         "volumeToken0": 297751.323148,
         "volumeToken1": 119.32356717834622
+      },
+      {
+        "day": "2026-10-20",
+        "volumeUsd": 581916.1421363868,
+        "swaps": 756,
+        "uniqueSenders": 0,
+        "volumeToken0": 336276.70284800004,
+        "volumeToken1": 101.70283918317323
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/pool-volume",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/pool-volume"
   }
 }

@@ -179,6 +179,9 @@ setters you chain, and a parameter you do not set is not sent.
 | `client.tokens()` | `get(token)`, `holders(token, &TokensHoldersParams::new().limit(10))`, `price(token, &TokensPriceParams::new().block(20_000_000))` |
 | `client.pools()` | `get(pool)`, `for_pair(&PoolsForPairParams::new(token_a, token_b))`, `swaps(pool, &PoolsSwapsParams::new())`, `reserves(pool)` |
 | `client.consensus()` | `current()`, `queues(&ConsensusQueuesParams::new())`, `validator(1)`, `missed_slots(&ConsensusMissedSlotsParams::new())` |
+| `client.network()` | `daily(&NetworkDailyParams::new())`, `gas_daily(&NetworkGasDailyParams::new())`, `top_pools(&NetworkTopPoolsParams::new().by("volume").days(7))` |
+| `client.lending()` | `config("aave_v3", &LendingConfigParams::new())` |
+| `client.signals()` | `recent(&SignalsRecentParams::new().kind("account_drain"))`, `kinds()`, `rates()` |
 | `client.risk()` | `blacklist_status(address)`, `blacklist_events(address, &RiskBlacklistEventsParams::new())` |
 | `client.resolve(…)` | `resolve(&ResolveParams::new("usdc"))` |
 

@@ -1,0 +1,39 @@
+{
+  "data": {
+    "chainId": 1,
+    "rowKinds": [
+      {
+        "kind": "delegation_to_rare_delegate",
+        "detector": "eip7702",
+        "alwaysTrader": false,
+        "evidenceFields": [
+          "delegate",
+          "submitter"
+        ]
+      },
+      {
+        "kind": "delegation_revoked",
+        "detector": "eip7702",
+        "alwaysTrader": false,
+        "evidenceFields": [
+          "delegate",
+          "submitter"
+        ]
+      }
+    ],
+    "countedKinds": [
+      "delegate_executed",
+      "delegation_set"
+    ],
+    "detectors": [
+      "approvals",
+      "control"
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/signal-kinds"
+  }
+}

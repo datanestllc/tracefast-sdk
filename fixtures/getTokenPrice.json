@@ -2,10 +2,10 @@
   "data": {
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "hour": 1794848400,
+    "hour": 1794916800,
     "priceUsd": 1,
     "priceSource": "stable_peg",
-    "observedHour": 1794848400,
+    "observedHour": 1794916800,
     "ageHours": 0,
     "dex": {
       "priceUsd": 1,
@@ -16,14 +16,14 @@
     "oracle": {
       "priceUsd": 0.99975154,
       "address": "0x54586be62e3c3580375ae3723c145253060ca0c2",
-      "roundsInHour": 3
+      "roundsInHour": 2
     },
     "divergencePct": 0.02484600000000059
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/token-price",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "docs": "https://docs.tracefast.xyz/api/token-price"
   }
 }

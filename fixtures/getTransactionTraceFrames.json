@@ -48,18 +48,18 @@
     "nextCursor": "AVsyNTkyMDAwMCwxNjgsMV3F7iyvbS8iPVoSGBMSAbVG",
     "delegatedCode": {
       "status": "resolved",
-      "resolvedThroughBlock": 26428854
+      "resolvedThroughBlock": 26434603
     }
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
     "asOfBlock": 25920000,
     "docs": "https://docs.tracefast.xyz/api/trace-frames",
     "coverage": {
       "eventAttributionFromBlock": 2675000,
       "framesFromBlock": 2675000
-    },
-    "timestamp": 1790000000000
+    }
   }
 }

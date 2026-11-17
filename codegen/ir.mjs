@@ -16,6 +16,7 @@ export function loadIr() {
 
   const pascal = (s) => s.replace(/(^|[_\-\s])(\w)/g, (_, __, c) => c.toUpperCase()).replace(/[^A-Za-z0-9]/g, '')
   const refName = (ref) => ref.split('/').pop()
+  const LABELS = { string: 'Text', boolean: 'Bool', integer: 'Integer', number: 'Number', enum: 'Text', array: 'List', map: 'Record' }
 
   // A schema → a type reference. `hint` names a hoisted inline object.
   const typeOf = (s, hint) => {
@@ -27,7 +28,20 @@ export function loadIr() {
     if (s.oneOf || s.anyOf) {
       const alts = (s.oneOf ?? s.anyOf).filter((a) => a.type !== 'null')
       if (alts.length === 1) return typeOf(alts[0], hint)
-      return { kind: 'any' }
+      // A union: one variant per alternative, labelled by what it is. Scalars
+      // first, then lists, then objects, so a decoder that tries them in order
+      // cannot read a list as an object.
+      const rank = { string: 0, boolean: 0, integer: 0, number: 0, enum: 0, array: 1 }
+      const variants = alts
+        .map((a) => {
+          const type = typeOf(a, `${hint}Variant`)
+          const label = type.kind === 'ref' ? type.name : LABELS[type.kind] ?? pascal(type.kind)
+          return { label, type, description: clean(a.description ?? '') }
+        })
+        .sort((a, b) => (rank[a.type.kind] ?? 2) - (rank[b.type.kind] ?? 2))
+      const labels = variants.map((v) => v.label)
+      if (new Set(labels).size !== labels.length) throw new Error(`${hint}: two union variants share the label ${labels}`)
+      return { kind: 'union', variants }
     }
     if (s.allOf) {
       if (s.allOf.length === 1) return typeOf(s.allOf[0], hint)
@@ -59,6 +73,9 @@ export function loadIr() {
       .replace(/^TraceFast (live Ethereum data|knowledge graph):\s*/, '')
       .replace(/(\d+)\.\.=(\d+)/g, '$1 to $2')
       .replace(/^[a-z]/, (c) => c.toUpperCase())
+      // The catalogue hard-wraps its prose; a single line break is a space, a
+      // blank line or a list item keeps its break.
+      .replace(/([^\n])\n(?!\n|\s*(?:[-*]|\d+\.)\s)/g, '$1 ')
   const describe = (p) => p?.description ?? (p?.allOf ?? p?.oneOf ?? []).map((a) => a.description).find(Boolean) ?? ''
 
   const objectType = (s, name) => {
@@ -69,8 +86,11 @@ export function loadIr() {
       if (types.get(unique).source === s) return { kind: 'ref', name: unique }
       throw new Error(`two schemas want the type name ${unique}; rename one in the catalogue or the generator`)
     }
-    const entry = { kind: 'object', description: s.description ?? '', fields: [], source: s }
+    const entry = { kind: 'object', description: clean(s.description), fields: [], source: s }
     types.set(unique, entry)
+    // Keys beyond the listed ones, where the catalogue allows them.
+    if (s.additionalProperties !== undefined && s.additionalProperties !== false)
+      entry.extra = { type: s.additionalProperties === true ? { kind: 'any' } : typeOf(s.additionalProperties, `${unique}Extra`), description: clean(s.additionalProperties.description ?? '') }
     const req = new Set(s.required ?? [])
     for (const [field, ps] of Object.entries(s.properties ?? {})) {
       entry.fields.push({
@@ -91,7 +111,7 @@ export function loadIr() {
       objectType(s.allOf ? { ...s, properties: mergedProps(s), required: mergedRequired(s) } : s, name)
       return
     }
-    types.set(name, { kind: 'alias', description: s.description ?? '', type: null, source: s })
+    types.set(name, { kind: 'alias', description: clean(s.description), type: null, source: s })
     types.get(name).type = typeOf({ ...s, description: undefined }, name)
   }
 
@@ -157,6 +177,7 @@ export function loadIr() {
   // A schema the generator cannot type fails generation, unless it is a known gap.
   const allowed = new Set(names.untyped?.allow ?? [])
   for (const [n, t] of types) {
+    if (t.kind === 'alias' && t.type.kind === 'any' && !allowed.has(n)) throw new Error(`${n} has no type in the catalogue`)
     if (t.kind !== 'object') continue
     for (const f of t.fields) if (f.type.kind === 'any' && !allowed.has(`${n}.${f.name}`)) throw new Error(`${n}.${f.name} has no type in the catalogue`)
   }

@@ -1,16 +1,5 @@
 import { Http, type HttpConfig } from './http.ts'
-import {
-  AddressesApi,
-  BlocksApi,
-  ConsensusApi,
-  ContractsApi,
-  PoolsApi,
-  RiskApi,
-  RootApi,
-  TokensApi,
-  TracesApi,
-  TransactionsApi,
-} from './generated/api.ts'
+import { ClientBase } from './generated/api.ts'
 
 export interface TraceFastOptions {
   /** Your TraceFast API key (`tf_live_…`). Server-side only — never ship it to a browser. */
@@ -73,34 +62,12 @@ function validate(o: TraceFastOptions): HttpConfig {
  * const { data, meta } = await tf.contracts.proxy('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48')
  * ```
  */
-export class TraceFast {
-  readonly addresses: AddressesApi
-  readonly blocks: BlocksApi
-  readonly consensus: ConsensusApi
-  readonly contracts: ContractsApi
-  readonly pools: PoolsApi
-  readonly risk: RiskApi
-  readonly tokens: TokensApi
-  readonly traces: TracesApi
-  readonly transactions: TransactionsApi
-  /** Resolve a name, ENS name, token symbol or address to the addresses it can mean. */
-  readonly resolve: RootApi['resolve']
+export class TraceFast extends ClientBase {
   #options: TraceFastOptions
 
   constructor(options: TraceFastOptions) {
-    const http = new Http(validate(options))
+    super(new Http(validate(options)))
     this.#options = { ...options }
-    this.addresses = new AddressesApi(http)
-    this.blocks = new BlocksApi(http)
-    this.consensus = new ConsensusApi(http)
-    this.contracts = new ContractsApi(http)
-    this.pools = new PoolsApi(http)
-    this.risk = new RiskApi(http)
-    this.tokens = new TokensApi(http)
-    this.traces = new TracesApi(http)
-    this.transactions = new TransactionsApi(http)
-    const root = new RootApi(http)
-    this.resolve = root.resolve.bind(root)
   }
 
   /**

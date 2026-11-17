@@ -21,12 +21,12 @@
       }
     ],
     "truncated": true,
-    "publishedThroughSlot": 15668736
+    "publishedThroughSlot": 15674400
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/consensus-validator-slots",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/consensus-validator-slots"
   }
 }

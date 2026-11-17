@@ -55,8 +55,8 @@
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/pools-by-pair",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "docs": "https://docs.tracefast.xyz/api/pools-by-pair"
   }
 }

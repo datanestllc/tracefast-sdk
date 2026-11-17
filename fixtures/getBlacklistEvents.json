@@ -30,9 +30,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26429078,
-    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-events",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434758,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-events"
   }
 }

@@ -4,10 +4,10 @@
     "period": "7d",
     "windowDays": 7,
     "groupBy": "validator",
-    "asOfSlot": 15668736,
-    "asOfTime": "2026-11-16T17:07:35Z",
-    "totalBlocks": 50156,
-    "distinctProposers": 37911,
+    "asOfSlot": 15674432,
+    "asOfTime": "2026-11-17T12:06:47Z",
+    "totalBlocks": 50164,
+    "distinctProposers": 37859,
     "validators": [
       {
         "validatorIndex": 2195932,
@@ -25,8 +25,8 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/consensus-proposers",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/consensus-proposers"
   }
 }

@@ -4,6 +4,7 @@ and a strict check of the fixture against the catalogue types."""
 
 from __future__ import annotations
 
+import json
 from typing import Any
 from urllib.parse import parse_qsl
 
@@ -11,6 +12,7 @@ import pytest
 from _support import MODES, make, run
 from conftest import (
     IR,
+    ROOT,
     KEY,
     SAMPLES,
     encode_uri_component,
@@ -84,4 +86,6 @@ def test_every_operation_has_a_fixture_and_a_method() -> None:
                 assert callable(getattr(target, op["pyMethod"] + "_items"))
                 assert op["itemsField"]
             fixture(op["id"])
-    assert len(IR["operations"]) == 97
+    catalogue = json.loads((ROOT / "openapi" / "openapi.json").read_text())
+    ids = {o["operationId"] for p in catalogue["paths"].values() for o in p.values() if isinstance(o, dict) and "operationId" in o}
+    assert {op["id"] for op in IR["operations"]} == ids

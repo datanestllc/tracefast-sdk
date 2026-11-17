@@ -1,0 +1,45 @@
+{
+  "data": {
+    "chainId": 1,
+    "from": "2026-10-19",
+    "to": "2026-11-17",
+    "days": [
+      {
+        "day": "2026-10-19",
+        "gasPriceAvgWei": "670026763",
+        "gasPriceMedianWei": "194009708",
+        "gasPriceP10Wei": "44425231",
+        "gasPriceP90Wei": "2043704364",
+        "priorityFeeAvgWei": "568849264",
+        "priorityFeeMedianWei": "50000000",
+        "legacy": 229407,
+        "accessList": 1004,
+        "eip1559": 1478264,
+        "blob": 14069,
+        "setCode": 25717,
+        "total": 1748461
+      },
+      {
+        "day": "2026-10-20",
+        "gasPriceAvgWei": "1206156642",
+        "gasPriceMedianWei": "263919072",
+        "gasPriceP10Wei": "46700226",
+        "gasPriceP90Wei": "2136694775",
+        "priorityFeeAvgWei": "955961269",
+        "priorityFeeMedianWei": "60000000",
+        "legacy": 219874,
+        "accessList": 736,
+        "eip1559": 1577262,
+        "blob": 14546,
+        "setCode": 25153,
+        "total": 1837571
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/network-gas"
+  }
+}

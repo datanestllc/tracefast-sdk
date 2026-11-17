@@ -1,0 +1,57 @@
+{
+  "data": {
+    "chainId": 1,
+    "from": "2026-10-19",
+    "to": "2026-11-17",
+    "days": [
+      {
+        "day": "2026-10-19",
+        "swaps": 329565,
+        "volumeUsd": 986711608.4219893,
+        "unpricedPools": 390,
+        "protocols": [
+          {
+            "protocol": "uniswap",
+            "swaps": 298965,
+            "volumeUsd": 834311546.6174946,
+            "activePools": 8249,
+            "unpricedPools": 306
+          },
+          {
+            "protocol": "fluid",
+            "swaps": 2763,
+            "volumeUsd": 91033574.7059361,
+            "activePools": 30
+          }
+        ]
+      },
+      {
+        "day": "2026-10-20",
+        "swaps": 318010,
+        "volumeUsd": 1077078019.3859835,
+        "unpricedPools": 387,
+        "protocols": [
+          {
+            "protocol": "uniswap",
+            "swaps": 290198,
+            "volumeUsd": 898630181.2494295,
+            "activePools": 8774,
+            "unpricedPools": 313
+          },
+          {
+            "protocol": "fluid",
+            "swaps": 2639,
+            "volumeUsd": 98214096.08420864,
+            "activePools": 29
+          }
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/network-dex-volume"
+  }
+}

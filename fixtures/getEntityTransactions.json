@@ -3,6 +3,23 @@
     "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "transactions": [
       {
+        "hash": "0x4661b78c22a4e85dd6c0842ce8e9f969faecb0858602f357bfe3a96a7eb6200d",
+        "blockNumber": 26429715,
+        "txIndex": 212,
+        "timestamp": 1794857699,
+        "from": "0x90969f2da0e9596a5175f75a15c6a71a4fa6663c",
+        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+        "valueWei": "300000000000000",
+        "feeWei": "23481259410000",
+        "nonce": 42,
+        "txType": 2,
+        "inputSize": 0,
+        "gasUsed": "21000",
+        "status": 0,
+        "role": "receiver",
+        "counterparty": "0x90969f2da0e9596a5175f75a15c6a71a4fa6663c"
+      },
+      {
         "hash": "0xabcd0c3ba3c9befdab0c15189c752fede82819f1c9d5e6cad8e835594579e9a8",
         "blockNumber": 26384365,
         "txIndex": 7,
@@ -19,31 +36,14 @@
         "status": 1,
         "role": "receiver",
         "counterparty": "0xb18d53f1d83fa9ce61a4175f67b315152c642368"
-      },
-      {
-        "hash": "0x550d9cbbc35cc7a453c8b2396520842d09252fedf1fcbab3586c319fc1d84e4f",
-        "blockNumber": 26383677,
-        "txIndex": 45,
-        "timestamp": 1794303659,
-        "from": "0x5fe456c09d038e5e654354ee7deeb43f40866420",
-        "to": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
-        "valueWei": "9540000000000",
-        "feeWei": "3563600423136",
-        "nonce": 13,
-        "txType": 2,
-        "inputSize": 0,
-        "gasUsed": "21062",
-        "status": 1,
-        "role": "receiver",
-        "counterparty": "0x5fe456c09d038e5e654354ee7deeb43f40866420"
       }
     ],
-    "nextCursor": "AVsyNjM4MzY3Nyw0NSwwXSRYplVTnpG2Zxx89lIa17Q"
+    "nextCursor": "AVsyNjM4NDM2NSw3LDBdOjbHiROLhQ8JPRCTzVXI6A"
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/entity-transactions",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/entity-transactions"
   }
 }

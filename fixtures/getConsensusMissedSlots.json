@@ -3,27 +3,27 @@
     "chainId": 1,
     "missedSlots": [
       {
-        "slot": 15668669,
-        "epoch": 489645,
-        "slotTime": 1794848051,
+        "slot": 15674313,
+        "epoch": 489822,
+        "slotTime": 1794915779,
         "dutyStatus": "recorded",
-        "validatorIndex": 1012645
+        "validatorIndex": 5144
       },
       {
-        "slot": 15668427,
-        "epoch": 489638,
-        "slotTime": 1794845147,
+        "slot": 15673818,
+        "epoch": 489806,
+        "slotTime": 1794909839,
         "dutyStatus": "recorded",
-        "validatorIndex": 776572
+        "validatorIndex": 92236
       }
     ],
-    "nextCursor": "AVsxNTY2ODQyN112kVLrCLnnDhmdGxIV-rad",
-    "publishedThroughSlot": 15668736
+    "nextCursor": "AVsxNTY3MzgxOF2f2k1PtoYH30Vi5UHBlAjX",
+    "publishedThroughSlot": 15674400
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/consensus-missed-slots",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/consensus-missed-slots"
   }
 }

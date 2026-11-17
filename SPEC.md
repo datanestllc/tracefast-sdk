@@ -40,8 +40,10 @@ refusals and pagination.
 
 - Every operation of the catalogue is one method, grouped by its catalogue tag:
   `client.addresses`, `client.blocks`, `client.consensus`, `client.contracts`,
-  `client.pools`, `client.risk`, `client.tokens`, `client.traces`,
-  `client.transactions`; the one operation tagged `resolve` is `client.resolve`.
+  `client.lending`, `client.network`, `client.pools`, `client.risk`,
+  `client.signals`, `client.tokens`, `client.traces`, `client.transactions`;
+  the one operation tagged `resolve` is `client.resolve`. A new tag is a new
+  namespace, wired by the generator.
 - The method name is the `operationId` without `get` and without the tag's noun
   (`getContractCapabilities` → `contracts.capabilities`); overrides live in
   `codegen/names.json`. Python and Rust use snake_case.
@@ -89,6 +91,15 @@ refusals and pagination.
   appear"): TypeScript `"a" | "b" | (string & {})`, Python `Literal[...] | str`,
   Rust a `String`. In Rust, response structs are `#[non_exhaustive]`, so a new
   field is not a breaking change.
+- **Unions.** A schema that is one of several shapes (`oneOf`) is a union:
+  TypeScript `A | B`, Python `A | B`, Rust an untagged `#[non_exhaustive]` enum
+  whose variants are tried scalars first, then lists, then objects. A union is
+  only emitted as a named catalogue schema.
+- **Extra keys.** An object whose schema allows keys beyond its listed ones
+  (`additionalProperties`) keeps them: an index signature in TypeScript, the
+  dict itself in Python, a flattened `extra` map in Rust.
+- **No untyped values.** A field or schema without a type fails generation,
+  unless `codegen/names.json` lists it under `untyped.allow` as a known gap.
 - Units are the API's:
   - wei, gwei and raw token amounts are decimal **strings**, the unit in the field
     name or description (`balanceWei`, `amountGwei`, `reserveRaw` — which may be

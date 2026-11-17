@@ -1,5 +1,5 @@
 {
-  "$comment": "Method names the default rule gets wrong. The rule: operationId without `get` and without the namespace's noun, lowerCamel; empty \u2192 `get`.",
+  "$comment": "Method names the default rule gets wrong. The rule: operationId without `get` and without the namespace's noun, lowerCamel; empty → `get`.",
   "namespaces": {
     "addresses": [
       "Address",
@@ -14,10 +14,19 @@
     "contracts": [
       "Contract"
     ],
+    "lending": [
+      "Lending"
+    ],
+    "network": [
+      "Network"
+    ],
     "pools": [
       "Pool"
     ],
     "risk": [],
+    "signals": [
+      "Signal"
+    ],
     "tokens": [
       "Token"
     ],
@@ -30,8 +39,12 @@
   },
   "overrides": {
     "getLatestBlock": "latest",
+    "getLendingMarketConfig": "config",
     "getNewPools": "newPools",
     "getPoolsForPair": "forPair",
+    "getSignalKinds": "kinds",
+    "getSignalRates": "rates",
+    "getSignals": "recent",
     "resolveEntity": "resolve"
   },
   "items": {
@@ -43,11 +56,9 @@
   "untyped": {
     "$comment": "Fields the catalogue gives no schema; any other untyped field fails generation.",
     "allow": [
-      "DecodedArg.value",
-      "Proof.dependencyProofRefs",
-      "Proof.factResults",
-      "Proof.failureReasonCodes",
-      "Proof.negativeControlResults"
+      "ProofCheck.expected",
+      "ProofCheck.observed",
+      "ProofCheck.threshold"
     ]
   }
 }

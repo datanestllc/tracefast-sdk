@@ -74,8 +74,21 @@ def validate(value: Any, type_: dict[str, Any], path: str, out: list[str]) -> No
                 continue
             validate(value[f["name"]], f["type"], f"{path}.{f['name']}", out)
         for k in value:
-            if k not in known:
+            if k in known:
+                continue
+            if t.get("extra"):
+                validate(value[k], t["extra"]["type"], f"{path}.{k}", out)
+            else:
                 out.append(f"{path}.{k}: not in the catalogue")
+    elif kind == "union":
+        # One variant must take the value whole.
+        tries: list[list[str]] = []
+        for v in type_["variants"]:
+            errs: list[str] = []
+            validate(value, v["type"], path, errs)
+            tries.append(errs)
+        if not any(not e for e in tries):
+            out.append(f"{path}: matches no variant ({'; '.join(e[0] for e in tries)})")
     elif kind == "array":
         if not isinstance(value, list):
             out.append(f"{path}: expected array")

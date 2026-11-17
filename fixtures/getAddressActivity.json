@@ -7,29 +7,29 @@
     "lastStateChangeBlock": 26399548,
     "lastStateChangeTimestamp": 1794494759,
     "stateChangeCount": 15323,
-    "lastInteractionBlock": 26384365,
-    "lastInteractionTimestamp": 1794311939,
+    "lastInteractionBlock": 26429715,
+    "lastInteractionTimestamp": 1794857699,
     "lastActivity": {
-      "block": 26428714,
-      "timestamp": 1794845651,
+      "block": 26429715,
+      "timestamp": 1794857699,
       "sources": [
         "events",
         "tokenTransfers"
       ],
       "bySource": {
         "events": null,
-        "tokenTransfers": 26428714,
+        "tokenTransfers": 26429715,
         "internalTransfers": 26399548,
-        "directTx": 26384365,
-        "calls": 26402642
+        "directTx": 26429715,
+        "calls": 26429715
       }
     }
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26428878,
-    "docs": "https://docs.tracefast.xyz/api/address-activity",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434638,
+    "docs": "https://docs.tracefast.xyz/api/address-activity"
   }
 }

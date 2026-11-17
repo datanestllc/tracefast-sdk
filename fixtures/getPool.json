@@ -25,15 +25,15 @@
     "factory": "0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f",
     "creationBlock": 10008355,
     "creationTxHash": "0xd07cbde817318492092cc7a27b3064a69bd893c01cb593d6029683ffd290ab3a",
-    "volumeUsd2d": 1975944.2047770582,
-    "swaps2d": 1163,
-    "volumeUsd8d": 8756700.249614427,
-    "swaps8d": 7331
+    "volumeUsd2d": 1064543.7859797077,
+    "swaps2d": 1045,
+    "volumeUsd8d": 8505262.058691077,
+    "swaps8d": 6760
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/pool",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/pool"
   }
 }

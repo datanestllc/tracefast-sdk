@@ -203,6 +203,9 @@ every method of the API.
 | `tf.tokens` | `get(token)`, `holders(token, limit=10)`, `transfers(token, from_=address)`, `price_history(token, from_=1767225600, to=1767312000)` |
 | `tf.pools` | `get(pool)`, `for_pair(token_a=usdc, token_b=weth)`, `swaps(pool)`, `reserves(pool)` |
 | `tf.consensus` | `current()`, `queues()`, `validator(1)`, `missed_slots(limit=10)` |
+| `tf.network` | `daily()`, `gas_daily()`, `top_pools(by="volume", days=7)`, `top_dex_tokens()` |
+| `tf.lending` | `config("aave_v3")` |
+| `tf.signals` | `recent(kind="account_drain")`, `kinds()`, `rates()` |
 | `tf.risk` | `blacklist_status(address)`, `blacklist_events(address)` |
 | `tf` itself | `tf.resolve(q="usdc")`: the addresses a name or a fragment can mean |
 

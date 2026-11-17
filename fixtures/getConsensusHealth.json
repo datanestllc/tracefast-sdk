@@ -2,85 +2,85 @@
   "data": {
     "chainId": 1,
     "head": {
-      "slot": 15668831,
-      "observedAt": 1794849998
+      "slot": 15674522,
+      "observedAt": 1794918289
     },
     "finalized": {
-      "slot": 15668736,
-      "observedAt": 1794849622
+      "slot": 15674432,
+      "observedAt": 1794917974
     },
-    "finalizationLagSlots": 95,
+    "finalizationLagSlots": 90,
     "publishedSlot": {
-      "slot": 15668736,
-      "epoch": 489648,
-      "executionBlockNumber": 26428980,
-      "slotTime": 1794848855
+      "slot": 15674432,
+      "epoch": 489826,
+      "executionBlockNumber": 26434658,
+      "slotTime": 1794917207
     },
     "missedSlots24h": {
-      "slots": 7101,
-      "missed": 15,
-      "missedRatio": 0.0021123785382340513
+      "slots": 7110,
+      "missed": 26,
+      "missedRatio": 0.0036568213783403658
     },
     "reorgs24h": {
-      "count": 2,
-      "lastObservedAt": 1794845030,
+      "count": 5,
+      "lastObservedAt": 1794899940,
       "reorgs": [
         {
-          "slot": 15668417,
-          "epoch": 489638,
+          "slot": 15672993,
+          "epoch": 489781,
           "depth": 1,
-          "observedAt": 1794845030,
-          "slotTime": 1794845027,
-          "newHeadRoot": "0x3839f6114fa6af406582a1720e5c28d9153d93d91630d2d57811c2489a64a670",
-          "oldHeadRoot": "0x240a15e303a6d9639666353ed90081f72d0e2676e22cbc6dbb4663505c37d568",
-          "executionBlockNumber": 26428663
+          "observedAt": 1794899940,
+          "slotTime": 1794899939,
+          "newHeadRoot": "0x2151a343915021198327f4247eb11745d18891bf52647c8cb7ee0e0316e05eb2",
+          "oldHeadRoot": "0xf3a0538cd656aed711cd060a673fe605e5e643b19a4ac448b99cf6677945a052",
+          "executionBlockNumber": 26433225
         },
         {
-          "slot": 15667742,
-          "epoch": 489616,
+          "slot": 15671915,
+          "epoch": 489747,
           "depth": 1,
-          "observedAt": 1794836929,
-          "slotTime": 1794836927,
-          "newHeadRoot": "0x1ec9fcbc7fec99200c12f2109a9d0e360a8ff9f018d78325375b44e2801c7036",
-          "oldHeadRoot": "0x6e39d11afdb9b7893905ae79e8f7cd61e2b16f35ef22711a4c807e5e505e7122",
-          "executionBlockNumber": 26427992
+          "observedAt": 1794887005,
+          "slotTime": 1794887003,
+          "newHeadRoot": "0x8ea982b8e19edd67f5ac0cf7386576e2a3b9fd248e74d372a4a2a624e795c257",
+          "oldHeadRoot": "0xe9af7b7b8e0f4f5d6fbeabcf4adee4e507d5ad04d5c8cd07d04872a91138f39c",
+          "executionBlockNumber": 26432151
         }
       ]
     },
     "observation24h": {
       "windowSlots": 7200,
-      "fromSlot": 15661631,
-      "headEvents": 7187,
-      "firstObservedAt": 1794763610,
-      "lastObservedAt": 1794849998,
-      "largestGapSeconds": 26
+      "fromSlot": 15667322,
+      "headEvents": 7171,
+      "firstObservedAt": 1794831900,
+      "lastObservedAt": 1794918289,
+      "largestGapSeconds": 121
     },
     "missedSlots": [
       {
-        "slot": 15668669,
-        "epoch": 489645,
-        "slotTime": 1794848051,
+        "slot": 15674313,
+        "epoch": 489822,
+        "slotTime": 1794915779,
         "dutyStatus": "recorded",
-        "validatorIndex": 1012645
+        "validatorIndex": 5144
       },
       {
-        "slot": 15668427,
-        "epoch": 489638,
-        "slotTime": 1794845147,
+        "slot": 15673818,
+        "epoch": 489806,
+        "slotTime": 1794909839,
         "dutyStatus": "recorded",
-        "validatorIndex": 776572
+        "validatorIndex": 92236
       }
     ],
     "ages": {
-      "headSeconds": 50,
-      "finalitySeconds": 426,
-      "publishedSlotSeconds": 1193
+      "headSeconds": 13,
+      "finalitySeconds": 328,
+      "publishedSlotSeconds": 1095
     }
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/consensus-health",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/consensus-health"
   }
 }

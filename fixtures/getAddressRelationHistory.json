@@ -19,9 +19,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26428746,
-    "docs": "https://docs.tracefast.xyz/api/address-relation-history",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434502,
+    "docs": "https://docs.tracefast.xyz/api/address-relation-history"
   }
 }

@@ -1,9 +1,9 @@
 {
   "data": {
     "chainId": 1,
-    "issuerCount": 690,
-    "listedPairs": 78012,
-    "listedAddresses": 60819,
+    "issuerCount": 692,
+    "listedPairs": 78014,
+    "listedAddresses": 60821,
     "issuers": [
       {
         "issuerContract": "0x75231f58b43240c9718dd58b4967c5114342a86c",
@@ -25,9 +25,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": true,
-    "asOfBlock": 26428996,
-    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-issuers",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434606,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklist-issuers"
   }
 }

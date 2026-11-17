@@ -1,0 +1,25 @@
+{
+  "data": {
+    "chainId": 1,
+    "from": "2026-10-19",
+    "to": "2026-11-17",
+    "days": [
+      {
+        "day": "2026-10-19",
+        "newEoas": 152928,
+        "newContracts": 135859
+      },
+      {
+        "day": "2026-10-20",
+        "newEoas": 153721,
+        "newContracts": 68861
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/network-new-accounts"
+  }
+}

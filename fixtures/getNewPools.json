@@ -3,42 +3,42 @@
     "chainId": 1,
     "pools": [
       {
-        "poolId": "0x5f8345a03f00052609e69ebe4f290ffa304e25f0b74545470e36f1a8a4bc1070",
+        "pool": "0x6c1cc31b30ddc11836932328964a1afb898ae1c5",
         "protocol": "uniswap",
-        "version": "v4",
+        "version": "v2",
         "firstSwap": {
-          "blockNumber": 26424558,
-          "timestamp": 1794795671,
-          "txHash": "0x889bdca5d6aa5fadd71ac8ed7acf786b04895f1bae1d8b1f6578fc3eadd19449",
-          "logIndex": 169,
-          "tokenIn": "0x0000000000000000000000000000000000000000",
-          "tokenOut": "0x9ec648af13b1d179857cabecc26f2ed8a2877e40",
-          "amountIn": 0.11197,
-          "amountOut": 0.4039851457236508
+          "blockNumber": 26434433,
+          "timestamp": 1794914483,
+          "txHash": "0xd899386a0e0a4565e13dcda2a93c03aaa7f6731e4b4c490b0e3555191b573ca1",
+          "logIndex": 379,
+          "tokenIn": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          "tokenOut": "0xf71c70ef343d3ef33c828cd7487752ce4d2c5e11",
+          "amountIn": 0.000597
         }
       },
       {
-        "poolId": "0x634e2cce9ff0aebd8e005aa9176e0ecfdd454f61b8420608fb2b6df1255517e8",
+        "poolId": "0x3bf7156208965bfffdd77159803a1823898b5e1543c144a7c9772e3befbeead7",
         "protocol": "uniswap",
         "version": "v4",
         "firstSwap": {
-          "blockNumber": 26424557,
-          "timestamp": 1794795659,
-          "txHash": "0xf45d7a74a6ad7d225466a79518e4e61603bbf79c1515c96d4499d25be403e0a3",
-          "logIndex": 359,
+          "blockNumber": 26434414,
+          "timestamp": 1794914255,
+          "txHash": "0x663ca9b855bc4e7d826c437e859ba51ecfea57913c3301e546ed8b747f21aaac",
+          "logIndex": 468,
           "tokenIn": "0x0000000000000000000000000000000000000000",
-          "tokenOut": "0xc229d7f4cb06686f15c350c8d5be8e73d281ed65",
-          "amountIn": 0.03668346238938472,
-          "amountOut": 0.28317850663520133
+          "tokenOut": "0xa957d6c2c4ab947718b710659f1f6fff6943b981",
+          "amountIn": 0.02686380685911732,
+          "amountOut": 0.438014724739439
         }
       }
     ],
-    "nextCursor": "AVsyNjQyNDU1NywiN2M4YzNlMTJkNDY4ZjYwYTc4NGY0NTE2MTc0ZTdiNDYwNGE4OGU3YjQ0NmUwMTNmMDUwZWY4OGQ0ZmViMWU3MyJdfnpcD1PLre4SCgbPeKPnFw"
+    "nextCursor": "AVsyNjQzNDQxNCwiZmJjMjA5MWNhYzcyYWY5MTU1MjNmZjBmZjMxM2M1OTIyY2Y3YmZkMGQ3M2IxOGZkYzFlNjVkMWJjODkwMTY0YSJdIgqxQ6jw8Q1M1V0YaVw1Ew"
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/pools-new",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "asOfBlock": 26434286,
+    "docs": "https://docs.tracefast.xyz/api/pools-new"
   }
 }

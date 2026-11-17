@@ -41,8 +41,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/block-token-transfers",
-    "timestamp": 1790000000000
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/block-token-transfers"
   }
 }

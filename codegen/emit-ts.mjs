@@ -27,6 +27,8 @@ const ts = (t) => {
       return `Partial<Record<string, ${ts(t.values)}>>`
     case 'enum':
       return `${t.values.map((v) => JSON.stringify(v)).join(' | ')} | (string & {})`
+    case 'union':
+      return t.variants.map((v) => ts(v.type)).join(' | ')
     default:
       return 'unknown'
   }
@@ -46,6 +48,10 @@ export function emitTs(ir) {
     for (const f of t.fields) {
       types += doc([f.description], '  ')
       types += `  ${prop(f.name)}${f.required ? '' : '?'}: ${ts(f.type)}${f.nullable ? ' | null' : ''}\n`
+    }
+    if (t.extra) {
+      types += doc([t.extra.description], '  ')
+      types += `  [key: string]: unknown\n`
     }
     types += '}\n'
   }
@@ -129,6 +135,15 @@ export function emitTs(ir) {
   }
   const root = groups.get('root') ?? []
   api += `\n/** The methods that live on the client itself. */\nexport class RootApi {\n  #http: Http\n\n  constructor(http: Http) {\n    this.#http = http\n  }\n\n${methodsOf(root)}}\n`
+  const nsList = [...groups.keys()].filter((n) => n !== 'root').sort()
+  api +=
+    `\n/** The namespaces and root methods of the client. \`TraceFast\` extends it; new namespaces appear here when the catalogue grows. */\nexport class ClientBase {\n` +
+    nsList.map((ns) => `  /** The ${ns} methods. */\n  readonly ${ns}: ${nsName(ns)}\n`).join('') +
+    root.map((op) => `  /** ${op.summary ?? op.name} */\n  readonly ${op.name}: RootApi['${op.name}']\n`).join('') +
+    `\n  constructor(http: Http) {\n` +
+    nsList.map((ns) => `    this.${ns} = new ${nsName(ns)}(http)\n`).join('') +
+    (root.length ? `    const root = new RootApi(http)\n` + root.map((op) => `    this.${op.name} = root.${op.name}.bind(root)\n`).join('') : '') +
+    `  }\n}\n`
   api += `\n/** The version of the API catalogue this SDK was generated from. */\nexport const CATALOGUE_VERSION = ${JSON.stringify(ir.version)}\n`
   api += `\n/** The namespaces of the client, in catalogue order. */\nexport const NAMESPACES = ${JSON.stringify([...groups.keys()].filter((n) => n !== 'root'))} as const\n`
 

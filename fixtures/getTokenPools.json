@@ -5,38 +5,38 @@
     "rankedPools": 10000,
     "pools": [
       {
-        "pool": "0xb1bf29cdc8779a9a80d931f228d0a5e3841eca89",
+        "poolId": "0x1e0674e8f95967850d7be67adbcf4e2221e256095c595d6d4cf7d4a73e7d7700",
         "protocol": "uniswap",
-        "version": "v2",
-        "creationBlockApprox": 26424228,
+        "version": "v4",
+        "creationBlockApprox": 26431713,
         "tokens": [
-          {
-            "address": "0x5ce62802ae4fca5bfebb7dd5876df8c97538e8ec",
-            "symbol": "DRL",
-            "name": "DROL",
-            "decimals": 18,
-            "role": "asset"
-          },
           {
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
             "symbol": "USDC",
             "name": "USD Coin",
             "decimals": 6,
             "role": "asset"
+          },
+          {
+            "address": "0xfeed37054d28239b7a637cacf7c6d4f0b004321b",
+            "symbol": "Rocco",
+            "name": "Rocco",
+            "decimals": 18,
+            "role": "asset"
           }
         ],
         "compositionStatus": "complete"
       },
       {
-        "poolId": "0x33d2995588db87c7791c71fad054c1c348a862c72d16351fb15972188332990b",
+        "poolId": "0x344ecc6e64777b1486c379d4122996c1187413957299200669e006889cebf1b8",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26424109,
+        "creationBlockApprox": 26431708,
         "tokens": [
           {
-            "address": "0x7efd78b1540a281ecc3f03da98f25d5fac46ffff",
-            "symbol": "PHIGHT",
-            "name": "Phight Company",
+            "address": "0x223a053421a4d11ed3e5c36f69bc6bb68a2741d8",
+            "symbol": "SNUT",
+            "name": "Space Squirrel",
             "decimals": 18,
             "role": "asset"
           },
@@ -51,12 +51,12 @@
         "compositionStatus": "complete"
       }
     ],
-    "nextCursor": "AVsyNjQyNDEwOSwiMzE5ODliNzc4OWMxZTYyYzBmOWI4YTYyOGI0M2Y0YjM1ODNhNWViYmIxMGQ2NzdmNDY1ZTQ1MWYwZjQ4MWVmOCJdEOqgnDh9FjfmKmvEB6ZsDg"
+    "nextCursor": "AVsyNjQzMTcwOCwiNWNiNWJmNjEyMTdkNTIzNjI3YWMyYjQ2ZTY4MjEyNzQ2MzM5ZTg4NzFlMWU5NDRmMmYyYTZhNjU2NzY0MzU0NSJdF7IbF1RCbcUniXGjXvyOzw"
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/token-pools",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "docs": "https://docs.tracefast.xyz/api/token-pools"
   }
 }

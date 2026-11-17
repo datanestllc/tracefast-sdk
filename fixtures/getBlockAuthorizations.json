@@ -35,12 +35,12 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
     "asOfBlock": 25920000,
     "docs": "https://docs.tracefast.xyz/api/block-authorizations",
     "coverage": {
-      "authorizationsThroughBlock": 26428996
-    },
-    "timestamp": 1790000000000
+      "authorizationsThroughBlock": 26434603
+    }
   }
 }

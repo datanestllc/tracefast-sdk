@@ -51,8 +51,8 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/entity-resolve",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/entity-resolve"
   }
 }

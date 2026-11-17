@@ -147,10 +147,13 @@ parameter you leave out is not sent.
 | `tf.transactions` | `get(hash)`, `events(hash)`, `failures(hash)`, `storageWrites(hash)` |
 | `tf.traces` | `get(hash, { includeCalldata: true })`, `frames(hash, { limit: 100 })` |
 | `tf.contracts` | `get(address)`, `proxy(address)`, `bytecode(address)`, `capabilities(address)` |
-| `tf.tokens` | `get(token)`, `holders(token)`, `price(token, { block: 20_000_000 })`, `transfers(token)` |
+| `tf.tokens` | `get(token)`, `holders(token)`, `price(token, { block: 20_000_000 })`, `lendingMarkets(token)` |
 | `tf.addresses` | `get(address)`, `portfolio(address)`, `attributes(address)`, `transactions(address, { direction: 'sent' })` |
 | `tf.pools` | `get(pool)`, `forPair({ tokenA, tokenB })`, `swaps(pool)`, `reserves(pool)` |
 | `tf.consensus` | `current()`, `queues()`, `validator(1)`, `missedSlots()` |
+| `tf.network` | `daily()`, `gasDaily()`, `topPools({ by: 'volume', days: 7 })`, `topDexTokens()` |
+| `tf.lending` | `config('aave_v3')` |
+| `tf.signals` | `recent({ kind: 'account_drain' })`, `kinds()`, `rates()` |
 | `tf.risk` | `blacklistStatus(address)`, `blacklistEvents(address)` |
 | `tf.resolve` | `resolve({ q: 'usdc' })` |
 

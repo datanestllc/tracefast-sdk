@@ -1,0 +1,57 @@
+{
+  "data": {
+    "chainId": 1,
+    "from": "2026-10-19",
+    "to": "2026-11-17",
+    "days": [
+      {
+        "day": "2026-10-19",
+        "blocks": 7171,
+        "firstBlock": 26222896,
+        "lastBlock": 26230066,
+        "transactions": 1748461,
+        "successful": 1722584,
+        "failed": 25877,
+        "contractCreations": 3005,
+        "valueTransferredWei": "1144988064937658605175071",
+        "gasUsed": "218042294946",
+        "avgGasUtilizationPct": 50.68051087076025,
+        "avgBlockTimeSeconds": 12.048535564853557,
+        "withdrawals": 114736,
+        "baseFeeAvgWei": "95459603",
+        "baseFeeMedianWei": "57339038",
+        "baseFeeP10Wei": "38891984",
+        "baseFeeP90Wei": "210535354",
+        "burntFeesWei": "20537432303737829869",
+        "blobGasUsed": "4698013696"
+      },
+      {
+        "day": "2026-10-20",
+        "blocks": 7175,
+        "firstBlock": 26230067,
+        "lastBlock": 26237241,
+        "transactions": 1837571,
+        "successful": 1812177,
+        "failed": 25394,
+        "contractCreations": 1882,
+        "valueTransferredWei": "1714208731386856660659838",
+        "gasUsed": "217874198953",
+        "avgGasUtilizationPct": 50.61365766699909,
+        "avgBlockTimeSeconds": 12.041817674937274,
+        "withdrawals": 114800,
+        "baseFeeAvgWei": "228995569",
+        "baseFeeMedianWei": "109062526",
+        "baseFeeP10Wei": "40810486",
+        "baseFeeP90Wei": "525644290",
+        "burntFeesWei": "49286063123899244542",
+        "blobGasUsed": "4899995648"
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "docs": "https://docs.tracefast.xyz/api/network-daily"
+  }
+}

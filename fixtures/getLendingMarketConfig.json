@@ -1,0 +1,61 @@
+{
+  "data": {
+    "chainId": 1,
+    "protocol": "aave_v3",
+    "coveredMarkets": [
+      {
+        "protocol": "aave_v3",
+        "pool": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2"
+      }
+    ],
+    "assets": [
+      {
+        "asset": "0x111111111117dc0aa78b770fa6a738034120c302",
+        "pool": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+        "ltvBps": 0,
+        "liquidationThresholdBps": 6700,
+        "liquidationBonusBps": 750,
+        "reserveFactorBps": 5000,
+        "liquidationProtocolFeeBps": 1000,
+        "supplyCapTokens": "1",
+        "borrowCapTokens": "1",
+        "active": true,
+        "frozen": true,
+        "paused": false,
+        "priceOracle": "0xc929ad75b72593967de83e7f7cda0493458261d9",
+        "receiptToken": "0x71aef7b30728b9bb371578f36c5a1f1502a5723e",
+        "variableDebtToken": "0xa38fca8c6bf9bda52e76eb78f08caa3be7c5a970",
+        "stableDebtToken": "0x4b62bfaff61ab3985798e5202d2d167f567d0bcd",
+        "rateStrategy": "0xf6733b9842883bfe0e0a940ea2f572676af31bde",
+        "lastChangeBlock": 26019517
+      },
+      {
+        "asset": "0x14bdc3a3ae09f5518b923b69489cbcafb238e617",
+        "pool": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+        "ltvBps": 0,
+        "liquidationThresholdBps": 10,
+        "liquidationBonusBps": 750,
+        "reserveFactorBps": 4500,
+        "liquidationProtocolFeeBps": 1000,
+        "supplyCapTokens": "1",
+        "borrowCapTokens": "1",
+        "active": true,
+        "frozen": true,
+        "paused": false,
+        "priceOracle": "0x03f9ba9a897241985c1f12bce97fac1b0bd4a7a7",
+        "receiptToken": "0x2edff5af94334fbd7c38ae318edf1c40e072b73b",
+        "variableDebtToken": "0x22517fe16ded08e52e7ea3423a2ea4995b1f1731",
+        "stableDebtToken": "0x0000000000000000000000000000000000000000",
+        "rateStrategy": "0x9ec6f08190dea04a54f8afc53db96134e5e3fdfb",
+        "lastChangeBlock": 26019561
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "asOfBlock": 26434606,
+    "docs": "https://docs.tracefast.xyz/api/lending-config"
+  }
+}

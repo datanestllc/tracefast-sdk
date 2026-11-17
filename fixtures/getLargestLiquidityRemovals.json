@@ -2,8 +2,8 @@
   "data": {
     "chainId": 1,
     "window": "7d",
-    "fromBlock": 26378306,
-    "toBlock": 26428705,
+    "fromBlock": 26384036,
+    "toBlock": 26434435,
     "removals": [
       {
         "blockNumber": 26390520,
@@ -43,9 +43,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26428705,
-    "docs": "https://docs.tracefast.xyz/api/pools-liquidity-removals",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434435,
+    "docs": "https://docs.tracefast.xyz/api/pools-liquidity-removals"
   }
 }

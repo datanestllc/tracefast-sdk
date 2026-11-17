@@ -81,6 +81,8 @@ const rs = (t) => {
       return `Vec<${rs(t.items)}>`
     case 'map':
       return `BTreeMap<String, ${rs(t.values)}>`
+    case 'union':
+      throw new Error('a union is emitted only as a named type; name it in the catalogue')
     default:
       return 'serde_json::Value'
   }
@@ -103,6 +105,21 @@ function emitTypes(ir) {
     'use serde::{Deserialize, Serialize};\n'
   for (const [name, t] of [...ir.types].sort(([a], [b]) => a.localeCompare(b))) {
     out += '\n'
+    if (t.kind === 'alias' && t.type.kind === 'union') {
+      // Untagged: each variant is tried in order — scalars, then lists, then objects.
+      const vs = t.type.variants
+      unique(vs.map((v) => v.label), name)
+      out += doc([esc(t.description), '', 'One of the variants below, told apart by the JSON value itself.'])
+      out += '#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]\n#[serde(untagged)]\n#[non_exhaustive]\n'
+      out += `pub enum ${name} {\n`
+      for (const v of vs) {
+        out += doc([esc(v.description)], '    ')
+        out += `    ${v.label}(${rs(v.type)}),\n`
+      }
+      out += '}\n\n'
+      out += `impl Default for ${name} {\n    /// The first variant, empty.\n    fn default() -> Self {\n        Self::${vs[0].label}(Default::default())\n    }\n}\n`
+      continue
+    }
     if (t.kind === 'alias') {
       out += doc([esc(t.description), '', known(t.type)])
       out += `pub type ${name} = ${rs(t.type)};\n`
@@ -128,6 +145,11 @@ function emitTypes(ir) {
       }
       out += `    #[serde(${attrs.join(', ')})]\n`
       out += `    pub ${ident(f.name)}: ${ty},\n`
+    }
+    if (t.extra) {
+      if (t.fields.some((f) => ident(f.name) === 'extra')) throw new Error(`${name}: a field is named extra`)
+      out += doc([esc(t.extra.description || 'Keys beyond the ones listed, with their values.')], '    ')
+      out += `    #[serde(flatten)]\n    pub extra: BTreeMap<String, ${rs(t.extra.type)}>,\n`
     }
     out += '}\n'
   }

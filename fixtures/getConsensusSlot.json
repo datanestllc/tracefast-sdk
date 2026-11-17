@@ -22,12 +22,12 @@
     "blockRoot": "0x3f33d5eb391a147ed393d4cdfb2b78bf0e86c7764e8f581cfdf1b54ce2ed19d1",
     "graffitiHex": "0x4745646431654c48636662310000000000000000000000000000000000000000",
     "graffiti": "GEdd1eLHcfb1",
-    "publishedThroughSlot": 15668736
+    "publishedThroughSlot": 15674400
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/consensus-slot",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/consensus-slot"
   }
 }

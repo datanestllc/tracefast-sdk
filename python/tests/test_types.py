@@ -26,6 +26,6 @@ def test_a_field_named_like_a_keyword_keeps_the_class_and_its_docstrings() -> No
     assert isinstance(t, type) and t.__doc__ and "`from`" in t.__doc__
     hints = typing.get_type_hints(t, include_extras=True)
     assert "from" in hints and "to" in hints
-    assert "from" in t.__required_keys__  # type: ignore[attr-defined]
-    assert "from" in types.BlockTokenTransfer.__optional_keys__  # type: ignore[attr-defined]
+    assert "from" in getattr(t, "__required_keys__")
+    assert "from" in getattr(types.BlockTokenTransfer, "__optional_keys__")
     assert not any(n.startswith("_") for n in types.__all__)

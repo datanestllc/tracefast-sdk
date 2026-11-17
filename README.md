@@ -72,8 +72,9 @@ The packages are generated from one snapshot of the API catalogue by one
 generator, and follow one behaviour contract, [SPEC.md](SPEC.md):
 
 - **Every method, typed**, grouped as in the API documentation —
-  `addresses`, `blocks`, `consensus`, `contracts`, `pools`, `risk`, `tokens`,
-  `traces`, `transactions`, plus `resolve`.
+  `addresses`, `blocks`, `consensus`, `contracts`, `lending`, `network`,
+  `pools`, `risk`, `signals`, `tokens`, `traces`, `transactions`, plus
+  `resolve`.
 - **The whole answer.** A method returns `{ data, meta }`; `meta.asOfBlock`
   says which block the answer is true at.
 - **Honest types.** Absent, `null` and a value are kept apart. An absent fact is

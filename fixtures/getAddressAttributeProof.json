@@ -42,9 +42,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26428852,
-    "docs": "https://docs.tracefast.xyz/api/address-attribute-proof",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434525,
+    "docs": "https://docs.tracefast.xyz/api/address-attribute-proof"
   }
 }

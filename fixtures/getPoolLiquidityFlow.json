@@ -5,17 +5,6 @@
     "days": 30,
     "points": [
       {
-        "day": "2026-10-18",
-        "addUsd": 239188567.8618257,
-        "removeUsd": 239189086.861373,
-        "netFlowUsd": -518.9995473027229,
-        "addEvents": 11,
-        "removeEvents": 25,
-        "uniqueProviders": 4,
-        "pricedLegs": 72,
-        "totalLegs": 72
-      },
-      {
         "day": "2026-10-19",
         "addUsd": 235989392.07902095,
         "removeUsd": 235989428.16755307,
@@ -25,13 +14,24 @@
         "uniqueProviders": 3,
         "pricedLegs": 30,
         "totalLegs": 30
+      },
+      {
+        "day": "2026-10-20",
+        "addUsd": 252137487.98388895,
+        "removeUsd": 252137970.51854545,
+        "netFlowUsd": -482.5346564948559,
+        "addEvents": 8,
+        "removeEvents": 8,
+        "uniqueProviders": 3,
+        "pricedLegs": 32,
+        "totalLegs": 32
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/pool-liquidity-flow",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/pool-liquidity-flow"
   }
 }

@@ -26,9 +26,9 @@
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
     "asOfBlock": 25920000,
-    "docs": "https://docs.tracefast.xyz/api/block-addresses",
-    "timestamp": 1790000000000
+    "docs": "https://docs.tracefast.xyz/api/block-addresses"
   }
 }

@@ -3,14 +3,14 @@
     "address": "0x28c6c06298d514db089934071355e5743bf21d60",
     "window": {
       "kind": "current",
-      "asOfBlock": 26428439,
+      "asOfBlock": 26434116,
       "nativeFreshness": "head"
     },
     "priceBasis": "latest_hour",
-    "totalUsd": 5921708.37374789,
-    "pricedCount": 147,
-    "hiddenCount": 1192,
-    "coveredTokenCount": 393184,
+    "totalUsd": 6002265.539641721,
+    "pricedCount": 148,
+    "hiddenCount": 1191,
+    "coveredTokenCount": 393186,
     "positions": [
       {
         "kind": "token",
@@ -22,7 +22,7 @@
         "priceHour": 1787709600,
         "priceCarried": true,
         "valueUsd": 2687226.9628087566,
-        "share": 0.4537925195238874,
+        "share": 0.4477021126541427,
         "asOfBlock": 25890487
       },
       {
@@ -30,21 +30,21 @@
         "token": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "symbol": "USDT",
         "decimals": 6,
-        "balance": "1352018110019",
+        "balance": "1352018137769",
         "priceUsd": 1,
-        "priceHour": 1794848400,
+        "priceHour": 1794916800,
         "priceCarried": false,
-        "valueUsd": 1352018.110019,
-        "share": 0.22831555096714404,
-        "asOfBlock": 26428439
+        "valueUsd": 1352018.137769,
+        "share": 0.22525130366853158,
+        "asOfBlock": 26434116
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
+    "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26428439,
-    "docs": "https://docs.tracefast.xyz/api/address-portfolio",
-    "timestamp": 1790000000000
+    "asOfBlock": 26434116,
+    "docs": "https://docs.tracefast.xyz/api/address-portfolio"
   }
 }

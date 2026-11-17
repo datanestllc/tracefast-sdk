@@ -11,12 +11,12 @@
     "totalEffectiveBalanceGwei": "0",
     "validators": [],
     "truncated": false,
-    "snapshotEpoch": 489574
+    "snapshotEpoch": 489799
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/entity-validators",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "docs": "https://docs.tracefast.xyz/api/entity-validators"
   }
 }

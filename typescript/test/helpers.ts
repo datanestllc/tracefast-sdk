@@ -31,7 +31,21 @@ export function validate(value: unknown, type: any, path: string, out: string[])
         }
         validate(obj[f.name], f.type, `${path}.${f.name}`, out)
       }
-      for (const k of Object.keys(obj)) if (!known.has(k)) out.push(`${path}.${k}: not in the catalogue`)
+      for (const k of Object.keys(obj)) {
+        if (known.has(k)) continue
+        if (t.extra) validate(obj[k], t.extra.type, `${path}.${k}`, out)
+        else out.push(`${path}.${k}: not in the catalogue`)
+      }
+      return
+    }
+    case 'union': {
+      // One variant must take the value whole.
+      const tries = type.variants.map((v: any) => {
+        const errs: string[] = []
+        validate(value, v.type, path, errs)
+        return errs
+      })
+      if (!tries.some((e: string[]) => e.length === 0)) out.push(`${path}: matches no variant (${tries.map((e: string[]) => e[0]).join('; ')})`)
       return
     }
     case 'array':

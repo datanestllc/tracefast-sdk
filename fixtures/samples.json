@@ -20,6 +20,7 @@
     "getAddressRelationsAtBlock": { "path": { "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" }, "query": { "block": "20000000" } },
     "getAddressAttributeProof": { "path": { "attribute_id": "address_nature:eip7702_delegated_currently" } },
     "getAddressRelationProof": { "path": { "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "attribute_id": "relation:proxy_uses_implementation", "object": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd" } },
+    "getLendingMarketConfig": { "path": { "protocol": "aave_v3" } },
     "getPoolsForPair": { "query": { "tokenA": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", "tokenB": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2" } },
     "resolveEntity": { "query": { "q": "usdc" } },
     "getAddressTokenBalance": { "path": { "address": "0x28c6c06298d514db089934071355e5743bf21d60" } },

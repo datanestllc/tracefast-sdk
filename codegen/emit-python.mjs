@@ -48,6 +48,8 @@ export const pyType = (t) => {
       return `dict[str, ${pyType(t.values)}]`
     case 'enum':
       return `Literal[${t.values.map(str).join(', ')}] | str`
+    case 'union':
+      return t.variants.map((v) => pyType(v.type)).join(' | ')
     default:
       return 'Any'
   }
@@ -106,18 +108,26 @@ function emitTypes(ir, header) {
     docstring(['The response types of the TraceFast API, one TypedDict per catalogue object.', '', 'A key the API leaves out is absent from the dict; a `null` is `None`. Enums are open: a value the catalogue does not list may appear.'], '') +
     '\nfrom __future__ import annotations\n\nfrom typing import Any, Literal, TypeAlias\n\nfrom typing_extensions import NotRequired, TypedDict\n'
   const exported = []
-  const hasRef = (t) => t.kind === 'ref' || (t.items && hasRef(t.items)) || (t.values && hasRef(t.values))
+  const hasRef = (t) =>
+    t.kind === 'ref' || (t.items && hasRef(t.items)) || (t.values && hasRef(t.values)) || (t.variants ?? []).some((v) => hasRef(v.type))
+  const refsOf = (t) => (t.kind === 'ref' ? [t.name] : [t.items, t.values, ...(t.variants ?? []).map((v) => v.type)].filter(Boolean).flatMap(refsOf))
+  // An alias is evaluated at runtime (typing.get_type_hints reads it), so one
+  // that names a class is written after every class.
+  let deferred = ''
   for (const [name, t] of sorted) {
     exported.push(name)
-    out += '\n\n'
     if (t.kind === 'alias') {
-      // Evaluated at runtime (typing.get_type_hints reads it), so it may not
-      // name a type that is declared further down.
-      if (hasRef(t.type)) throw new Error(`alias ${name} refers to another type; the Python emitter cannot order it`)
-      out += comment(t.description, '')
-      out += `${name}: TypeAlias = ${pyType(t.type)}\n`
+      const text = '\n\n' + comment(t.description, '') + `${name}: TypeAlias = ${pyType(t.type)}\n`
+      if (!hasRef(t.type)) {
+        out += text
+        continue
+      }
+      for (const r of refsOf(t.type))
+        if (ir.types.get(r).kind !== 'object') throw new Error(`alias ${name} refers to alias ${r}; the Python emitter cannot order it`)
+      deferred += text
       continue
     }
+    out += '\n\n'
     // A field named like a keyword (`from`) cannot be written in class syntax:
     // those fields go into a functional base, the others keep their docstrings.
     const special = (f) => !isIdent(f.name) || SHADOWED.has(f.name) || typeNames.has(f.name)
@@ -146,6 +156,7 @@ function emitTypes(ir, header) {
       out += docstring([f.description], '    ')
     })
   }
+  out += deferred
   out += `\n\n__all__ = [\n${exported.map((n) => `    ${str(n)},`).join('\n')}\n]\n`
   return out
 }
@@ -161,9 +172,11 @@ function emitApi(ir, header) {
   }
   const used = new Set()
   let usesAny = false
+  let usesLiteral = false
   const ann = (t) => {
     const s = pyType(t)
     if (/\bAny\b/.test(s)) usesAny = true
+    if (/\bLiteral\[/.test(s)) usesLiteral = true
     for (const m of s.matchAll(/\b[A-Z]\w*/g)) if (ir.types.has(m[0])) used.add(m[0])
     return s
   }
@@ -299,7 +312,7 @@ function emitApi(ir, header) {
     header +
     docstring(['The operations of the TraceFast API, one method each, grouped by namespace.'], '') +
     '\nfrom __future__ import annotations\n\n' +
-    `from collections.abc import AsyncIterator, Iterator\nfrom typing import ${usesAny ? 'Any, ' : ''}cast\n\n` +
+    `from collections.abc import AsyncIterator, Iterator\nfrom typing import ${usesAny ? 'Any, ' : ''}${usesLiteral ? 'Literal, ' : ''}cast\n\n` +
     'from .._http import AsyncHttp, SyncHttp, segment\n' +
     `from .types import (\n${[...used].sort().map((t) => `    ${t},`).join('\n')}\n)\n\n` +
     '# The namespaces of the client, in catalogue order.\n' +

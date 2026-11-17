@@ -1,0 +1,84 @@
+{
+  "data": {
+    "chainId": 1,
+    "fromBlock": 26427560,
+    "toBlock": 26434759,
+    "signals": [
+      {
+        "signalId": "0x93c80fa4691c602390459a69d8087b57b5d7cbc4f04e3c7b6f6bd3abf73142de",
+        "kind": "account_drain",
+        "detector": "drains",
+        "subject": "0xe0518be186d276bba5c93b707845d1fe6ff9cc4c",
+        "blockNumber": 26434744,
+        "blockTimestamp": 1794918239,
+        "txHash": "0x35c58d8ad3ebdcd81411c41bc2eb8b51a1c3015936aadca437e10b45f48a15ce",
+        "complete": true,
+        "trader": false,
+        "evidence": {
+          "assets_count": 2,
+          "collector_snapshot_block": 26432029,
+          "drain_blocks": 5,
+          "emptied": [
+            {
+              "amount_raw": "21417313972807330000000000",
+              "asset": "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+              "block_number": 26434740,
+              "tx_hash": "0x4bb6567f1458c95c1603d02505451f41389254543a597487fa017b10ca092d7d"
+            },
+            {
+              "amount_raw": "16367143000000000000000000",
+              "asset": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+              "block_number": 26434744,
+              "tx_hash": "0x35c58d8ad3ebdcd81411c41bc2eb8b51a1c3015936aadca437e10b45f48a15ce"
+            }
+          ],
+          "emptied_count": 2,
+          "eth_balance_before_wei": null,
+          "first_block": 26434740,
+          "owner_nonce": 22,
+          "recipient": "0xabf914c71b46d7332b71457538d8fa738190a062",
+          "recipient_existed_before": false,
+          "recipient_nonce_before": 0,
+          "recipient_owners_emptied_into": 1,
+          "recipient_window_blocks": 300,
+          "span_blocks": 4
+        }
+      },
+      {
+        "signalId": "0xad74488af42f02a66f566cf1665dc25a6bedff8da13d7c67ea9bcfa6ab9ab1af",
+        "kind": "delegation_to_rare_delegate",
+        "detector": "eip7702",
+        "subject": "0x953c1ba7029c92741a1739dcd18a8a462109b618",
+        "blockNumber": 26434740,
+        "blockTimestamp": 1794918191,
+        "txHash": "0x74d51054b8c8c9cc482fd373c2e68b59c4babc78b2f1fa0c4d9d0457e4599961",
+        "complete": true,
+        "trader": false,
+        "evidence": {
+          "authorities_for_delegate_in_block": 1,
+          "authority_balance_before_wei": "67403200947723261",
+          "authority_created_in_block": false,
+          "delegate": "0x3516d8db77e41319011f4265cd61e743e9b9822c",
+          "delegate_age_blocks": 69008,
+          "delegate_authorities_before": 1,
+          "delegate_authorities_before_at_least": false,
+          "delegate_deploy_block": 26365732,
+          "delegate_deployed_in_block": false,
+          "delegate_first_delegation_block": 26365733,
+          "delegate_known": true,
+          "rare_threshold": 10,
+          "sponsored": false,
+          "submitter": "0x953c1ba7029c92741a1739dcd18a8a462109b618"
+        }
+      }
+    ],
+    "nextCursor": "AVsyNjQzNDc0MCwiMHhhZDc0NDg4YWY0MmYwMmE2NmY1NjZjZjE2NjVkYzI1YTZiZWRmZjhkYTEzZDdjNjdlYTliY2ZhNmFiOWFiMWFmIl2DB682eRxlEkz5Rq-EcMeB"
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "asOfBlock": 26434759,
+    "docs": "https://docs.tracefast.xyz/api/signals"
+  }
+}

@@ -6,8 +6,9 @@
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "docs": "https://docs.tracefast.xyz/api/transaction-flash-loans",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/transaction-flash-loans"
   }
 }

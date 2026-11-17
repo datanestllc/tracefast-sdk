@@ -1,0 +1,50 @@
+{
+  "data": {
+    "chainId": 1,
+    "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+    "coveredMarkets": [
+      {
+        "protocol": "aave_v3",
+        "pool": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2"
+      }
+    ],
+    "markets": [
+      {
+        "protocol": "aave_v3",
+        "pool": "0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2",
+        "symbol": "USDC",
+        "decimals": 6,
+        "roles": [
+          "borrow",
+          "supply"
+        ],
+        "suppliedRaw": "2776262625881841",
+        "borrowedRaw": "2617075001361901",
+        "suppliedUsd": 2776262625.881841,
+        "borrowedUsd": 2617075001.361901,
+        "supplyApy": 0.041936705985792994,
+        "borrowApy": 0.049430776571888074,
+        "ltvBps": 0,
+        "liquidationThresholdBps": 7800,
+        "liquidationBonusBps": 450,
+        "supplyCapRaw": "3500000000000000",
+        "borrowCapRaw": "2950000000000000",
+        "supplyCapUsedPct": 79.32178931090974,
+        "borrowCapUsedPct": 88.71440682582715,
+        "active": true,
+        "frozen": false,
+        "paused": false,
+        "priceUsd": 0.99975154,
+        "priceOracle": "0x3f73f03aa83b2a48ed27e964ed0fdb590332095b",
+        "lastEventBlock": 26434605
+      }
+    ]
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": true,
+    "asOfBlock": 26434606,
+    "docs": "https://docs.tracefast.xyz/api/token-lending-markets"
+  }
+}

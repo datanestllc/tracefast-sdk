@@ -33,9 +33,9 @@
   },
   "meta": {
     "chain": "ethereum",
-    "cached": false,
-    "asOfBlock": 26428996,
-    "docs": "https://docs.tracefast.xyz/api/risk-blacklisted",
-    "timestamp": 1790000000000
+    "timestamp": 1790000000000,
+    "cached": true,
+    "asOfBlock": 26434606,
+    "docs": "https://docs.tracefast.xyz/api/risk-blacklisted"
   }
 }

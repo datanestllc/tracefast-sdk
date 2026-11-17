@@ -3,8 +3,8 @@
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     "days": 30,
-    "totalVolumeUsd": 9899786407.875505,
-    "totalSwaps": 2858256,
+    "totalVolumeUsd": 9912749096.69409,
+    "totalSwaps": 2865785,
     "points": [
       {
         "day": "2026-10-19",

@@ -5,10 +5,11 @@ All three packages share one version and one changelog. Dates are UTC.
 ## 0.1.0 — 2026-11-17
 
 First version of the TypeScript, Python and Rust SDKs, generated from API
-catalogue `0.2.0+f6ac003e`.
+catalogue `0.2.0+ec369d84`.
 
-- Every method of the catalogue — 109 — typed, grouped in 12 namespaces plus
-  `resolve`. All of them are stable.
+- Every method of the catalogue — 110 — typed, grouped in 12 namespaces plus
+  `resolve`. One is Beta: `transactions.storageSlots`, what each storage slot
+  a transaction wrote is.
 - Values that can take more than one shape (a decoded argument, the checks of
   a proof and their values) are typed as unions: a TypeScript union, a Python
   `|` alias, a Rust untagged enum. No field of any response is untyped.

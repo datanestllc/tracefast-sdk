@@ -38,7 +38,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437137,
+    "asOfBlock": 26437536,
     "docs": "https://docs.tracefast.xyz/api/entity-state-changes"
   }
 }

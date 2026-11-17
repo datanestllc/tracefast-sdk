@@ -39,12 +39,12 @@
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
+    "cached": true,
     "asOfBlock": 25920000,
     "docs": "https://docs.tracefast.xyz/api/transaction-storage-writes",
     "coverage": {
       "storageWritesFromBlock": 49018,
-      "storageWritesThroughBlock": 26437111
+      "storageWritesThroughBlock": 26437498
     }
   }
 }

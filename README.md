@@ -17,12 +17,12 @@ for TypeScript, Python and Rust.
 
 | Language | Package | Docs | Version |
 |---|---|---|---|
-| TypeScript / JavaScript | `@tracefast/sdk` | [typescript/README.md](typescript/README.md) | 0.1 |
+| TypeScript / JavaScript | `@tracefast_xyz/sdk` | [typescript/README.md](typescript/README.md) | 0.1 |
 | Python | `tracefast` | [python/README.md](python/README.md) | 0.1 |
 | Rust | `tracefast` | [rust/README.md](rust/README.md) | 0.1 |
 
 ```bash
-npm install @tracefast/sdk    # TypeScript / JavaScript
+npm install @tracefast_xyz/sdk    # TypeScript / JavaScript
 pip install tracefast         # Python
 cargo add tracefast           # Rust
 ```
@@ -40,7 +40,7 @@ cargo add tracefast           # Rust
 ## A taste
 
 ```ts
-import { TraceFast } from '@tracefast/sdk'
+import { TraceFast } from '@tracefast_xyz/sdk'
 
 const tf = new TraceFast({ apiKey: process.env.TRACEFAST_API_KEY! })
 const { data } = await tf.contracts.proxy('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48')
@@ -107,7 +107,7 @@ side and are outside that promise — see
 openapi/      the catalogue snapshot the SDKs are generated from
 codegen/      the generator: catalogue → TypeScript, Python, Rust
 fixtures/     one recorded live answer per method, shared by all three test suites
-typescript/   @tracefast/sdk
+typescript/   @tracefast_xyz/sdk
 python/       tracefast (PyPI)
 rust/         tracefast (crates.io)
 SPEC.md       the behaviour every SDK follows

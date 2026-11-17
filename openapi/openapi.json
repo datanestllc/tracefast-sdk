@@ -1638,6 +1638,16 @@
             "description": "Hash of the parent block.",
             "type": "string"
           },
+          "participantCount": {
+            "description": "Number of distinct addresses that took part in the block, by any role: sender,\nrecipient, called contract, token sender or receiver, event emitter, withdrawal\nrecipient, fee recipient, system call, EIP-7702 authority. `uniqueAddressCount` is the\npart of them whose own account changed. Stated by `blocks/{number}` only;\n`blocks/latest` does not state it. Absent — never zero — when the count is not known:\nthe newest block or two are not counted yet, or the count could not be read for this\nanswer. Read it with `participantCountFinal`.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "participantCountFinal": {
+            "description": "Beside `participantCount` only. `true`: the count is final and will not change.\n`false`: the block is among the most recent few hundred, and its count can still\nchange (a reorganisation, a late record); ask again later for a final value. Absent\nwith `participantCount`, or when it cannot be said whether the count is final.",
+            "type": "boolean"
+          },
           "receiptsRoot": {
             "description": "Root of the block's receipt trie, lowercase and `0x`-prefixed.",
             "type": "string"
@@ -5216,7 +5226,7 @@
             "type": "integer"
           },
           "events": {
-            "description": "Newest first.",
+            "description": "In the order asked for: newest first by default, oldest first with `order=asc`.",
             "items": {
               "$ref": "#/components/schemas/EventLog"
             },
@@ -6431,6 +6441,13 @@
             "minimum": 0,
             "type": "integer"
           },
+          "candidates": {
+            "description": "The readings of the log, one per fitting signature, best first — so the first one is\nthe reading given in `name` and `args`. Present only when `candidateCount` is greater\nthan `1`, and then holds the first `candidateCount` readings, at most 8: a log several\nhundred signatures fit is not worth several hundred readings. `candidateCount` is the\ntrue count either way. Absent when the decoding is unambiguous.",
+            "items": {
+              "$ref": "#/components/schemas/DecodedEventCandidate"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "Event name, for example `Transfer`.",
             "type": "string"
@@ -6440,6 +6457,27 @@
           "name",
           "args",
           "candidateCount"
+        ],
+        "type": "object"
+      },
+      "DecodedEventCandidate": {
+        "description": "One reading of an ambiguous log: an event name and the arguments that signature decodes.",
+        "properties": {
+          "args": {
+            "description": "Arguments in this signature's declaration order.",
+            "items": {
+              "$ref": "#/components/schemas/DecodedArg"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "Event name under this signature.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "args"
         ],
         "type": "object"
       },
@@ -7680,6 +7718,16 @@
             "format": "int64",
             "type": "integer"
           },
+          "callDepth": {
+            "description": "Depth of that frame, `1` = the top-level call. Present exactly when `callPath` is.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "callPath": {
+            "description": "The call frame that emitted the log, in the trace's encoding: the frame whose\n`callPath` is this value in the transaction's trace (four hex characters per level,\nthe top-level call is `0000`). Stated by the transaction events method only. Absent\nwhere the emitting frame is not known: in blocks below the first block this is\ncomputed from (`meta.coverage.eventAttributionFromBlock`), or when no frame is\nrecorded for the log. Never guessed.",
+            "type": "string"
+          },
           "data": {
             "description": "The log's data, `0x`-prefixed.",
             "type": "string"
@@ -7784,7 +7832,7 @@
         "description": "One failed call frame inside a reverted transaction.",
         "properties": {
           "callDepth": {
-            "description": "Depth from the root frame, 1 = root.",
+            "description": "Depth from the root frame, `1` = root: `callDepth == 1` is the transaction's own\ntop-level call.",
             "format": "int32",
             "minimum": 0,
             "type": "integer"
@@ -10352,8 +10400,12 @@
             "minimum": 0,
             "type": "integer"
           },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page. Pages walk the\nvalued positions as of `window.asOfBlock`. With `block`, that set is fixed and the\npages tile it exactly. Without `block`, the current set can be valued anew between two\npages (at most every few minutes, and at each new price hour); a cursor issued before\nthat is then refused with `invalid_cursor` — restart from the first page, or pass\n`block` for a set that cannot move. A walk therefore never skips a position.",
+            "type": "string"
+          },
           "positions": {
-            "description": "Valued positions in descending USD value, at most `limit` rows. No NFTs, no DeFi\npositions, no liquidity-pool shares — token balances and the native asset only.",
+            "description": "This page of the valued positions, in descending USD value (ties: the native asset\nfirst, then by token address), at most `limit` rows. No NFTs, no DeFi positions, no\nliquidity-pool shares — token balances and the native asset only.",
             "items": {
               "$ref": "#/components/schemas/Position"
             },
@@ -10369,13 +10421,13 @@
             "type": "integer"
           },
           "pricedCount": {
-            "description": "How many positions carry a USD value — the size of the set `positions` is the top of.",
+            "description": "How many positions carry a USD value — the size of the whole set the pages walk.",
             "format": "int64",
             "minimum": 0,
             "type": "integer"
           },
           "totalUsd": {
-            "description": "Sum of `valueUsd` over ALL valued positions of the address — not only the ones listed\nwhen `limit` cuts the list. Absent when nothing could be valued (absent, never 0).",
+            "description": "Sum of `valueUsd` over ALL valued positions of the address — not only the ones on this\npage. Absent when nothing could be valued (absent, never 0).",
             "format": "double",
             "type": "number"
           },
@@ -11551,6 +11603,14 @@
         ],
         "type": "string"
       },
+      "RevertDecodeSource": {
+        "description": "How a frame's `revertReason` was found.",
+        "enum": [
+          "standard",
+          "registry"
+        ],
+        "type": "string"
+      },
       "Selector": {
         "description": "One function selector of a contract, resolved to a signature where one is known.",
         "properties": {
@@ -11914,6 +11974,84 @@
         ],
         "type": "object"
       },
+      "SlotKeyLayout": {
+        "description": "How the innermost hash of a `derived` key was built.",
+        "enum": [
+          "solidity",
+          "vyper",
+          "array",
+          "three_words"
+        ],
+        "type": "string"
+      },
+      "SlotMeaning": {
+        "description": "What a storage slot is. Numbers that can exceed 2^53 ride as decimal strings.",
+        "properties": {
+          "baseSlot": {
+            "description": "`derived` only, when the chain of hashes was traced down to a small number: the slot of\nthe declared variable (the mapping or the array itself), decimal string.",
+            "type": "string"
+          },
+          "chainOffsets": {
+            "description": "`derived` only: the offsets of the hash chain's links, in declaration order as traced,\ndecimal strings. Which mapping key each offset goes with is not stated, and the two\nlists can differ in length.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "depth": {
+            "description": "`derived` and `fixed_slot` only: how many levels of hashing were traced — `0` none\n(`fixed_slot`: the key is not a hash), `1` one mapping or array, `2`-`3` nested ones. Absent\non the other kinds, where nothing was traced: absence there is not `0`.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/SlotMeaningKind",
+            "description": "`derived` | `fixed_slot` | `unknown` | `not_computed` | `before_coverage`. Treat a value\nyou do not recognise as \"nothing known about the slot\"."
+          },
+          "layout": {
+            "$ref": "#/components/schemas/SlotKeyLayout",
+            "description": "`derived` only: how the innermost hash was built. Absent when it cannot be told."
+          },
+          "layoutAmbiguous": {
+            "description": "`derived` only: `true` when both words of the innermost hash are small numbers, so which\none is the key and which the slot cannot be told apart; the Solidity order is assumed.\nAbsent on the other kinds, which have no hash to read.",
+            "type": "boolean"
+          },
+          "mappingKeys": {
+            "description": "`derived` only: the mapping keys found in the hash chain, in declaration order as\ntraced, as `0x`-prefixed 32-byte words (64 lowercase hex characters; an address is\nleft-padded with zeros). An array level uses no key, so there can be fewer keys than\n`depth`; which level each key belongs to is not stated. Absent when a key could not be\nread as a 32-byte word — the list is never served in part.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "offset": {
+            "description": "`derived` only: the offset added to the hash, a struct member or an array element\ninside the mapped value, decimal string. Absent when not traced.",
+            "type": "string"
+          },
+          "slot": {
+            "description": "`fixed_slot` only: the key's own value, decimal string.",
+            "type": "string"
+          },
+          "variableIdentified": {
+            "description": "`derived` only: `true` when the chain of hashes ends at a small base slot — the variable\nis identified (`baseSlot`). Absent on the other kinds: a `fixed_slot` is not\nnecessarily a declared variable, and on `unknown` / `not_computed` / `before_coverage`\nnothing was traced, so `false` there would be a claim nobody computed.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "type": "object"
+      },
+      "SlotMeaningKind": {
+        "description": "How a storage slot's key was computed, as far as it could be traced.",
+        "enum": [
+          "derived",
+          "fixed_slot",
+          "unknown",
+          "not_computed",
+          "before_coverage"
+        ],
+        "type": "string"
+      },
       "SlotValueChange": {
         "description": "One block in which the slot's value changed.",
         "properties": {
@@ -12177,6 +12315,35 @@
           "firstChangeBlock",
           "lastChangeBlock",
           "currentValueStatus"
+        ],
+        "type": "object"
+      },
+      "StorageSlot": {
+        "description": "One storage slot a transaction wrote.",
+        "properties": {
+          "meaning": {
+            "$ref": "#/components/schemas/SlotMeaning",
+            "description": "What the slot is: how its key was computed. Absent when no answer could be had for this\nslot in this response — absence says nothing about the slot; ask again later."
+          },
+          "storageAddress": {
+            "description": "The contract whose storage the slot is, lowercase and `0x`-prefixed.",
+            "type": "string"
+          },
+          "storageKey": {
+            "description": "The slot key, `0x`-prefixed, 64 hex characters.",
+            "type": "string"
+          },
+          "writeCount": {
+            "description": "How many times the transaction wrote this slot; within the first 5 000 writes of the\ntransaction when `slotsTruncated` is true.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "storageAddress",
+          "storageKey",
+          "writeCount"
         ],
         "type": "object"
       },
@@ -13456,6 +13623,11 @@
             "description": "`call`, `callcode`, `delegatecall`, `staticcall`, `create`, `create2`,\n`selfdestruct`, `eoa_transfer`.",
             "type": "string"
           },
+          "childIndex": {
+            "description": "The frame's position among the frames called by the same parent, from `0`, in the\norder the parent made the calls: `0` is the parent's first call. The top-level call\nhas no siblings and is `0`. Equal to the last four hex characters of `callPath`.",
+            "format": "int32",
+            "type": "integer"
+          },
           "codeAddress": {
             "description": "The address whose code this frame runs. On a `delegatecall` this is the\nimplementation while `to` stays the storage context — the PAIR is what makes a\nproxy call readable, which is why `to` does not change meaning. When this address is\nan account with an EIP-7702 delegation, the code that ran is its delegate's:\n`executedCodeAddress`. Absent where there is no callee code (`create`, `create2`,\n`selfdestruct`).",
             "type": "string"
@@ -13469,7 +13641,7 @@
             "description": "The authorization that set that delegation. Present exactly when\n`executedCodeAddress` is."
           },
           "depth": {
-            "description": "Depth in the tree; `1` is the top-level call.",
+            "description": "Depth in the tree; `1` is the top-level call — the only frame at depth `1`, so\n`depth == 1` is how to recognise it.",
             "format": "int32",
             "type": "integer"
           },
@@ -13546,6 +13718,10 @@
             "description": "`true` when `revertData` is shorter than the payload (`revertDataSize`). Absent with\n`revertData`.",
             "type": "boolean"
           },
+          "revertDecodeSource": {
+            "$ref": "#/components/schemas/RevertDecodeSource",
+            "description": "How `revertReason` was found. Present only when `revertDecodeStatus` is `decoded`."
+          },
           "revertDecodeStatus": {
             "description": "Why `revertReason` is what it is: `decoded`, `undecodable` (a payload is present\nbut no name was found) or `absent` (no payload to decode). An empty reason is\nambiguous three ways, and this field is what separates them.\n\nNamed apart from the event decoder's `decodeStatus` on purpose: that vocabulary\ndescribes event-decode confidence and the two appear in one response.",
             "type": "string"
@@ -13578,6 +13754,7 @@
         "required": [
           "order",
           "depth",
+          "childIndex",
           "callPath",
           "callType",
           "from",
@@ -14299,6 +14476,74 @@
         ],
         "type": "object"
       },
+      "TransactionStorageSlots": {
+        "description": "The distinct storage slots one transaction wrote, and what each slot is.",
+        "properties": {
+          "blockNumber": {
+            "description": "Height of the block that includes the transaction.",
+            "format": "int64",
+            "type": "integer"
+          },
+          "hash": {
+            "description": "Transaction hash, lowercase and `0x`-prefixed.",
+            "type": "string"
+          },
+          "nextCursor": {
+            "description": "Opaque cursor for the next page. Absent on the last page.",
+            "type": "string"
+          },
+          "slotCount": {
+            "description": "How many distinct slots the transaction wrote — the length of the whole list the pages\nwalk; within the first 5 000 writes of the transaction when `slotsTruncated` is true.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "slots": {
+            "description": "This page: one row per distinct slot (contract and key), in the order of the slot's\nfirst write.",
+            "items": {
+              "$ref": "#/components/schemas/StorageSlot"
+            },
+            "type": "array"
+          },
+          "slotsTruncated": {
+            "description": "`true` on EVERY page when the transaction made more than the 5 000 writes this method\nreads: the list is then the slots of its first 5 000 writes, slots written only later\nare not in it, and `slotCount` and each `writeCount` count within those writes.",
+            "type": "boolean"
+          },
+          "txIndex": {
+            "description": "Position of the transaction within its block, from `0`.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "hash",
+          "blockNumber",
+          "txIndex",
+          "slotCount",
+          "slots",
+          "slotsTruncated"
+        ],
+        "type": "object"
+      },
+      "TransactionStorageSlotsResponse": {
+        "description": "Response of the transaction-storage-slots method.",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TransactionStorageSlots",
+            "description": "The answer itself: what this method returns, described by its own schema."
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PublicMeta",
+            "description": "Response metadata: when it was produced, whether it came from the cache, the block it\nis current as of where the method states one, and the link to its documentation."
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "type": "object"
+      },
       "TransactionStorageWrites": {
         "description": "A page of one transaction's storage writes.",
         "properties": {
@@ -14857,7 +15102,7 @@
       "name": ""
     },
     "title": "TraceFast API",
-    "version": "0.2.0+f6ac003e"
+    "version": "0.2.0+ec369d84"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -15080,7 +15325,7 @@
     },
     "/chains/{chain_id}/blocks/{number}": {
       "get": {
-        "description": "TraceFast live Ethereum data: one block by height — its header (hash, parent, roots, fee recipient, gas, base fee, blob gas) and the totals of what it contains: transactions by outcome, contract creations, blob transactions, logs, withdrawals, value moved, fees burnt and paid. A block that is not known yet answers 404.",
+        "description": "TraceFast live Ethereum data: one block by height — its header (hash, parent, roots, fee recipient, gas, base fee, blob gas) and the totals of what it contains: transactions by outcome, contract creations, blob transactions, logs, withdrawals, value moved, fees burnt and paid, and how many addresses took part in it (`participantCount`, with `participantCountFinal` saying whether that number can still change). A block that is not known yet answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/block"
         },
@@ -18468,7 +18713,7 @@
     },
     "/chains/{chain_id}/contracts/{address}/events": {
       "get": {
-        "description": "TraceFast live Ethereum data: the event logs a contract emitted, newest first, each with its topics and data and, where the signature is known, the decoded event and its arguments. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page holds at most `limit` events and may hold fewer when their `data` is large: the page is bounded by size, a log is never cut. `topic0` narrows to one event signature; on a very active contract that narrowing is answered only inside a block window, and the refusal names the window it needs.",
+        "description": "TraceFast live Ethereum data: the event logs a contract emitted, newest first (or oldest first with `order=asc`), each with its topics and data and, where the signature is known, the decoded event and its arguments — with the readings listed (at most 8; `candidateCount` is the true count) when more than one known signature fits the log. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page holds at most `limit` events and may hold fewer when their `data` is large: the page is bounded by size, a log is never cut. `topic0` narrows to one event signature and `eventName` to one event name; on a very active contract either narrowing is answered only inside a block window, and the refusal names the window it needs.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/contract-events"
         },
@@ -18525,6 +18770,24 @@
             }
           },
           {
+            "description": "Only events whose name, as TraceFast's event index records it, is this value, e.g. `Transfer`: 1 to 100 letters, digits or underscores. Case-sensitive. An event the index holds no name for is not matched.",
+            "in": "query",
+            "name": "eventName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "`desc` (default): newest first. `asc`: oldest first — the start of the contract's history on the first page.",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "Inclusive lower block bound.",
             "in": "query",
             "name": "fromBlock",
@@ -18566,7 +18829,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address or `topic0`, `limit` outside 1 to 100, an inverted window, an unknown parameter, or a filter that needs a block window on a contract this active (`reason: filter_needs_block_window`, with the bound); `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
+            "description": "`bad_request`: malformed address or `topic0` (`reason: topic0_invalid`), a malformed `eventName` (`reason: event_name_invalid`), an `order` other than `asc` / `desc` (`reason: order_invalid`), `limit` outside 1 to 100, an inverted window, an unknown parameter, or a filter that needs a block window on a contract this active (`reason: filter_needs_block_window`, with the bound); `invalid_cursor`: the cursor is not valid for this request (another filter set or order) — restart from the first page"
           },
           "401": {
             "content": {
@@ -21634,7 +21897,7 @@
     },
     "/chains/{chain_id}/entities/{address}/portfolio": {
       "get": {
-        "description": "TraceFast live Ethereum data: everything an address holds, valued in USD — its token balances and its native ETH, each with the balance, the hourly USD price, the USD value and the share of the total. Returns up to 100 positions in descending USD value, plus `totalUsd`, `pricedCount` and `hiddenCount` over the whole holding. A position is listed only when it can be valued (a USD price for the hour, known decimals, and a value within what that price can vouch for — a thin-market price is not applied to an amount far beyond what its market trades); anything else the address holds is counted in `hiddenCount`, never listed. Token balances are served for the covered tokens (`coveredTokenCount`, growing continuously); a balance in a token outside that set is absent, not zero. No NFTs, no DeFi positions, no liquidity-pool shares. With `block`, the exact state at the end of that block, priced at that block's hour.",
+        "description": "TraceFast live Ethereum data: everything an address holds, valued in USD — its token balances and its native ETH, each with the balance, the hourly USD price, the USD value and the share of the total. Positions come in descending USD value, up to `limit` per page; pass `nextCursor` back as `cursor` until it is absent to walk every valued position. `totalUsd`, `pricedCount` and `hiddenCount` are over the whole holding on every page. Pages are over the set as of `window.asOfBlock`: with `block` that set is fixed; without it, the current set can be valued anew between two pages, and a cursor from before that is refused with `invalid_cursor` (restart from the first page). A position is listed only when it can be valued (a USD price for the hour, known decimals, and a value within what that price can vouch for — a thin-market price is not applied to an amount far beyond what its market trades); anything else the address holds is counted in `hiddenCount`, never listed. Token balances are served for the covered tokens (`coveredTokenCount`, growing continuously); a balance in a token outside that set is absent, not zero. No NFTs, no DeFi positions, no liquidity-pool shares. With `block`, the exact state at the end of that block, priced at that block's hour.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/address-portfolio"
         },
@@ -21671,7 +21934,7 @@
             }
           },
           {
-            "description": "1 to 100, default 100.",
+            "description": "Positions per page, 1 to 100, default 100.",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -21681,6 +21944,15 @@
               "maximum": 100,
               "minimum": 1,
               "type": "integer"
+            }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method, this address and the same `block` (or its absence).",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -21703,7 +21975,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address, `block` not positive, `limit` outside 1 to 100, or an unknown query parameter"
+            "description": "`bad_request`: malformed address, `block` not positive, `limit` outside 1 to 100, or an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
           },
           "401": {
             "content": {
@@ -28023,7 +28295,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}/events": {
       "get": {
-        "description": "TraceFast live Ethereum data: the event logs a transaction emitted, in emission order, each with the emitting contract, topics and data, and — when the event signature is known — the decoded event name and arguments with a stated confidence. Decoding covers the common token, DeFi and protocol events; an unknown signature is returned raw with `decodeStatus: abi_missing`, and a known one whose layout does not fit the log with `failed` — raw as well, without `decoded`. Paged by an opaque cursor; a page holds at most `limit` logs and may hold fewer when their `data` is large — the page is bounded by size, a log is never cut. A hash that is not known answers 404.",
+        "description": "TraceFast live Ethereum data: the event logs a transaction emitted, in emission order, each with the emitting contract, topics and data, and — when the event signature is known — the decoded event name and arguments with a stated confidence. Decoding covers the common token, DeFi and protocol events; an unknown signature is returned raw with `decodeStatus: abi_missing`, and a known one whose layout does not fit the log with `failed` — raw as well, without `decoded`. When more than one known signature fits a log, the readings are listed — at most 8, `candidateCount` is the true count. Each event names the call frame that emitted it (`callPath`, `callDepth`), the same path as in the transaction's trace, where that is known; `meta.coverage.eventAttributionFromBlock` names the first block from which it is computed. Paged by an opaque cursor; a page holds at most `limit` logs and may hold fewer when their `data` is large — the page is bounded by size, a log is never cut. A hash that is not known answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction-events"
         },
@@ -28775,6 +29047,145 @@
           }
         },
         "summary": "Transactions of the same block it depends on",
+        "tags": [
+          "transactions"
+        ],
+        "x-minimum-plan": "investigation"
+      }
+    },
+    "/chains/{chain_id}/transactions/{hash}/storage-slots": {
+      "get": {
+        "description": "TraceFast live Ethereum data: the distinct storage slots a transaction wrote (contract and slot key), in the order of each slot's first write, with how many times it was written and what the slot IS — how its key was computed: an entry of a mapping or a dynamic array (`derived`, with the mapping keys and the declared variable's slot where they were traced), a plain variable's fixed slot (`fixed_slot`), or not known (`unknown`, `not_computed`, `before_coverage`). No values: the values written and before are `storage-writes`. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. `meta.coverage` names the range storage writes are served over and the range slot keys are traced over.",
+        "externalDocs": {
+          "url": "https://docs.tracefast.xyz/api/transaction-storage-slots"
+        },
+        "operationId": "getTransactionStorageSlots",
+        "parameters": [
+          {
+            "description": "Chain id. `1` (Ethereum mainnet) is served; any other value answers 404 `chain_not_supported`.",
+            "in": "path",
+            "name": "chain_id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Transaction hash, `0x`-prefixed, 64 hex characters, any case.",
+            "in": "path",
+            "name": "hash",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Slots per page, 1 to 20, default 10.",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "format": "int32",
+              "maximum": 20,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque, and valid only for this method, this transaction and the slot list it was cut from.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionStorageSlotsResponse"
+                }
+              }
+            },
+            "description": "The page in the `data` / `meta` envelope"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "`bad_request`: malformed hash, `limit` outside 1 to 20 (`reason: limit_out_of_range`), or an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessErrorEnvelope"
+                }
+              }
+            },
+            "description": "`auth_failed`: no API key, or one that is invalid, disabled, expired or revoked (`reason`)."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessErrorEnvelope"
+                }
+              }
+            },
+            "description": "`forbidden`: your plan does not include this method (`reason: plan_scope_missing`, with the plans in `details`), or this API key was not issued with it (`key_scope_missing`)."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "`not_found`: no transaction with this hash is known; `chain_not_supported`; or an unknown path"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "`block_not_available`: `reason: block_not_available` when the transaction is below the height storage writes are served from (`minAvailableBlock`); `reason: coverage_gap` when the transaction's block is above the writes' own reach (`maxAvailableBlock`, open-ended) or when a range of recent blocks is temporarily unavailable and a transaction mined in it cannot be confirmed right now — retry later"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessErrorEnvelope"
+                }
+              }
+            },
+            "description": "`rate_limited`, `concurrency_limited` or `quota_exceeded`: a limit was hit (`bucket`); retry after `Retry-After` where it is sent."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccessErrorEnvelope"
+                }
+              }
+            },
+            "description": "`service_degraded`: who is calling could not be established right now; retry after `Retry-After`."
+          }
+        },
+        "summary": "What the storage slots a transaction wrote are",
         "tags": [
           "transactions"
         ],

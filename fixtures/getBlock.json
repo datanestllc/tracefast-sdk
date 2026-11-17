@@ -30,7 +30,9 @@
     "difficulty": "0",
     "extraData": "0xe29ca82051756173617220287175617361722e77696e2920e29ca8",
     "ommersCount": 0,
-    "uniqueAddressCount": 690
+    "uniqueAddressCount": 690,
+    "participantCount": 1184,
+    "participantCountFinal": true
   },
   "meta": {
     "chain": "ethereum",

@@ -102,6 +102,7 @@
   "getTransactionFlashLoans": "stable",
   "getTransactionLiquidityEvents": "stable",
   "getTransactionStateDependencies": "stable",
+  "getTransactionStorageSlots": "beta",
   "getTransactionStorageWrites": "stable",
   "getTransactionTrace": "stable",
   "getTransactionTraceFrames": "stable",

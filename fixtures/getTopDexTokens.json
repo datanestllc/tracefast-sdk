@@ -6,17 +6,17 @@
       {
         "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "symbol": "USDC",
-        "volumeUsd": 2301606280.320823,
-        "swapsAsToken0": 385137,
-        "swapsAsToken1": 264567,
+        "volumeUsd": 2314568969.139408,
+        "swapsAsToken0": 389602,
+        "swapsAsToken1": 267631,
         "pools": 1485
       },
       {
         "token": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "symbol": "USDT",
-        "volumeUsd": 1794360343.8031828,
-        "swapsAsToken0": 29533,
-        "swapsAsToken1": 424583,
+        "volumeUsd": 1808584151.595933,
+        "swapsAsToken0": 29864,
+        "swapsAsToken1": 429543,
         "pools": 1239
       }
     ]
@@ -24,7 +24,7 @@
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
+    "cached": true,
     "docs": "https://docs.tracefast.xyz/api/network-top-dex-tokens"
   }
 }

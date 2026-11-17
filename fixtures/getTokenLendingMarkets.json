@@ -18,25 +18,25 @@
           "borrow",
           "supply"
         ],
-        "suppliedRaw": "2726281518793681",
-        "borrowedRaw": "2616765776110049",
-        "suppliedUsd": 2726281518.793681,
-        "borrowedUsd": 2616765776.110049,
-        "supplyApy": 0.06740866985085567,
-        "borrowApy": 0.07803389769047211,
+        "suppliedRaw": "2721711089381633",
+        "borrowedRaw": "2611850573829452",
+        "suppliedUsd": 2721711089.381633,
+        "borrowedUsd": 2611850573.829452,
+        "supplyApy": 0.06711415443593798,
+        "borrowApy": 0.07770875408316347,
         "ltvBps": 0,
         "liquidationThresholdBps": 7800,
         "liquidationBonusBps": 450,
         "supplyCapRaw": "3500000000000000",
         "borrowCapRaw": "2950000000000000",
-        "supplyCapUsedPct": 77.89375767981946,
-        "borrowCapUsedPct": 88.70392461389997,
+        "supplyCapUsedPct": 77.76317398233236,
+        "borrowCapUsedPct": 88.53730758743905,
         "active": true,
         "frozen": false,
         "paused": false,
         "priceUsd": 0.9998206,
         "priceOracle": "0x3f73f03aa83b2a48ed27e964ed0fdb590332095b",
-        "lastEventBlock": 26437101
+        "lastEventBlock": 26437429
       }
     ]
   },
@@ -44,7 +44,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437117,
+    "asOfBlock": 26437435,
     "docs": "https://docs.tracefast.xyz/api/token-lending-markets"
   }
 }

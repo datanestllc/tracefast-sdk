@@ -1,4 +1,4 @@
-# @tracefast/sdk
+# @tracefast_xyz/sdk
 
 **[TraceFast](https://tracefast.xyz) shows what happened on Ethereum, down to
 execution: who took part, what moved, and which code ran.** It reads every block
@@ -12,7 +12,7 @@ pool, market or vault from the block its factory created it. Built for
 compliance teams, exchanges, auditors and investigators — and open to explore in
 the app at [tracefast.xyz](https://tracefast.xyz).
 
-`@tracefast/sdk` is the official TypeScript and JavaScript SDK for the
+`@tracefast_xyz/sdk` is the official TypeScript and JavaScript SDK for the
 [TraceFast API](https://docs.tracefast.xyz/api): every method, typed, for Node.js,
 Bun, Deno and edge runtimes.
 
@@ -46,17 +46,17 @@ Bun, Deno and edge runtimes.
 ## Install
 
 ```bash
-npm install @tracefast/sdk
+npm install @tracefast_xyz/sdk
 # or
-pnpm add @tracefast/sdk
+pnpm add @tracefast_xyz/sdk
 # or
-bun add @tracefast/sdk
+bun add @tracefast_xyz/sdk
 ```
 
 ## Quick start
 
 ```ts
-import { TraceFast } from '@tracefast/sdk'
+import { TraceFast } from '@tracefast_xyz/sdk'
 
 const tf = new TraceFast({ apiKey: process.env.TRACEFAST_API_KEY! })
 
@@ -93,7 +93,7 @@ Each method needs a plan — **Enriched Data**, **Intelligence** or
 names the plan. A key whose plan does not include the method is refused:
 
 ```ts
-import { PermissionDeniedError } from '@tracefast/sdk'
+import { PermissionDeniedError } from '@tracefast_xyz/sdk'
 
 try {
   await tf.contracts.capabilities('0xdac17f958d2ee523a2206206994597c13d831ec7')
@@ -207,7 +207,7 @@ Every failure is a `TraceFastError`, and a subclass names its kind:
 | `UnexpectedResponseError` | an answer that is not the API's — a redirect, a proxy page |
 
 ```ts
-import { UnprocessableEntityError } from '@tracefast/sdk'
+import { UnprocessableEntityError } from '@tracefast_xyz/sdk'
 
 try {
   await tf.tokens.price('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', { block: 99_000_000 })
@@ -281,7 +281,7 @@ means the block was reorganised. An address's own feeds need the
 Every request and response type is exported, named after its method:
 
 ```ts
-import type { ContractsProxyResponse, AddressesTransactionsParams } from '@tracefast/sdk'
+import type { ContractsProxyResponse, AddressesTransactionsParams } from '@tracefast_xyz/sdk'
 ```
 
 `CATALOGUE_VERSION` names the API catalogue the package was generated from.

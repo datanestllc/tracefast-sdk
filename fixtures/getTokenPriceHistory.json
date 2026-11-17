@@ -2,11 +2,11 @@
   "data": {
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "fromHour": 1794340800,
-    "toHour": 1794945600,
+    "fromHour": 1794348000,
+    "toHour": 1794952800,
     "points": [
       {
-        "hour": 1794340800,
+        "hour": 1794348000,
         "priceUsd": 1,
         "priceSource": "stable_peg",
         "carried": false,
@@ -16,7 +16,7 @@
         "divergencePct": 0.021433999999997955
       },
       {
-        "hour": 1794344400,
+        "hour": 1794351600,
         "priceUsd": 1,
         "priceSource": "stable_peg",
         "carried": false,

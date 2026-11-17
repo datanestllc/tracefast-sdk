@@ -51,7 +51,7 @@
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
+    "cached": true,
     "docs": "https://docs.tracefast.xyz/api/network-dex-volume"
   }
 }

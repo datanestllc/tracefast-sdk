@@ -11,8 +11,8 @@
         "signature": "transfer(address,uint256)",
         "decodeStatus": "ambiguous",
         "candidateCount": 4,
-        "topLevelCalls": 113402558,
-        "lastTopLevelCallBlock": 26437114
+        "topLevelCalls": 113411826,
+        "lastTopLevelCallBlock": 26437498
       },
       {
         "kind": "function",
@@ -21,16 +21,16 @@
         "signature": "approve(address,uint256)",
         "decodeStatus": "ambiguous",
         "candidateCount": 3,
-        "topLevelCalls": 14723994,
-        "lastTopLevelCallBlock": 26437114
+        "topLevelCalls": 14724675,
+        "lastTopLevelCallBlock": 26437498
       }
     ],
     "entryCount": 231,
     "callSpan": {
       "firstBlock": 6082473,
-      "lastBlock": 26437114
+      "lastBlock": 26437498
     },
-    "callSpanAsOfBlock": 26437114
+    "callSpanAsOfBlock": 26437498
   },
   "meta": {
     "chain": "ethereum",

@@ -2,8 +2,8 @@
   "data": {
     "chainId": 1,
     "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
-    "fromBlock": 26386436,
-    "toBlock": 26436835,
+    "fromBlock": 26387063,
+    "toBlock": 26437462,
     "events": [
       {
         "blockNumber": 26436192,
@@ -36,13 +36,13 @@
         "tokenCount": 2
       }
     ],
-    "nextCursor": "AVsyNjM4NjQzNiwyNjQzNjgzNSwyNjQzNjE5MiwxNTAsMjkwXZ_99WY8m0kvl7Jc9T0fTiU"
+    "nextCursor": "AVsyNjM4NzA2MywyNjQzNzQ2MiwyNjQzNjE5MiwxNTAsMjkwXYN3HFHdo2Q7ujtXEpqjPak"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26436835,
+    "asOfBlock": 26437462,
     "docs": "https://docs.tracefast.xyz/api/pool-liquidity-events"
   }
 }

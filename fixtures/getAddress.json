@@ -10,7 +10,7 @@
       "sinceBlock": 23459292,
       "delegationCount": 1,
       "delegateCount": 1,
-      "coveredThroughBlock": 26437219
+      "coveredThroughBlock": 26437622
     },
     "balanceWei": "5798969845714110716",
     "nonce": 5970,
@@ -26,13 +26,13 @@
     "sentTxCount": 5969,
     "receivedTxCount": 72487,
     "totalFeesPaidWei": "24622648713141360898",
-    "txStatsAsOfBlock": 26437114
+    "txStatsAsOfBlock": 26437498
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437137,
+    "asOfBlock": 26437536,
     "docs": "https://docs.tracefast.xyz/api/address"
   }
 }

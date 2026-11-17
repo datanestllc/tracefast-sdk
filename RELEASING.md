@@ -1,6 +1,6 @@
 # Releasing
 
-All three packages — npm `@tracefast/sdk`, PyPI `tracefast`, crates.io
+All three packages — npm `@tracefast_xyz/sdk`, PyPI `tracefast`, crates.io
 `tracefast` — share one version and are released together by
 [`.github/workflows/release.yml`](.github/workflows/release.yml) when a tag
 `v<version>` is pushed.
@@ -39,8 +39,8 @@ workflow `release.yml`, environment `release`.
 2. **PyPI.** On the account that will own `tracefast`, add a *pending* trusted
    publisher for project `tracefast` with the values above. A pending
    publisher works before the project exists, so no token is ever needed.
-3. **npm.** Create the organisation `tracefast` (it owns the scope
-   `@tracefast`). npm can only trust a package that exists, so the first
+3. **npm.** Create the organisation `tracefast_xyz` (it owns the scope
+   `@tracefast_xyz`). npm can only trust a package that exists, so the first
    version is published with a granular access token: store it as the secret
    `NPM_TOKEN` of the `release` environment. After the first release, add the
    trusted publisher on the package's settings page and delete both the secret

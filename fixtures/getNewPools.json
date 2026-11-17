@@ -3,37 +3,37 @@
     "chainId": 1,
     "pools": [
       {
-        "poolId": "0x2e1b6d2469beeae05d263106f1e8b94fc9d2a1f15c7d959af38b291df5903e38",
+        "poolId": "0x87e451f933dc98ae62e0d039276b67e7b49bc9222129fb44a02c53d9dbf55a8b",
         "protocol": "uniswap",
         "version": "v4",
         "firstSwap": {
-          "blockNumber": 26436806,
-          "timestamp": 1794943091,
-          "txHash": "0x518872bf8be2b141b5a7cc19c2ba49904826d58435500065e6ae35c745d5b9ce",
-          "logIndex": 381,
-          "tokenIn": "0x0000000000000000000000000000000000000000",
-          "tokenOut": "0x6418c0dd099a9fda397c766304cdd918233e8847",
-          "amountIn": 0.02243838835103614,
-          "amountOut": 8531.132999288337
+          "blockNumber": 26437405,
+          "timestamp": 1794950291,
+          "txHash": "0xce5f3eb8b39184bc5b4f4b88400ec228bf2c64001f1df88580ef85b612b211bd",
+          "logIndex": 187,
+          "tokenIn": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          "tokenOut": "0x96f6ef951840721adbf46ac996b59e0235cb985c",
+          "amountIn": 0.426117,
+          "amountOut": 0.36974751656008126
         }
       },
       {
-        "pool": "0xd45e6e1f5448ff5a17b90fc406e9aa86df3cd2fc",
+        "poolId": "0x45fb5c5d2536c3564672414e2332cc0b56f73bf4dfe64e258f996e7f8f1584ae",
         "protocol": "uniswap",
-        "version": "v2",
+        "version": "v4",
         "firstSwap": {
-          "blockNumber": 26436785,
-          "timestamp": 1794942839,
-          "txHash": "0x05ea2faf90ed643a7e9cd089989113a08365a6f94507cf311196af62e6f54800",
-          "logIndex": 94,
-          "tokenIn": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-          "tokenOut": "0x6cae898e20d041d34c2670a14054e8caf73de327",
-          "amountIn": 0.01791745628302479,
-          "amountOut": 0.044206182069244024
+          "blockNumber": 26437379,
+          "timestamp": 1794949979,
+          "txHash": "0x38e77230d3859fb698dae2de751aa4f4dda3c3a4c5af68c15b51803733924f48",
+          "logIndex": 869,
+          "tokenIn": "0x1201dcfc7c0b2ce46c7604bf104234ab42a56bbd",
+          "tokenOut": "0x3173dc3af3981c6e98bb63799b9cbeb5526ff752",
+          "amountIn": 0.00985,
+          "amountOut": 5.261375374033931
         }
       }
     ],
-    "nextCursor": "AVsyNjQzNjc4NSwiMTUxOTc4ZGVkNjAxM2ExZTEzNjhmOGMyMzBlYzBjYjEwOWZhZjUwZDMwODE1OGYyOGZjMjc2MzI1ZWI5ZmQ1YSJd8WUS6o0xN0Qn6cuwUTDVwg"
+    "nextCursor": "AVsyNjQzNzM3OSwiNzQ5OWZhNjU2NWZkNDMwYTBhNDkyYThkZTRjNjYxNWQyYzJmMGRhY2VhNTE2NmM5ZTJiMDBmMmJkMWZiM2M4ZiJdKU9t6k2dN9gz6DktT4O-FA"
   },
   "meta": {
     "chain": "ethereum",

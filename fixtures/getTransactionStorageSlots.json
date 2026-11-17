@@ -1,0 +1,40 @@
+{
+  "data": {
+    "hash": "0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5",
+    "blockNumber": 25920000,
+    "txIndex": 168,
+    "slotCount": 2,
+    "slots": [
+      {
+        "storageAddress": "0xb300000b72deaeb607a12d5f54773d1c19c7028d",
+        "storageKey": "0x89d01902a77e9ad7f7103ded15feb0071b100f807050f8feeaeeed16a845d921",
+        "writeCount": 2,
+        "meaning": {
+          "kind": "unknown"
+        }
+      },
+      {
+        "storageAddress": "0x69460570c93f9de5e2edbc3052bf10125f0ca22d",
+        "storageKey": "0x4fe94118b1030ac5f570795d403ee5116fd91b8f0b5d11f2487377c2b0ab2559",
+        "writeCount": 2,
+        "meaning": {
+          "kind": "unknown"
+        }
+      }
+    ],
+    "slotsTruncated": false
+  },
+  "meta": {
+    "chain": "ethereum",
+    "timestamp": 1790000000000,
+    "cached": false,
+    "asOfBlock": 25920000,
+    "docs": "https://docs.tracefast.xyz/api/transaction-storage-slots",
+    "coverage": {
+      "slotMeaningsFromBlock": 2675000,
+      "slotMeaningsThroughBlock": 26437498,
+      "storageWritesFromBlock": 49018,
+      "storageWritesThroughBlock": 26437498
+    }
+  }
+}

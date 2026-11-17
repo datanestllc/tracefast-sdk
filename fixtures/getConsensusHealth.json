@@ -2,24 +2,24 @@
   "data": {
     "chainId": 1,
     "head": {
-      "slot": 15677002,
-      "observedAt": 1794948048
+      "slot": 15677402,
+      "observedAt": 1794952848
     },
     "finalized": {
-      "slot": 15676928,
-      "observedAt": 1794947926
+      "slot": 15677312,
+      "observedAt": 1794952534
     },
-    "finalizationLagSlots": 74,
+    "finalizationLagSlots": 90,
     "publishedSlot": {
-      "slot": 15676928,
-      "epoch": 489904,
-      "executionBlockNumber": 26437145,
-      "slotTime": 1794947159
+      "slot": 15677311,
+      "epoch": 489915,
+      "executionBlockNumber": 26437527,
+      "slotTime": 1794951755
     },
     "missedSlots24h": {
-      "slots": 7125,
+      "slots": 7108,
       "missed": 25,
-      "missedRatio": 0.0035087719298245615
+      "missedRatio": 0.003517163759144626
     },
     "reorgs24h": {
       "count": 2,
@@ -49,38 +49,38 @@
     },
     "observation24h": {
       "windowSlots": 7200,
-      "fromSlot": 15669802,
-      "headEvents": 7169,
-      "firstObservedAt": 1794861660,
-      "lastObservedAt": 1794948048,
+      "fromSlot": 15670202,
+      "headEvents": 7168,
+      "firstObservedAt": 1794866461,
+      "lastObservedAt": 1794952848,
       "largestGapSeconds": 121
     },
     "missedSlots": [
+      {
+        "slot": 15677058,
+        "epoch": 489908,
+        "slotTime": 1794948719,
+        "dutyStatus": "recorded",
+        "validatorIndex": 22902
+      },
       {
         "slot": 15676556,
         "epoch": 489892,
         "slotTime": 1794942695,
         "dutyStatus": "recorded",
         "validatorIndex": 495793
-      },
-      {
-        "slot": 15676493,
-        "epoch": 489890,
-        "slotTime": 1794941939,
-        "dutyStatus": "recorded",
-        "validatorIndex": 260865
       }
     ],
     "ages": {
-      "headSeconds": 16,
-      "finalitySeconds": 138,
-      "publishedSlotSeconds": 905
+      "headSeconds": 73,
+      "finalitySeconds": 387,
+      "publishedSlotSeconds": 1166
     }
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
+    "cached": true,
     "docs": "https://docs.tracefast.xyz/api/consensus-health"
   }
 }

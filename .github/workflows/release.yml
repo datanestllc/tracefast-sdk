@@ -33,7 +33,7 @@ jobs:
     outputs:
       version: ${{ steps.check.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - id: check
         env:
           TAG: ${{ github.ref_name }}
@@ -62,18 +62,23 @@ jobs:
     defaults:
       run:
         working-directory: rust
-    env:
-      FIRST_RELEASE_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-      # Trusted publishing, unless a first-release token is stored.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: dtolnay/rust-toolchain@39008827e6b4319a349e9a42dfc90579dd25f1ca
+        with:
+          toolchain: stable
+      # Trusted publishing, unless a first-release token is stored. The token
+      # is only in the env of the steps that need it.
+      - id: token
+        env:
+          FIRST_RELEASE_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: echo "stored=$([ -n "$FIRST_RELEASE_TOKEN" ] && echo yes || echo no)" >> "$GITHUB_OUTPUT"
       - id: oidc
-        if: env.FIRST_RELEASE_TOKEN == ''
-        uses: rust-lang/crates-io-auth-action@v1
+        if: steps.token.outputs.stored == 'no'
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
       - run: cargo publish --locked
         env:
-          CARGO_REGISTRY_TOKEN: ${{ env.FIRST_RELEASE_TOKEN || steps.oidc.outputs.token }}
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN || steps.oidc.outputs.token }}
 
   pypi:
     name: PyPI
@@ -84,13 +89,13 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
         with:
           python-version: '3.13'
       - run: uv build
         working-directory: python
-      - uses: pypa/gh-action-pypi-publish@release/v1
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           packages-dir: python/dist/
 
@@ -106,8 +111,8 @@ jobs:
       run:
         working-directory: typescript
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org

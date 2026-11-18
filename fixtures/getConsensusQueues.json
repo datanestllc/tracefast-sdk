@@ -2,63 +2,63 @@
   "data": {
     "chainId": 1,
     "current": {
-      "asOfEpoch": 489918,
-      "asOfTime": "2026-11-17T21:55:56Z",
+      "asOfEpoch": 490087,
+      "asOfTime": "2026-11-18T15:57:55Z",
       "queues": {
         "deposits": {
-          "count": 10887,
-          "gwei": "871671919351914",
+          "count": 10377,
+          "gwei": "887387721227077",
           "newValidators": {
-            "count": 8141,
-            "gwei": "594035018365963"
+            "count": 7608,
+            "gwei": "608031888097135"
           },
           "topUps": {
-            "count": 2746,
-            "gwei": "277636900985951"
+            "count": 2769,
+            "gwei": "279355833129942"
           }
         },
         "exitQueue": {
-          "count": 4921,
-          "gwei": "192568510724524"
+          "count": 4283,
+          "gwei": "171650645187425"
         },
         "consolidations": {
-          "count": 6216,
-          "gwei": "200513625612152"
+          "count": 6122,
+          "gwei": "197529931852478"
         },
         "partialWithdrawals": {
-          "count": 475,
-          "gwei": "43407023699848"
+          "count": 454,
+          "gwei": "30570495339441"
         },
         "exitedAwaitingWithdrawal": {
-          "count": 1474,
-          "gwei": "48611431801314"
+          "count": 1343,
+          "gwei": "43598499365356"
         },
         "activeSet": {
-          "count": 788980,
-          "gwei": "44402126499153787"
+          "count": 786769,
+          "gwei": "44408802154508219"
         },
         "churn": {
           "activationExitGweiPerEpoch": "256000000000",
           "consolidationGweiPerEpoch": "421000000000"
         },
         "waitEstimates": {
-          "entryEpochs": 3405,
-          "exitEpochs": 753,
-          "consolidationEpochs": 477,
-          "entryDays": 15.133333333333333,
-          "exitDays": 3.3466666666666667,
-          "consolidationDays": 2.12
+          "entryEpochs": 3467,
+          "exitEpochs": 671,
+          "consolidationEpochs": 470,
+          "entryDays": 15.408888888888889,
+          "exitDays": 2.982222222222222,
+          "consolidationDays": 2.088888888888889
         }
       },
       "status": {
-        "activeOngoing": 781203,
-        "pendingActivation": 1888,
-        "pendingExit": 12611,
-        "netQueue": -10723,
-        "activationRate": 0.0024167853938092915,
-        "exitRate": 0.016143051165958145,
-        "pendingActivationGwei": "3691000000000",
-        "pendingExitGwei": "441693568137990"
+        "activeOngoing": 779676,
+        "pendingActivation": 1943,
+        "pendingExit": 11748,
+        "netQueue": -9805,
+        "activationRate": 0.002492060804744535,
+        "exitRate": 0.015067797392763147,
+        "pendingActivationGwei": "3679000000000",
+        "pendingExitGwei": "412779076405259"
       }
     },
     "granularity": "day",
@@ -66,122 +66,122 @@
     "gaps": [],
     "points": [
       {
-        "time": "2026-11-17T21:55:56Z",
+        "time": "2026-11-18T15:57:55Z",
         "source": "observed",
-        "epoch": 489918,
+        "epoch": 490087,
         "queues": {
           "deposits": {
-            "count": 10887,
-            "gwei": "871671919351914",
+            "count": 10377,
+            "gwei": "887387721227077",
             "newValidators": {
-              "count": 8141,
-              "gwei": "594035018365963"
+              "count": 7608,
+              "gwei": "608031888097135"
             },
             "topUps": {
-              "count": 2746,
-              "gwei": "277636900985951"
+              "count": 2769,
+              "gwei": "279355833129942"
             }
           },
           "exitQueue": {
-            "count": 4921,
-            "gwei": "192568510724524"
+            "count": 4283,
+            "gwei": "171650645187425"
           },
           "consolidations": {
-            "count": 6216,
-            "gwei": "200513625612152"
+            "count": 6122,
+            "gwei": "197529931852478"
           },
           "partialWithdrawals": {
-            "count": 475,
-            "gwei": "43407023699848"
+            "count": 454,
+            "gwei": "30570495339441"
           },
           "exitedAwaitingWithdrawal": {
-            "count": 1474,
-            "gwei": "48611431801314"
+            "count": 1343,
+            "gwei": "43598499365356"
           },
           "activeSet": {
-            "count": 788980,
-            "gwei": "44402126499153787"
+            "count": 786769,
+            "gwei": "44408802154508219"
           },
           "churn": {
             "activationExitGweiPerEpoch": "256000000000",
             "consolidationGweiPerEpoch": "421000000000"
           },
           "waitEstimates": {
-            "entryEpochs": 3405,
-            "exitEpochs": 753,
-            "consolidationEpochs": 477
+            "entryEpochs": 3467,
+            "exitEpochs": 671,
+            "consolidationEpochs": 470
           }
         },
         "status": {
-          "activeOngoing": 781203,
-          "pendingActivation": 1888,
-          "pendingExit": 12611,
-          "netQueue": -10723,
-          "activationRate": 0.0024167853938092915,
-          "exitRate": 0.016143051165958145,
-          "pendingActivationGwei": "3691000000000",
-          "pendingExitGwei": "441693568137990"
+          "activeOngoing": 779676,
+          "pendingActivation": 1943,
+          "pendingExit": 11748,
+          "netQueue": -9805,
+          "activationRate": 0.002492060804744535,
+          "exitRate": 0.015067797392763147,
+          "pendingActivationGwei": "3679000000000",
+          "pendingExitGwei": "412779076405259"
         },
-        "totalActiveBalanceGwei": "44116589638492408"
+        "totalActiveBalanceGwei": "44147180945344307"
       },
       {
-        "time": "2026-11-16T23:58:14Z",
+        "time": "2026-11-17T23:57:37Z",
         "source": "observed",
-        "epoch": 489712,
+        "epoch": 489937,
         "queues": {
           "deposits": {
-            "count": 11355,
-            "gwei": "906571155737337",
+            "count": 10889,
+            "gwei": "868103875953376",
             "newValidators": {
-              "count": 8521,
-              "gwei": "617736428294230"
+              "count": 8141,
+              "gwei": "590491018365963"
             },
             "topUps": {
-              "count": 2834,
-              "gwei": "288834727443107"
+              "count": 2748,
+              "gwei": "277612857587413"
             }
           },
           "exitQueue": {
-            "count": 3027,
-            "gwei": "102152906124051"
+            "count": 4932,
+            "gwei": "192921753269198"
           },
           "consolidations": {
-            "count": 6299,
-            "gwei": "201614531986605"
+            "count": 6157,
+            "gwei": "198627238097082"
           },
           "partialWithdrawals": {
-            "count": 455,
-            "gwei": "42035919204844"
+            "count": 476,
+            "gwei": "43407165199848"
           },
           "exitedAwaitingWithdrawal": {
-            "count": 1492,
-            "gwei": "65486870034362"
+            "count": 1322,
+            "gwei": "43746114693234"
           },
           "activeSet": {
-            "count": 792235,
-            "gwei": "44385484630284724"
+            "count": 788739,
+            "gwei": "44407844801111755"
           },
           "churn": {
             "activationExitGweiPerEpoch": "256000000000",
             "consolidationGweiPerEpoch": "421000000000"
           },
           "waitEstimates": {
-            "entryEpochs": 3542,
-            "exitEpochs": 400,
-            "consolidationEpochs": 479
+            "entryEpochs": 3392,
+            "exitEpochs": 754,
+            "consolidationEpochs": 472
           }
         },
         "status": {
-          "activeOngoing": 786269,
-          "pendingActivation": 1875,
-          "pendingExit": 10818,
-          "netQueue": -8943,
-          "activationRate": 0.00238468005224675,
-          "exitRate": 0.01375865002944285,
-          "pendingActivationGwei": "3674000000000",
-          "pendingExitGwei": "369254308145018"
+          "activeOngoing": 781010,
+          "pendingActivation": 1942,
+          "pendingExit": 12411,
+          "netQueue": -10469,
+          "activationRate": 0.002486523860129832,
+          "exitRate": 0.015890961703435295,
+          "pendingActivationGwei": "3647000000000",
+          "pendingExitGwei": "435295106059514"
         },
-        "totalActiveBalanceGwei": "44189258869284739"
+        "totalActiveBalanceGwei": "44123843349862100"
       }
     ]
   },

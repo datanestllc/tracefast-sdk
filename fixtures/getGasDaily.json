@@ -1,24 +1,9 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-19",
-    "to": "2026-11-17",
+    "from": "2026-10-20",
+    "to": "2026-11-18",
     "days": [
-      {
-        "day": "2026-10-19",
-        "gasPriceAvgWei": "670026763",
-        "gasPriceMedianWei": "194009708",
-        "gasPriceP10Wei": "44425231",
-        "gasPriceP90Wei": "2043704364",
-        "priorityFeeAvgWei": "568849264",
-        "priorityFeeMedianWei": "50000000",
-        "legacy": 229407,
-        "accessList": 1004,
-        "eip1559": 1478264,
-        "blob": 14069,
-        "setCode": 25717,
-        "total": 1748461
-      },
       {
         "day": "2026-10-20",
         "gasPriceAvgWei": "1206156642",
@@ -33,13 +18,28 @@
         "blob": 14546,
         "setCode": 25153,
         "total": 1837571
+      },
+      {
+        "day": "2026-10-21",
+        "gasPriceAvgWei": "727018696",
+        "gasPriceMedianWei": "202984885",
+        "gasPriceP10Wei": "42938229",
+        "gasPriceP90Wei": "2046781583",
+        "priorityFeeAvgWei": "580791737",
+        "priorityFeeMedianWei": "50000000",
+        "legacy": 276082,
+        "accessList": 789,
+        "eip1559": 1561852,
+        "blob": 15901,
+        "setCode": 29090,
+        "total": 1883714
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/network-gas"
   }
 }

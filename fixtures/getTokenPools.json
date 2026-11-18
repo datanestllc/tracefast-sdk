@@ -5,38 +5,38 @@
     "rankedPools": 10000,
     "pools": [
       {
-        "poolId": "0x1e0674e8f95967850d7be67adbcf4e2221e256095c595d6d4cf7d4a73e7d7700",
+        "poolId": "0x9fb4892705ee773792b7634fc9ed7e0a3b3abb78a95a57a34f0957f79102fdb5",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26431713,
+        "creationBlockApprox": 26438779,
         "tokens": [
+          {
+            "address": "0x14862c03a0caccc1ab328b062e64e31b2a1afcd7",
+            "symbol": "SEDA",
+            "name": "SEDA",
+            "decimals": 18,
+            "role": "asset"
+          },
           {
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
             "symbol": "USDC",
             "name": "USD Coin",
             "decimals": 6,
-            "role": "asset"
-          },
-          {
-            "address": "0xfeed37054d28239b7a637cacf7c6d4f0b004321b",
-            "symbol": "Rocco",
-            "name": "Rocco",
-            "decimals": 18,
             "role": "asset"
           }
         ],
         "compositionStatus": "complete"
       },
       {
-        "poolId": "0x344ecc6e64777b1486c379d4122996c1187413957299200669e006889cebf1b8",
+        "poolId": "0x2923510e1cab880790935a96ac6002d7cbb106de9560744dab596f3fcfbf466a",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26431708,
+        "creationBlockApprox": 26438728,
         "tokens": [
           {
-            "address": "0x223a053421a4d11ed3e5c36f69bc6bb68a2741d8",
-            "symbol": "SNUT",
-            "name": "Space Squirrel",
+            "address": "0x160a8a73059d54f68d77ac1626c08425ec2ec0e0",
+            "symbol": "WSTAR",
+            "name": "Wanted Star",
             "decimals": 18,
             "role": "asset"
           },
@@ -48,10 +48,11 @@
             "role": "asset"
           }
         ],
-        "compositionStatus": "complete"
+        "compositionStatus": "complete",
+        "volumeUsd7d": 0.6498010000000001
       }
     ],
-    "nextCursor": "AVsyNjQzMTcwOCwiNWNiNWJmNjEyMTdkNTIzNjI3YWMyYjQ2ZTY4MjEyNzQ2MzM5ZTg4NzFlMWU5NDRmMmYyYTZhNjU2NzY0MzU0NSJdF7IbF1RCbcUniXGjXvyOzw"
+    "nextCursor": "AVsyNjQzODcyOCwiZjYxMjY5OTQ0M2Y3MDJhNDQ4NjhmMTExODQ0MGRlZDMyNTI5ZWUzNTM5NjRkMTRiMjdhZjk0OTAwMDY2YzVmZCJdduDH4Szwjk3a6ZqpWf8nZg"
   },
   "meta": {
     "chain": "ethereum",

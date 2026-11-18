@@ -1,51 +1,53 @@
 {
   "data": {
     "chainId": 1,
-    "fromBlock": 26430426,
-    "toBlock": 26437625,
+    "fromBlock": 26435827,
+    "toBlock": 26443026,
     "signals": [
       {
-        "signalId": "0xb69fa57bc7f936059925ac4fbf39d63715c531b5826106e1fb5281f3af8da8bb",
-        "kind": "ownership_transferred",
+        "signalId": "0x8491e417e95e0882f73e8f4cbab47d1002745762afacd931f5f5467c41e73724",
+        "kind": "contract_unpaused",
         "detector": "control",
-        "subject": "0x2d3019e1f1db1cab6fb4a0aa0d053e748c663aa3",
-        "blockNumber": 26437620,
-        "blockTimestamp": 1794952883,
-        "txHash": "0xdb37e6d2fed9a39da3af37fd565824637ac40364f94eb14496c02a1384ba72c1",
+        "subject": "0x01e6505083081aabdbc814c8e08e57a6023de9be",
+        "blockNumber": 26443023,
+        "blockTimestamp": 1795017851,
+        "txHash": "0xddec822dbc8fc3ba1a7c4259d0ea58c0d269f8c2d7be682852779f87283b9dd1",
         "logIndexInTx": 0,
         "complete": true,
         "trader": false,
         "evidence": {
-          "new_owner": "0xb5f11e33d04db175e5a74739e74d55ccb846ce0c",
-          "oz_owner_slot_changed": false,
-          "previous_owner": "0xf1fedb0fbd10ffe3e4d048e7a10481d21292f654"
+          "account": "0x912a1bae2eaa916dc1f2027c3033d2f06220095d",
+          "oz_paused_slot_changed": false
         }
       },
       {
-        "signalId": "0xb74a383708a46b9ce4acc8c13bd3e3bdfc5bae9249e5c0f3bcedff272f6a8684",
-        "kind": "ownership_transferred",
+        "signalId": "0x031e40f14a8ce59102856fb0b867d1dd1d4206203fe6aec36dfb07fc712d17f6",
+        "kind": "role_granted",
         "detector": "control",
-        "subject": "0x09707f09a5fd45436103f4736bad20f348623e1b",
-        "blockNumber": 26437618,
-        "blockTimestamp": 1794952859,
-        "txHash": "0x4446bd26309a9aa3a1f327f6f9e41cea4154d10037332d78e3d5b6c3534c86e8",
+        "subject": "0x02fd365d7803aac00c4a58f9b6adbec766f9a889",
+        "blockNumber": 26443022,
+        "blockTimestamp": 1795017839,
+        "txHash": "0x3dca51ef740e9624b5ceb9408eab12c93779502ff24b1c07e36140ecd7bf4466",
         "logIndexInTx": 0,
         "complete": true,
         "trader": false,
         "evidence": {
-          "new_owner": "0xb5f11e33d04db175e5a74739e74d55ccb846ce0c",
-          "oz_owner_slot_changed": false,
-          "previous_owner": "0xf1fedb0fbd10ffe3e4d048e7a10481d21292f654"
+          "account": "0xa9adbee571fdf73ad138947b3856cd9488799fd9",
+          "is_default_admin": false,
+          "role": "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
+          "role_class": "admin",
+          "role_name": "ADMIN_ROLE",
+          "sender": "0xbe82c3735536bc7558d3da38e1b6754b53586968"
         }
       }
     ],
-    "nextCursor": "AVsyNjQzNzYxOCwiMHhiNzRhMzgzNzA4YTQ2YjljZTRhY2M4YzEzYmQzZTNiZGZjNWJhZTkyNDllNWMwZjNiY2VkZmYyNzJmNmE4Njg0Il2PcCgYhQqbi1LqCMr5u-2W"
+    "nextCursor": "AVsyNjQ0MzAyMiwiMHgwMzFlNDBmMTRhOGNlNTkxMDI4NTZmYjBiODY3ZDFkZDFkNDIwNjIwM2ZlNmFlYzM2ZGZiMDdmYzcxMmQxN2Y2Il1MuzspocYz6D2d9Bh1Fl1n"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437625,
+    "asOfBlock": 26443026,
     "docs": "https://docs.tracefast.xyz/api/signals"
   }
 }

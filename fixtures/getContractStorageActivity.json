@@ -2,23 +2,10 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "fromDate": "2026-08-20",
-    "toDate": "2026-11-17",
-    "readThroughBlock": 26437432,
+    "fromDate": "2026-08-21",
+    "toDate": "2026-11-18",
+    "readThroughBlock": 26442679,
     "series": [
-      {
-        "date": "2026-08-20",
-        "txsTouching": 339720,
-        "txsReading": 339720,
-        "txsWriting": 332002,
-        "txsReadOnly": 7718,
-        "sloadOpcodeTotal": 9173251,
-        "sstoreOpcodeTotal": 1621826,
-        "tloadTotal": 0,
-        "tstoreTotal": 0,
-        "sloadSlotTouches": 2380728,
-        "sstoreSlotTouches": 1234128
-      },
       {
         "date": "2026-08-21",
         "txsTouching": 351556,
@@ -31,14 +18,27 @@
         "tstoreTotal": 0,
         "sloadSlotTouches": 2368303,
         "sstoreSlotTouches": 1162954
+      },
+      {
+        "date": "2026-08-22",
+        "txsTouching": 286342,
+        "txsReading": 286342,
+        "txsWriting": 278397,
+        "txsReadOnly": 7945,
+        "sloadOpcodeTotal": 8566586,
+        "sstoreOpcodeTotal": 1473172,
+        "tloadTotal": 0,
+        "tstoreTotal": 0,
+        "sloadSlotTouches": 2090164,
+        "sstoreSlotTouches": 1108675
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
-    "asOfBlock": 26437432,
+    "cached": true,
+    "asOfBlock": 26442679,
     "docs": "https://docs.tracefast.xyz/api/contract-storage-activity"
   }
 }

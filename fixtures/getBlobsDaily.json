@@ -1,27 +1,27 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-19",
-    "to": "2026-11-17",
+    "from": "2026-10-20",
+    "to": "2026-11-18",
     "days": [
-      {
-        "day": "2026-10-19",
-        "blobs": 35843,
-        "blobTransactions": 14069,
-        "uniqueSenders": 179
-      },
       {
         "day": "2026-10-20",
         "blobs": 37384,
         "blobTransactions": 14546,
         "uniqueSenders": 172
+      },
+      {
+        "day": "2026-10-21",
+        "blobs": 42621,
+        "blobTransactions": 15901,
+        "uniqueSenders": 173
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/network-blobs"
   }
 }

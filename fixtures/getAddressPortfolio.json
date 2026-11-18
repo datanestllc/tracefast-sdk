@@ -3,14 +3,14 @@
     "address": "0x28c6c06298d514db089934071355e5743bf21d60",
     "window": {
       "kind": "current",
-      "asOfBlock": 26437113,
+      "asOfBlock": 26442508,
       "nativeFreshness": "head"
     },
     "priceBasis": "latest_hour",
-    "totalUsd": 6002094.034746724,
+    "totalUsd": 6006813.495103336,
     "pricedCount": 148,
     "hiddenCount": 1191,
-    "coveredTokenCount": 393186,
+    "coveredTokenCount": 393188,
     "positions": [
       {
         "kind": "token",
@@ -22,7 +22,7 @@
         "priceHour": 1787709600,
         "priceCarried": true,
         "valueUsd": 2687226.9628087566,
-        "share": 0.4477149053733797,
+        "share": 0.4473631427044212,
         "asOfBlock": 25890487
       },
       {
@@ -30,22 +30,22 @@
         "token": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "symbol": "USDT",
         "decimals": 6,
-        "balance": "1352018159969",
+        "balance": "1352018165519",
         "priceUsd": 1,
-        "priceHour": 1794949200,
+        "priceHour": 1795014000,
         "priceCarried": false,
-        "valueUsd": 1352018.159969,
-        "share": 0.22525774373777405,
-        "asOfBlock": 26437113
+        "valueUsd": 1352018.165519,
+        "share": 0.22508076314024814,
+        "asOfBlock": 26442508
       }
     ],
-    "nextCursor": "AVs0Njk4NTU3Njg1NTAwNzIxNzgzLCJkYWMxN2Y5NThkMmVlNTIzYTIyMDYyMDY5OTQ1OTdjMTNkODMxZWM3IiwtMTc2NzE5NTQzNzI5NjU3MzczOF0348GMklKhLUH0bncKsLEP"
+    "nextCursor": "AVs0Njk4NTU3Njg1NTI0NTU4ODUyLCJkYWMxN2Y5NThkMmVlNTIzYTIyMDYyMDY5OTQ1OTdjMTNkODMxZWM3IiwyNDkzNTY4NjU5ODEyNDY0MDM0XcCcTlEFtCGWbgGyCm6NZ-0"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
-    "asOfBlock": 26437113,
+    "cached": false,
+    "asOfBlock": 26442508,
     "docs": "https://docs.tracefast.xyz/api/address-portfolio"
   }
 }

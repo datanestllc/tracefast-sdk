@@ -2,28 +2,28 @@
   "data": {
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "fromHour": 1794348000,
-    "toHour": 1794952800,
+    "fromHour": 1794412800,
+    "toHour": 1795017600,
     "points": [
       {
-        "hour": 1794348000,
+        "hour": 1794412800,
         "priceUsd": 1,
         "priceSource": "stable_peg",
         "carried": false,
         "dexPriceUsd": 1,
         "dexConfidenceTier": "high",
-        "oraclePriceUsd": 0.99978566,
-        "divergencePct": 0.021433999999997955
+        "oraclePriceUsd": 0.99975291,
+        "divergencePct": 0.024709000000000536
       },
       {
-        "hour": 1794351600,
+        "hour": 1794416400,
         "priceUsd": 1,
         "priceSource": "stable_peg",
         "carried": false,
         "dexPriceUsd": 1,
         "dexConfidenceTier": "high",
-        "oraclePriceUsd": 0.99978566,
-        "divergencePct": 0.021433999999997955
+        "oraclePriceUsd": 0.99975291,
+        "divergencePct": 0.024709000000000536
       }
     ]
   },

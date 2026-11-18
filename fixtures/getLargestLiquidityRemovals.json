@@ -2,42 +2,42 @@
   "data": {
     "chainId": 1,
     "window": "7d",
-    "fromBlock": 26387063,
-    "toBlock": 26437462,
+    "fromBlock": 26392418,
+    "toBlock": 26442817,
     "removals": [
       {
-        "blockNumber": 26390520,
-        "txIndex": 40,
-        "logIndex": 3442,
-        "timestamp": 1794386135,
-        "txHash": "0x322011a54bbe0378dabe3c01fd7f27be69a3f3cf8f582029884b54436c6593db",
+        "blockNumber": 26397598,
+        "txIndex": 175,
+        "logIndex": 1237,
+        "timestamp": 1794471311,
+        "txHash": "0xe3ecf8344d26eb47ed92df0327f3937ba79cb84fea49da966e65cdfb6ec9494a",
         "pool": "0xbb2b8038a1640196fbe3e38816f3e67cba72d940",
         "protocol": "uniswap",
         "protocolVersion": "v2",
         "provider": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
         "eventType": "burn",
-        "usdRemoved": 56198085.90277718,
+        "usdRemoved": 55644082.68362108,
         "pricedLegs": 2,
         "unpricedLegs": 0,
         "tokenCount": 2,
-        "dominantToken": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+        "dominantToken": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
       },
       {
-        "blockNumber": 26390520,
-        "txIndex": 38,
-        "logIndex": 2604,
-        "timestamp": 1794386135,
-        "txHash": "0x51fe99cca706a7fbc10fe239cca15cd880cb1f9194554804d9c3a4145b9c2b02",
-        "pool": "0xbb2b8038a1640196fbe3e38816f3e67cba72d940",
-        "protocol": "uniswap",
-        "protocolVersion": "v2",
-        "provider": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+        "blockNumber": 26400088,
+        "txIndex": 342,
+        "logIndex": 771,
+        "timestamp": 1794501239,
+        "txHash": "0x5f116e2e89dcd4d2a9c13d0c08c48138a781df3ffa0b50a20f8984a955585c39",
+        "pool": "0x8d51ca4aa919d596da24d317a3e0649fe3dc9ff7",
+        "protocol": "verse",
+        "protocolVersion": "v1",
+        "provider": "0xe07009b38039f432c2dcea80c9f1e01f3d4174d2",
         "eventType": "burn",
-        "usdRemoved": 56198048.66239779,
-        "pricedLegs": 2,
-        "unpricedLegs": 0,
+        "usdRemoved": 47225931.633775,
+        "pricedLegs": 1,
+        "unpricedLegs": 1,
         "tokenCount": 2,
-        "dominantToken": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599"
+        "dominantToken": "0xdac17f958d2ee523a2206206994597c13d831ec7"
       }
     ]
   },
@@ -45,7 +45,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437462,
+    "asOfBlock": 26442817,
     "docs": "https://docs.tracefast.xyz/api/pools-liquidity-removals"
   }
 }

@@ -32,9 +32,9 @@
     "docs": "https://docs.tracefast.xyz/api/transaction-storage-slots",
     "coverage": {
       "slotMeaningsFromBlock": 2675000,
-      "slotMeaningsThroughBlock": 26437498,
+      "slotMeaningsThroughBlock": 26442826,
       "storageWritesFromBlock": 49018,
-      "storageWritesThroughBlock": 26437498
+      "storageWritesThroughBlock": 26442826
     }
   }
 }

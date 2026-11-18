@@ -1,93 +1,93 @@
 {
   "data": {
     "chainId": 1,
-    "asOfEpoch": 489918,
-    "asOfTime": "2026-11-17T21:55:56Z",
+    "asOfEpoch": 490087,
+    "asOfTime": "2026-11-18T15:57:55Z",
     "queues": {
       "deposits": {
-        "count": 10887,
-        "gwei": "871671919351914",
+        "count": 10377,
+        "gwei": "887387721227077",
         "newValidators": {
-          "count": 8141,
-          "gwei": "594035018365963"
+          "count": 7608,
+          "gwei": "608031888097135"
         },
         "topUps": {
-          "count": 2746,
-          "gwei": "277636900985951"
+          "count": 2769,
+          "gwei": "279355833129942"
         }
       },
       "exitQueue": {
-        "count": 4921,
-        "gwei": "192568510724524"
+        "count": 4283,
+        "gwei": "171650645187425"
       },
       "consolidations": {
-        "count": 6216,
-        "gwei": "200513625612152"
+        "count": 6122,
+        "gwei": "197529931852478"
       },
       "partialWithdrawals": {
-        "count": 475,
-        "gwei": "43407023699848"
+        "count": 454,
+        "gwei": "30570495339441"
       },
       "exitedAwaitingWithdrawal": {
-        "count": 1474,
-        "gwei": "48611431801314"
+        "count": 1343,
+        "gwei": "43598499365356"
       },
       "activeSet": {
-        "count": 788980,
-        "gwei": "44402126499153787"
+        "count": 786769,
+        "gwei": "44408802154508219"
       },
       "churn": {
         "activationExitGweiPerEpoch": "256000000000",
         "consolidationGweiPerEpoch": "421000000000"
       },
       "waitEstimates": {
-        "entryEpochs": 3405,
-        "exitEpochs": 753,
-        "consolidationEpochs": 477,
-        "entryDays": 15.133333333333333,
-        "exitDays": 3.3466666666666667,
-        "consolidationDays": 2.12
+        "entryEpochs": 3467,
+        "exitEpochs": 671,
+        "consolidationEpochs": 470,
+        "entryDays": 15.408888888888889,
+        "exitDays": 2.982222222222222,
+        "consolidationDays": 2.088888888888889
       }
     },
-    "totalActiveBalanceGwei": "44116589638492408",
+    "totalActiveBalanceGwei": "44147180945344307",
     "flow": {
-      "exits24h": 3004,
-      "exits7d": 11863,
-      "exits30d": 27536,
-      "deposits30d": 16461
+      "exits24h": 489,
+      "exits7d": 8685,
+      "exits30d": 27565,
+      "deposits30d": 16677
     },
     "status": {
-      "activeOngoing": 781203,
-      "pendingActivation": 1888,
-      "pendingExit": 12611,
-      "netQueue": -10723,
-      "activationRate": 0.0024167853938092915,
-      "exitRate": 0.016143051165958145,
-      "pendingActivationGwei": "3691000000000",
-      "pendingExitGwei": "441693568137990",
+      "activeOngoing": 779676,
+      "pendingActivation": 1943,
+      "pendingExit": 11748,
+      "netQueue": -9805,
+      "activationRate": 0.002492060804744535,
+      "exitRate": 0.015067797392763147,
+      "pendingActivationGwei": "3679000000000",
+      "pendingExitGwei": "412779076405259",
       "averages": {
-        "pendingExit7d": 10607.824126984127,
-        "pendingActivation7d": 926.48,
-        "pendingExit30d": 5476.216748039651,
-        "pendingActivation30d": 307.45539280958724
+        "pendingExit7d": 11306.744126984127,
+        "pendingActivation7d": 1112.8787301587301,
+        "pendingExit30d": 5410.45657641663,
+        "pendingActivation30d": 352.79212901316765
       },
       "weighted": {
-        "snapshotEpoch": 489799,
-        "snapshotAgeEpochs": 119,
+        "snapshotEpoch": 490024,
+        "snapshotAgeEpochs": 63,
         "activation": {
-          "validators": 1915,
-          "effectiveGwei": "3236000000000",
-          "actualGwei": "3246000000000"
+          "validators": 1943,
+          "effectiveGwei": "3669000000000",
+          "actualGwei": "3679000000000"
         },
         "exit": {
-          "validators": 11485,
-          "effectiveGwei": "383073000000000",
-          "actualGwei": "383192638648281"
+          "validators": 12091,
+          "effectiveGwei": "423477000000000",
+          "actualGwei": "423638562488914"
         }
       }
     },
     "seriesStartTime": "2026-08-11T20:21:01Z",
-    "seriesSpanHours": 2353.6680555555554
+    "seriesSpanHours": 2371.696111111111
   },
   "meta": {
     "chain": "ethereum",

@@ -1,28 +1,28 @@
 {
   "data": {
     "chainId": 1,
-    "tokenCount": 2283680,
-    "transferCount": 4645319155,
-    "holderCount": 587623887,
+    "tokenCount": 2284131,
+    "transferCount": 4648487059,
+    "holderCount": 588209641,
     "byStandard": [
       {
         "standard": "erc20",
-        "tokenCount": 1861585,
-        "transferCount": 4217472903,
-        "holderCount": 455815004
+        "tokenCount": 1861968,
+        "transferCount": 4220328009,
+        "holderCount": 456388843
       },
       {
         "standard": "erc721",
-        "tokenCount": 284216,
-        "transferCount": 299708689,
-        "holderCount": 46011799
+        "tokenCount": 284264,
+        "transferCount": 299750276,
+        "holderCount": 46016276
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/token-stats"
   }
 }

@@ -8,9 +8,9 @@
         "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "symbol": "USDC",
         "decimals": 6,
-        "reserveRaw": "8665839720873",
-        "reserve": 8665839.720873,
-        "reserveUsd": 8665839.720873,
+        "reserveRaw": "8669390292192",
+        "reserve": 8669390.292192,
+        "reserveUsd": 8669390.292192,
         "pricingSource": "observed",
         "pricingQuality": "trusted"
       },
@@ -18,20 +18,20 @@
         "token": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         "symbol": "WETH",
         "decimals": 18,
-        "reserveRaw": "4772954879012715011522",
-        "reserve": 4772.9548790127155,
-        "reserveUsd": 8689889.129056545,
-        "pricingSource": "observed",
+        "reserveRaw": "4772220373089341118894",
+        "reserve": 4772.220373089342,
+        "reserveUsd": 8599541.085249392,
+        "pricingSource": "filled",
         "pricingQuality": "trusted"
       }
     ],
-    "totalTvlUsd": 17355728.849929545,
+    "totalTvlUsd": 17268931.37744139,
     "isTvlTrusted": true,
     "reserveStatus": "ok",
     "accuracyBand": "measured_high",
-    "accuracyDeltaBps": 0,
-    "snapshotBlock": 26431456,
-    "snapshotLagSeconds": 5462
+    "accuracyDeltaBps": 4.118513548523997,
+    "snapshotBlock": 26438629,
+    "snapshotLagSeconds": 6334
   },
   "meta": {
     "chain": "ethereum",

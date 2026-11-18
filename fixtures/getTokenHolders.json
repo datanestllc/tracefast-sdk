@@ -1,15 +1,15 @@
 {
   "data": {
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "holderCount": 9205898,
+    "holderCount": 9205635,
     "holders": [
       {
         "address": "0x37305b1cd40574e4c5ce33f8e8306be057fd7341",
-        "balance": "2562301529854753"
+        "balance": "2563538881341725"
       },
       {
-        "address": "0xad354cfbaa4a8572dd6df021514a3931a8329ef5",
-        "balance": "1400000000520100"
+        "address": "0xffa69c0080582098af595156240214b742735a5e",
+        "balance": "1482999999860100"
       }
     ]
   },

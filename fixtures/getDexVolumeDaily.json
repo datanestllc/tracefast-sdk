@@ -1,30 +1,9 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-19",
-    "to": "2026-11-17",
+    "from": "2026-10-20",
+    "to": "2026-11-18",
     "days": [
-      {
-        "day": "2026-10-19",
-        "swaps": 329565,
-        "volumeUsd": 986711608.4219893,
-        "unpricedPools": 390,
-        "protocols": [
-          {
-            "protocol": "uniswap",
-            "swaps": 298965,
-            "volumeUsd": 834311546.6174946,
-            "activePools": 8249,
-            "unpricedPools": 306
-          },
-          {
-            "protocol": "fluid",
-            "swaps": 2763,
-            "volumeUsd": 91033574.7059361,
-            "activePools": 30
-          }
-        ]
-      },
       {
         "day": "2026-10-20",
         "swaps": 318010,
@@ -45,13 +24,35 @@
             "activePools": 29
           }
         ]
+      },
+      {
+        "day": "2026-10-21",
+        "swaps": 352316,
+        "volumeUsd": 1225799501.6643345,
+        "unpricedPools": 611,
+        "protocols": [
+          {
+            "protocol": "uniswap",
+            "swaps": 320542,
+            "volumeUsd": 1021422451.1667137,
+            "activePools": 9487,
+            "unpricedPools": 461
+          },
+          {
+            "protocol": "curve",
+            "swaps": 12456,
+            "volumeUsd": 103978752.14572035,
+            "activePools": 417,
+            "unpricedPools": 36
+          }
+        ]
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/network-dex-volume"
   }
 }

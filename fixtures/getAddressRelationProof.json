@@ -53,7 +53,7 @@
       }
     ],
     "evaluatorVersion": "1.0.0",
-    "evaluatedAt": 1794949460,
+    "evaluatedAt": 1795014399,
     "failureReasonCodes": [],
     "proofHash": "sha256:d3d70ce9453f978304b83aedd4e15867257ba461e158c5dce398f843351a8388"
   },
@@ -61,7 +61,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437501,
+    "asOfBlock": 26442598,
     "docs": "https://docs.tracefast.xyz/api/address-relation-proof"
   }
 }

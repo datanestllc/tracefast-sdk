@@ -3,6 +3,18 @@
     "chainId": 1,
     "events": [
       {
+        "blockNumber": 26441235,
+        "logIndex": 451,
+        "timestamp": 1794996383,
+        "txHash": "0xfeffe9242e0acc292be16aa5252712cbd37cf0974abf1ec86c8e27ef966409b7",
+        "address": "0x10ce2435590cb4940641b66954705ec0a365798f",
+        "issuerContract": "0x888883b5f5d21fb10dfeb70e8f9722b9fb0e5e51",
+        "authorityTier": "recognized_issuer",
+        "action": "add",
+        "statusEffect": "membership",
+        "eventName": "Blacklisted"
+      },
+      {
         "blockNumber": 26435484,
         "logIndex": 849,
         "timestamp": 1794927167,
@@ -13,27 +25,15 @@
         "action": "add",
         "statusEffect": "membership",
         "eventName": "BlacklistUpdated"
-      },
-      {
-        "blockNumber": 26434599,
-        "logIndex": 101,
-        "timestamp": 1794916487,
-        "txHash": "0xfe8b0a81a509a3e09ae728924c4cf14b7221f07ede24332d15a92a86be210bee",
-        "address": "0x3e4994479267af5936e30f934c974d900f7a58d9",
-        "issuerContract": "0xdaf05c8680a06a5a30a8e3ffe25062ed4e4d21fb",
-        "authorityTier": "unknown",
-        "action": "remove",
-        "statusEffect": "membership",
-        "eventName": "UnBlacklisted"
       }
     ],
-    "nextCursor": "AVsyNjQzNDU5OSwxMDEsIjNlNDk5NDQ3OTI2N2FmNTkzNmUzMGY5MzRjOTc0ZDkwMGY3YTU4ZDkiXW1WFLy8gs15gWs5MechCA8"
+    "nextCursor": "AVsyNjQzNTQ4NCw4NDksIjFhMDM4NmQwZDYyMjIyZjNlMjM1ZTYyYzc2MTlhMzQ5MmM2YTZmZmYiXYmz6Z9FOyulBHdoE3xsvt0"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437624,
+    "asOfBlock": 26443025,
     "docs": "https://docs.tracefast.xyz/api/risk-blacklist-feed"
   }
 }

@@ -1,30 +1,9 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-19",
-    "to": "2026-11-17",
+    "from": "2026-10-20",
+    "to": "2026-11-18",
     "days": [
-      {
-        "day": "2026-10-19",
-        "blocks": 7171,
-        "firstBlock": 26222896,
-        "lastBlock": 26230066,
-        "transactions": 1748461,
-        "successful": 1722584,
-        "failed": 25877,
-        "contractCreations": 3005,
-        "valueTransferredWei": "1144988064937658605175071",
-        "gasUsed": "218042294946",
-        "avgGasUtilizationPct": 50.68051087076025,
-        "avgBlockTimeSeconds": 12.048535564853557,
-        "withdrawals": 114736,
-        "baseFeeAvgWei": "95459603",
-        "baseFeeMedianWei": "57339038",
-        "baseFeeP10Wei": "38891984",
-        "baseFeeP90Wei": "210535354",
-        "burntFeesWei": "20537432303737829869",
-        "blobGasUsed": "4698013696"
-      },
       {
         "day": "2026-10-20",
         "blocks": 7175,
@@ -45,13 +24,34 @@
         "baseFeeP90Wei": "525644290",
         "burntFeesWei": "49286063123899244542",
         "blobGasUsed": "4899995648"
+      },
+      {
+        "day": "2026-10-21",
+        "blocks": 7183,
+        "firstBlock": 26237242,
+        "lastBlock": 26244424,
+        "transactions": 1883714,
+        "successful": 1857692,
+        "failed": 26022,
+        "contractCreations": 2077,
+        "valueTransferredWei": "1460363824863350890753078",
+        "gasUsed": "217999526509",
+        "avgGasUtilizationPct": 50.58628444601747,
+        "avgBlockTimeSeconds": 12.028404344193818,
+        "withdrawals": 114928,
+        "baseFeeAvgWei": "142089976",
+        "baseFeeMedianWei": "59544324",
+        "baseFeeP10Wei": "36784216",
+        "baseFeeP90Wei": "339212670",
+        "burntFeesWei": "30616393345316435054",
+        "blobGasUsed": "5586419712"
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/network-daily"
   }
 }

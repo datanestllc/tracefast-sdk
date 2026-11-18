@@ -12,7 +12,7 @@
     "credentialType": 2,
     "withdrawalCredentials": "0x02000000000000000000000015f4b914a0ccd14333d850ff311d6dafbfbaa32b",
     "withdrawalAddress": "0x15f4b914a0ccd14333d850ff311d6dafbfbaa32b",
-    "snapshotEpoch": 489799
+    "snapshotEpoch": 490024
   },
   "meta": {
     "chain": "ethereum",

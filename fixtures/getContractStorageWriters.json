@@ -2,30 +2,30 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "totalPairs": 37360301,
+    "totalPairs": 37395145,
     "writers": [
       {
         "callerAddress": "0x7ec8a30a34b86927dc77b302603d1d53e640bef7",
         "executionAddress": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
-        "writeCount": 31313922,
-        "uniqueTxs": 600378,
+        "writeCount": 31381806,
+        "uniqueTxs": 601637,
         "firstBlock": 24430813,
-        "lastBlock": 26437474
+        "lastBlock": 26442765
       },
       {
         "callerAddress": "0xdc4858741e738bb304fc5b290e7b9453da6a5baa",
         "executionAddress": "0x43506849d7c04f9138d1a2050bbf3a0c054402dd",
-        "writeCount": 18898088,
-        "uniqueTxs": 850543,
+        "writeCount": 18913998,
+        "uniqueTxs": 853162,
         "firstBlock": 24522300,
-        "lastBlock": 26437474
+        "lastBlock": 26442787
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
+    "cached": true,
     "docs": "https://docs.tracefast.xyz/api/contract-storage-writers"
   }
 }

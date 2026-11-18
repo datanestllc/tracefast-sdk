@@ -18,8 +18,8 @@
             "symbol": "WETH"
           }
         ],
-        "volumeUsd": 1397633689.5270305,
-        "swaps": 49072
+        "volumeUsd": 1304444178.8503997,
+        "swaps": 45757
       },
       {
         "poolId": "0x3b1b1f2e775a6db1664f8e7d59ad568605ea2406312c11aef03146c0cf89d5b9",
@@ -35,15 +35,15 @@
             "symbol": "USDS"
           }
         ],
-        "volumeUsd": 1210108492.6295455,
-        "swaps": 13089
+        "volumeUsd": 1158271234.2496006,
+        "swaps": 12198
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/network-top-pools"
   }
 }

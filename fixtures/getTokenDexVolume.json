@@ -3,20 +3,20 @@
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     "days": 30,
-    "totalVolumeUsd": 9912749096.69409,
-    "totalSwaps": 2865785,
+    "totalVolumeUsd": 9827277365.985971,
+    "totalSwaps": 2829680,
     "points": [
-      {
-        "day": "2026-10-19",
-        "volumeUsd": 223333572.67636895,
-        "swapsAsToken0": 58932,
-        "swapsAsToken1": 37447
-      },
       {
         "day": "2026-10-20",
         "volumeUsd": 269254534.4257519,
         "swapsAsToken0": 55924,
         "swapsAsToken1": 36727
+      },
+      {
+        "day": "2026-10-21",
+        "volumeUsd": 269261307.5548428,
+        "swapsAsToken0": 59092,
+        "swapsAsToken1": 39837
       }
     ]
   },

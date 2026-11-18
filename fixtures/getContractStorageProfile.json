@@ -2,20 +2,20 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "totalWrites": 981070771,
-    "uniqueSlots": 64435053,
-    "uniqueCallers": 35812869,
+    "totalWrites": 982033153,
+    "uniqueSlots": 64500166,
+    "uniqueCallers": 35833088,
     "uniqueExecutors": 5,
     "firstWriteBlock": 6082465,
-    "lastWriteBlock": 26437474,
-    "delegatecallWrites": 981070758,
-    "delegatecallShare": 99.99999867491721,
+    "lastWriteBlock": 26442790,
+    "delegatecallWrites": 982033140,
+    "delegatecallShare": 99.99999867621577,
     "maxCallDepth": 188
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
+    "cached": true,
     "docs": "https://docs.tracefast.xyz/api/contract-storage-profile"
   }
 }

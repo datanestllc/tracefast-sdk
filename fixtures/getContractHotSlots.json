@@ -2,27 +2,27 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "windowFromBlock": 26430421,
-    "windowToBlock": 26437620,
-    "totalSlotsInWindow": 163932,
+    "windowFromBlock": 26435819,
+    "windowToBlock": 26443018,
+    "totalSlotsInWindow": 162257,
     "slots": [
       {
         "storageKey": "0x3c2304a4bd8ffa93cccd3b8e4c28dbcd5c94236b1a7b40e3dc80ba6953b4cc7a",
-        "changes": 6709,
-        "lastChangeBlock": 26437620
+        "changes": 6683,
+        "lastChangeBlock": 26443018
       },
       {
         "storageKey": "0xb9f6591fc52eba3e15c8a35522a85e6d320e9084debe30399ae4770e63f89389",
-        "changes": 6064,
-        "lastChangeBlock": 26437620
+        "changes": 5956,
+        "lastChangeBlock": 26443018
       }
     ]
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": false,
-    "asOfBlock": 26437620,
+    "cached": true,
+    "asOfBlock": 26443018,
     "docs": "https://docs.tracefast.xyz/api/contract-hot-slots"
   }
 }

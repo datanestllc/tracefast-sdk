@@ -2,10 +2,10 @@
   "data": {
     "chainId": 1,
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "hour": 1794949200,
+    "hour": 1795014000,
     "priceUsd": 1,
     "priceSource": "stable_peg",
-    "observedHour": 1794949200,
+    "observedHour": 1795014000,
     "ageHours": 0,
     "dex": {
       "priceUsd": 1,
@@ -14,11 +14,11 @@
       "confidenceTier": "high"
     },
     "oracle": {
-      "priceUsd": 0.9998206,
+      "priceUsd": 0.9998,
       "address": "0x54586be62e3c3580375ae3723c145253060ca0c2",
-      "roundsInHour": 11
+      "roundsInHour": 10
     },
-    "divergencePct": 0.017940000000005174
+    "divergencePct": 0.019999999999997797
   },
   "meta": {
     "chain": "ethereum",

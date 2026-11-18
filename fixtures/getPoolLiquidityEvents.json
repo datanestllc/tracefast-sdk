@@ -2,47 +2,47 @@
   "data": {
     "chainId": 1,
     "pool": "0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc",
-    "fromBlock": 26387063,
-    "toBlock": 26437462,
+    "fromBlock": 26392418,
+    "toBlock": 26442817,
     "events": [
       {
-        "blockNumber": 26436192,
-        "txIndex": 150,
-        "logIndex": 330,
-        "timestamp": 1794935687,
-        "txHash": "0xc49148891c2d3a6dcdcdd733aaeab01e219ae8c55026a1894cfd5fb7f5169274",
-        "provider": "0x0ea041260095b20feda41ef4fdbef7d801f4c438",
+        "blockNumber": 26442346,
+        "txIndex": 191,
+        "logIndex": 439,
+        "timestamp": 1795009727,
+        "txHash": "0xa58081fe23104cfe8d54be531f4de80406fbd6424b328c61fd32f81a514ce668",
+        "provider": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
         "action": "remove",
         "eventType": "burn",
         "usdAdded": 0,
-        "usdRemoved": 25119596.174281713,
+        "usdRemoved": 25959.056381749728,
         "pricedLegs": 2,
         "unpricedLegs": 0,
         "tokenCount": 2
       },
       {
-        "blockNumber": 26436192,
-        "txIndex": 150,
-        "logIndex": 290,
-        "timestamp": 1794935687,
-        "txHash": "0xc49148891c2d3a6dcdcdd733aaeab01e219ae8c55026a1894cfd5fb7f5169274",
-        "provider": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
-        "action": "add",
-        "eventType": "mint",
-        "usdAdded": 25119596.17428277,
-        "usdRemoved": 0,
+        "blockNumber": 26442206,
+        "txIndex": 121,
+        "logIndex": 361,
+        "timestamp": 1795008047,
+        "txHash": "0x48ef310f5f44d2e19d48e50b9a7492f15cb5e732e47c87813f0596154576ef2b",
+        "provider": "0x0ea041260095b20feda41ef4fdbef7d801f4c438",
+        "action": "remove",
+        "eventType": "burn",
+        "usdAdded": 0,
+        "usdRemoved": 25201865.39845034,
         "pricedLegs": 2,
         "unpricedLegs": 0,
         "tokenCount": 2
       }
     ],
-    "nextCursor": "AVsyNjM4NzA2MywyNjQzNzQ2MiwyNjQzNjE5MiwxNTAsMjkwXYN3HFHdo2Q7ujtXEpqjPak"
+    "nextCursor": "AVsyNjM5MjQxOCwyNjQ0MjgxNywyNjQ0MjIwNiwxMjEsMzYxXZE6zHlxZrlhrckeXD_74JM"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26437462,
+    "asOfBlock": 26442817,
     "docs": "https://docs.tracefast.xyz/api/pool-liquidity-events"
   }
 }

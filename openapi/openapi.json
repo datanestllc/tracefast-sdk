@@ -2434,6 +2434,65 @@
         ],
         "type": "object"
       },
+      "CallArgumentValue": {
+        "description": "The value of one decoded call argument.",
+        "oneOf": [
+          {
+            "description": "An address (`0x` + 40 lowercase hex), an integer of any width as a decimal string\n(not scaled by any decimals), `bytes` / `bytesN` / `function` as `0x` hex, or a\n`string` as the calldata carries it — untrusted text written by the caller, or `0x`\nhex under `valueEncoding: hex`.",
+            "type": "string"
+          },
+          {
+            "description": "A `bool`.",
+            "type": "boolean"
+          },
+          {
+            "description": "An array or a tuple: an ordered list of values of these same kinds (a tuple is a list\ntoo, never a name-keyed object).",
+            "items": {
+              "$ref": "#/components/schemas/CallArgumentValue"
+            },
+            "type": "array"
+          }
+        ]
+      },
+      "CallArgumentValueState": {
+        "description": "What is known of one argument's value.",
+        "enum": [
+          "decoded",
+          "beyond_stored_bytes",
+          "withheld_for_size"
+        ],
+        "type": "string"
+      },
+      "CallByteCoverage": {
+        "description": "How much of the calldata the decode saw.",
+        "enum": [
+          "full",
+          "head"
+        ],
+        "type": "string"
+      },
+      "CallDecodeStatus": {
+        "description": "How far a decoded call may be trusted — the same vocabulary as decoded events'\n`decodeStatus`.",
+        "enum": [
+          "partial",
+          "ambiguous",
+          "abi_missing",
+          "failed"
+        ],
+        "type": "string"
+      },
+      "CallInputStatus": {
+        "description": "What calldata there is to decode.",
+        "enum": [
+          "available",
+          "none",
+          "no_selector",
+          "contract_creation",
+          "not_stored",
+          "not_available"
+        ],
+        "type": "string"
+      },
       "CallSpan": {
         "description": "The first and the last block in which an address received a call.",
         "properties": {
@@ -2453,6 +2512,20 @@
           "lastBlock"
         ],
         "type": "object"
+      },
+      "CallTypeSource": {
+        "description": "Where a decoded call's types came from.",
+        "enum": [
+          "registry"
+        ],
+        "type": "string"
+      },
+      "CallValueEncoding": {
+        "description": "How a decoded argument's `string` values are written.",
+        "enum": [
+          "hex"
+        ],
+        "type": "string"
       },
       "CapabilityFact": {
         "description": "One fact as the knowledge graph states it.",
@@ -6424,6 +6497,97 @@
             "type": "array"
           }
         ]
+      },
+      "DecodedCall": {
+        "description": "A call's arguments decoded by its 4-byte selector against known function signatures.\n\nThree separate answers: `inputStatus` (is there calldata to decode), `byteCoverage` (did\nthe decode see all of it) and `decodeStatus` (how far the result may be trusted). A\nsignature fits when its arguments decode AND re-encode to exactly the calldata; fewer than\n32 bytes after the arguments are tolerated and counted in `trailingBytes`. From a head,\nonly what the head shows is checked.\n\nThe signature text comes from public signature databases that anyone can add to, and a\ndecoded `string` is whatever the caller wrote: both are untrusted text, not a verified\nname of the function or a statement about what it does.",
+        "properties": {
+          "arguments": {
+            "description": "The arguments in order. Present with `partial`, and with `ambiguous` when every\nfitting signature has the same parameter types.",
+            "items": {
+              "$ref": "#/components/schemas/DecodedCallArgument"
+            },
+            "type": "array"
+          },
+          "argumentsTruncated": {
+            "description": "`true` when the list was cut to keep the answer bounded; the arguments given are the\nfirst ones. Absent otherwise.",
+            "type": "boolean"
+          },
+          "byteCoverage": {
+            "$ref": "#/components/schemas/CallByteCoverage",
+            "description": "How much of the calldata the decode saw. Present when `inputStatus` is `available`."
+          },
+          "candidateCount": {
+            "description": "How many known signatures there are for the selector — not how many fit. `0` with\n`abi_missing`.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "decodeStatus": {
+            "$ref": "#/components/schemas/CallDecodeStatus",
+            "description": "How far the decode may be trusted. Present when `inputStatus` is `available`, except\nwhen the search could not be completed and nothing fit — the signature lookup was\nunavailable (ask again later), or the calldata was too costly to try against every\nknown signature. Then nothing is stated."
+          },
+          "fittingCount": {
+            "description": "With `ambiguous`: how many signatures fit the bytes, counted among the best-vouched\nones that have any fit.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "inputStatus": {
+            "$ref": "#/components/schemas/CallInputStatus",
+            "description": "Whether there is calldata to decode."
+          },
+          "signature": {
+            "description": "The canonical signature of the one fitting candidate, e.g.\n`transfer(address,uint256)`. Present with `partial`. Text from a public signature\ndatabase: untrusted, and only a reading of the 4-byte selector that fits these bytes.",
+            "type": "string"
+          },
+          "trailingBytes": {
+            "description": "Bytes after the encoded arguments (fewer than 32, which the check tolerates). Present\nonly when non-zero.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "typeSource": {
+            "$ref": "#/components/schemas/CallTypeSource",
+            "description": "Where the types came from. Present when at least one candidate signature was found."
+          }
+        },
+        "required": [
+          "inputStatus"
+        ],
+        "type": "object"
+      },
+      "DecodedCallArgument": {
+        "description": "One argument of a decoded call. Arguments carry a position and a type, never a name: no\nsource states parameter names.",
+        "properties": {
+          "position": {
+            "description": "Position in the parameter list, from `0`.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "type": {
+            "description": "The canonical ABI type, e.g. `address`, `uint256`, `(address,uint24)[]`.",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/CallArgumentValue",
+            "description": "The value. Present exactly when `valueState` is `decoded`. A `string` in it is\nuntrusted text, written by whoever sent the call."
+          },
+          "valueEncoding": {
+            "$ref": "#/components/schemas/CallValueEncoding",
+            "description": "`hex` when a `string` inside this argument is not valid UTF-8: every `string` in the\nargument is then `0x` hex of its bytes. Absent otherwise."
+          },
+          "valueState": {
+            "$ref": "#/components/schemas/CallArgumentValueState",
+            "description": "What is known of the value."
+          }
+        },
+        "required": [
+          "position",
+          "type",
+          "valueState"
+        ],
+        "type": "object"
       },
       "DecodedEvent": {
         "description": "A decoded event: its name and arguments.",
@@ -13636,6 +13800,10 @@
             "description": "The address a `create` / `create2` frame deployed.",
             "type": "string"
           },
+          "decodedCall": {
+            "$ref": "#/components/schemas/DecodedCall",
+            "description": "The frame's decoded call. A nested frame's is decoded from `inputHead`: in full when\nthe head is the whole calldata, otherwise from the head only (`byteCoverage: head`).\nThe root frame's (depth 1) is decoded from the transaction's whole calldata exactly as\n`get_transaction` decodes it — the same status, signature and values; a value too\nlarge for a trace is `withheld_for_size`. Present wherever `inputHead` is served."
+          },
           "delegation": {
             "$ref": "#/components/schemas/FrameDelegation",
             "description": "The authorization that set that delegation. Present exactly when\n`executedCodeAddress` is."
@@ -13686,6 +13854,10 @@
             "format": "int32",
             "type": "integer"
           },
+          "inputTruncated": {
+            "description": "`true` when `inputHead` is shorter than the frame's calldata (`inputSize` is larger\nthan the head's length in bytes): the head is the first bytes only. Present exactly\nwhen `inputHead` is.",
+            "type": "boolean"
+          },
           "order": {
             "description": "Position in pre-order traversal of the call tree; `0` is the transaction's own\ntop-level call.",
             "format": "int32",
@@ -13720,7 +13892,7 @@
           },
           "revertDecodeSource": {
             "$ref": "#/components/schemas/RevertDecodeSource",
-            "description": "How `revertReason` was found. Present only when `revertDecodeStatus` is `decoded`."
+            "description": "How `revertReason` was found. Present only when `revertDecodeStatus` is `decoded`.\n`standard`: decoded from the revert payload itself — a standard `Error(string)` message or\na `Panic(uint256)` code. `registry`: a custom error — `revertReason` is the error's name,\nfound by its 4-byte selector (`errorSelector`) among known error signatures; its arguments\nare not decoded (read them from `revertData`)."
           },
           "revertDecodeStatus": {
             "description": "Why `revertReason` is what it is: `decoded`, `undecodable` (a payload is present\nbut no name was found) or `absent` (no payload to decode). An empty reason is\nambiguous three ways, and this field is what separates them.\n\nNamed apart from the event decoder's `decodeStatus` on purpose: that vocabulary\ndescribes event-decode confidence and the two appear in one response.",
@@ -13955,6 +14127,40 @@
           "meta"
         ],
         "type": "object"
+      },
+      "TransactionDetail": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction"
+          },
+          {
+            "properties": {
+              "decodedCall": {
+                "$ref": "#/components/schemas/DecodedCall",
+                "description": "The call decoded from the calldata — all of it up to 128 KiB, its first 128 KiB above."
+              },
+              "input": {
+                "description": "The transaction's whole calldata, `0x`-hex — the init code on a contract creation,\n`0x` when empty. Absent when it is larger than 128 KiB (`inputWithheldForSize`), or\nwhen it cannot be read right now (`decodedCall.inputStatus` is `not_available`).",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "inputWithheldForSize": {
+                "description": "`true` when `input` is left out because the calldata is larger than 128 KiB. Its first\n128 KiB are still decoded (`decodedCall.byteCoverage: head`). Absent otherwise.",
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "decodedCall"
+            ],
+            "type": "object"
+          }
+        ],
+        "description": "One transaction with its whole calldata and the decoded call — the single-transaction\nmethod's answer."
       },
       "TransactionEvents": {
         "description": "A page of one transaction's event logs.",
@@ -14334,7 +14540,7 @@
         "description": "Response of the transaction method.",
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/Transaction",
+            "$ref": "#/components/schemas/TransactionDetail",
             "description": "The answer itself: what this method returns, described by its own schema."
           },
           "meta": {
@@ -15102,7 +15308,7 @@
       "name": ""
     },
     "title": "TraceFast API",
-    "version": "0.2.0+ec369d84"
+    "version": "0.2.0+811c94f8"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -27812,7 +28018,7 @@
             }
           },
           {
-            "description": "`true` adds each frame's calldata and output heads (first 260 bytes) with their full sizes. Default `false`.",
+            "description": "`true` adds each frame's calldata and output heads (first 260 bytes) with their full sizes, `inputTruncated`, and each frame's decoded call (`decodedCall`: from the head, the root's from the whole calldata as `getTransaction` decodes it). With it, fewer frames than `limit` may be served when their calldata is large; `framesTruncated` says so. Default `false`.",
             "in": "query",
             "name": "includeCalldata",
             "required": false,
@@ -27925,7 +28131,7 @@
     },
     "/chains/{chain_id}/traces/{hash}/frames": {
       "get": {
-        "description": "TraceFast live Ethereum data: the whole call tree of a transaction, frame by frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what the trace summary carries plus, always, the first 260 bytes of its calldata and output with their full sizes, and the positions of the event logs it emitted. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames than `limit` when their calldata is large, and continues from the last frame served. `meta.coverage` names the first block from which the frame schema (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are computed; both bounds move as history is filled in.",
+        "description": "TraceFast live Ethereum data: the whole call tree of a transaction, frame by frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what the trace summary carries plus, always, the first 260 bytes of its calldata and output with their full sizes, the call decoded from those bytes (`decodedCall`), and the positions of the event logs it emitted. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames than `limit` when their calldata is large, and continues from the last frame served. `meta.coverage` names the first block from which the frame schema (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are computed; both bounds move as history is filled in.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/trace-frames"
         },
@@ -28064,7 +28270,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}": {
       "get": {
-        "description": "TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index). Served from seconds after inclusion; a hash that is not known answers 404.",
+        "description": "TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index) — with its whole calldata (up to 128 KiB inline) and the call decoded from it: arguments by position and type against known function signatures, with how far the decode may be trusted. The signature text comes from public signature databases anyone can add to, and a decoded string is whatever the caller wrote: both are untrusted text. Served from seconds after inclusion; a hash that is not known answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction"
         },

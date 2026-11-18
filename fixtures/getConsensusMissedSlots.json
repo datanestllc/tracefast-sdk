@@ -3,22 +3,22 @@
     "chainId": 1,
     "missedSlots": [
       {
-        "slot": 15677058,
-        "epoch": 489908,
-        "slotTime": 1794948719,
+        "slot": 15681664,
+        "epoch": 490052,
+        "slotTime": 1795003991,
         "dutyStatus": "recorded",
-        "validatorIndex": 22902
+        "validatorIndex": 2320947
       },
       {
-        "slot": 15676556,
-        "epoch": 489892,
-        "slotTime": 1794942695,
+        "slot": 15680564,
+        "epoch": 490017,
+        "slotTime": 1794990791,
         "dutyStatus": "recorded",
-        "validatorIndex": 495793
+        "validatorIndex": 1235076
       }
     ],
-    "nextCursor": "AVsxNTY3NjU1Nl3zfGDflff8UWpstiOxFyvK",
-    "publishedThroughSlot": 15677311
+    "nextCursor": "AVsxNTY4MDU2NF3ru4QYDnQalZqrKrXK3jZm",
+    "publishedThroughSlot": 15682720
   },
   "meta": {
     "chain": "ethereum",

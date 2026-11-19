@@ -2,7 +2,7 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "block": 26442583,
+    "block": 26447717,
     "target": {
       "mode": "auto",
       "resolvedVia": "slot",
@@ -56,13 +56,14 @@
         "lowConfidence": false,
         "hasBody": true
       }
-    ]
+    ],
+    "hasMore": false
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26442583,
+    "asOfBlock": 26447717,
     "docs": "https://docs.tracefast.xyz/api/contract-decompilation"
   }
 }

@@ -91,7 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // One transaction.
     let tx = client
         .transactions()
-        .get("0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5")
+        .get("0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5", &tracefast::TransactionsGetParams::new())
         .await?;
     println!("{} sent {} wei in block {}", tx.data.from, tx.data.value_wei, tx.data.block_number);
     Ok(())
@@ -173,9 +173,9 @@ setters you chain, and a parameter you do not set is not sent.
 |---|---|
 | `client.addresses()` | `get(address)`, `portfolio(address, &AddressesPortfolioParams::new().block(20_000_000))`, `transactions(address, &AddressesTransactionsParams::new().direction("sent").limit(100))`, `attributes(address)` |
 | `client.blocks()` | `latest()`, `get(25_920_000)`, `at_time(&BlocksAtTimeParams::new(1_767_225_600))`, `transactions(25_920_000, &BlocksTransactionsParams::new().limit(100))` |
-| `client.transactions()` | `get(hash)`, `events(hash, &TransactionsEventsParams::new())`, `failures(hash)`, `storage_writes(hash, &TransactionsStorageWritesParams::new())` |
+| `client.transactions()` | `get(hash, &TransactionsGetParams::new())`, `events(hash, &TransactionsEventsParams::new())`, `failures(hash)`, `storage_writes(hash, &TransactionsStorageWritesParams::new())` |
 | `client.traces()` | `get(hash, &TracesGetParams::new())`, `frames(hash, &TracesFramesParams::new().limit(100))` |
-| `client.contracts()` | `get(address)`, `proxy(address)`, `capabilities(address)`, `selectors(address)` |
+| `client.contracts()` | `get(address)`, `proxy(address)`, `capabilities(address)`, `selectors(address, &ContractsSelectorsParams::new())` |
 | `client.tokens()` | `get(token)`, `holders(token, &TokensHoldersParams::new().limit(10))`, `price(token, &TokensPriceParams::new().block(20_000_000))` |
 | `client.pools()` | `get(pool)`, `for_pair(&PoolsForPairParams::new(token_a, token_b))`, `swaps(pool, &PoolsSwapsParams::new())`, `reserves(pool)` |
 | `client.consensus()` | `current()`, `queues(&ConsensusQueuesParams::new())`, `validator(1)`, `missed_slots(&ConsensusMissedSlotsParams::new())` |
@@ -216,7 +216,7 @@ A method returns the API's whole answer, `data` and `meta`, never `data` alone:
 
 ```rust,no_run
 async fn meta(client: &tracefast::Client) -> tracefast::Result<()> {
-    let res = client.transactions().get("0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5").await?;
+    let res = client.transactions().get("0x6bb3103eec4ca8f4a324bbab71dc84f533af7e6be11ab8b13d0d10333bb9abc5", &tracefast::TransactionsGetParams::new()).await?;
     println!("as of block {:?}", res.meta.as_of_block);
     println!("cached: {}, documentation: {}", res.meta.cached, res.meta.docs);
     Ok(())

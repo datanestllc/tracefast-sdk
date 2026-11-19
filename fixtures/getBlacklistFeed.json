@@ -3,37 +3,37 @@
     "chainId": 1,
     "events": [
       {
-        "blockNumber": 26441235,
-        "logIndex": 451,
-        "timestamp": 1794996383,
-        "txHash": "0xfeffe9242e0acc292be16aa5252712cbd37cf0974abf1ec86c8e27ef966409b7",
-        "address": "0x10ce2435590cb4940641b66954705ec0a365798f",
-        "issuerContract": "0x888883b5f5d21fb10dfeb70e8f9722b9fb0e5e51",
-        "authorityTier": "recognized_issuer",
-        "action": "add",
-        "statusEffect": "membership",
-        "eventName": "Blacklisted"
-      },
-      {
-        "blockNumber": 26435484,
-        "logIndex": 849,
-        "timestamp": 1794927167,
-        "txHash": "0xa632ec03013e4bcd6f3670892bbfc8f536333ef7bab7b40aecd9c4d10e685d13",
-        "address": "0x1a0386d0d62222f3e235e62c7619a3492c6a6fff",
-        "issuerContract": "0x3a54e9b53f32fd3441a87e1a95c853e595c8326f",
+        "blockNumber": 26447048,
+        "logIndex": 66,
+        "timestamp": 1795066259,
+        "txHash": "0x23326e10158bf156fcd91e625bc910b9ace69b01045dd515daa6cde91a42d202",
+        "address": "0xe4c9a7f68b1eba4508f54f07f7378847318dd1a3",
+        "issuerContract": "0x2ca0036b559c1e293eaac9dcd4674a0316d3100a",
         "authorityTier": "arbitrary_token",
         "action": "add",
         "statusEffect": "membership",
-        "eventName": "BlacklistUpdated"
+        "eventName": "AddedBlackList"
+      },
+      {
+        "blockNumber": 26447048,
+        "logIndex": 65,
+        "timestamp": 1795066259,
+        "txHash": "0x23326e10158bf156fcd91e625bc910b9ace69b01045dd515daa6cde91a42d202",
+        "address": "0x761edd5e4546229a0bd35ae99b4d3d01cf4a3510",
+        "issuerContract": "0x2ca0036b559c1e293eaac9dcd4674a0316d3100a",
+        "authorityTier": "arbitrary_token",
+        "action": "add",
+        "statusEffect": "membership",
+        "eventName": "AddedBlackList"
       }
     ],
-    "nextCursor": "AVsyNjQzNTQ4NCw4NDksIjFhMDM4NmQwZDYyMjIyZjNlMjM1ZTYyYzc2MTlhMzQ5MmM2YTZmZmYiXYmz6Z9FOyulBHdoE3xsvt0"
+    "nextCursor": "AVsyNjQ0NzA0OCw2NSwiNzYxZWRkNWU0NTQ2MjI5YTBiZDM1YWU5OWI0ZDNkMDFjZjRhMzUxMCJd7-seyvkb5VhJNxIoXrU0mA"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26443025,
+    "asOfBlock": 26448056,
     "docs": "https://docs.tracefast.xyz/api/risk-blacklist-feed"
   }
 }

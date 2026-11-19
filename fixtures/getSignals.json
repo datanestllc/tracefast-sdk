@@ -1,53 +1,84 @@
 {
   "data": {
     "chainId": 1,
-    "fromBlock": 26435827,
-    "toBlock": 26443026,
+    "fromBlock": 26440858,
+    "toBlock": 26448057,
     "signals": [
       {
-        "signalId": "0x8491e417e95e0882f73e8f4cbab47d1002745762afacd931f5f5467c41e73724",
-        "kind": "contract_unpaused",
-        "detector": "control",
-        "subject": "0x01e6505083081aabdbc814c8e08e57a6023de9be",
-        "blockNumber": 26443023,
-        "blockTimestamp": 1795017851,
-        "txHash": "0xddec822dbc8fc3ba1a7c4259d0ea58c0d269f8c2d7be682852779f87283b9dd1",
-        "logIndexInTx": 0,
+        "signalId": "0xebccab2c2023244de9dd20eef9d8eaf091ab761cd134a7f5807cf0f3ee0b58c4",
+        "kind": "pull_burst",
+        "detector": "pulls",
+        "subject": "0x7e1343d5ae79a21e57d367557c078cb4232b314b",
+        "blockNumber": 26448057,
+        "blockTimestamp": 1795078427,
         "complete": true,
         "trader": false,
         "evidence": {
-          "account": "0x912a1bae2eaa916dc1f2027c3033d2f06220095d",
-          "oz_paused_slot_changed": false
+          "level": 40,
+          "mechanisms": {
+            "prior_allowance": 50
+          },
+          "recipient": "0x935d2e470284fb536227a76a723f96a94efae6a9",
+          "share_funded_recently": 0.14,
+          "tokens": [
+            {
+              "erc20_amount_raw": "1064398019846",
+              "owners": 50,
+              "token": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+            }
+          ],
+          "tx_senders": [
+            {
+              "address": "0x7e1343d5ae79a21e57d367557c078cb4232b314b",
+              "owners": 50
+            }
+          ],
+          "window_blocks": 25,
+          "window_owners": 50
         }
       },
       {
-        "signalId": "0x031e40f14a8ce59102856fb0b867d1dd1d4206203fe6aec36dfb07fc712d17f6",
-        "kind": "role_granted",
-        "detector": "control",
-        "subject": "0x02fd365d7803aac00c4a58f9b6adbec766f9a889",
-        "blockNumber": 26443022,
-        "blockTimestamp": 1795017839,
-        "txHash": "0x3dca51ef740e9624b5ceb9408eab12c93779502ff24b1c07e36140ecd7bf4466",
-        "logIndexInTx": 0,
+        "signalId": "0x8aab450ed456a9e924328dfad2ad9d0e6eed63b5c36caf343877e03ad7d0782d",
+        "kind": "approval_spike",
+        "detector": "approvals",
+        "subject": "0x14b0bdec8fd005f6e2f3f9ec062af9f6adcd7ac0",
+        "blockNumber": 26448049,
+        "blockTimestamp": 1795078331,
+        "txHash": "0xcddfa163ba77d4a266dcba7c71b56e3b4b91ee0a4030557b63acf2f1488b5cf7",
         "complete": true,
         "trader": false,
         "evidence": {
-          "account": "0xa9adbee571fdf73ad138947b3856cd9488799fd9",
-          "is_default_admin": false,
-          "role": "0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775",
-          "role_class": "admin",
-          "role_name": "ADMIN_ROLE",
-          "sender": "0xbe82c3735536bc7558d3da38e1b6754b53586968"
+          "by_standard": {
+            "erc20": 5
+          },
+          "level": 5,
+          "owner_not_tx_sender_owners": 0,
+          "pull_destinations": [],
+          "pull_tx_senders": [],
+          "pulled_owners": 0,
+          "rule": "new_spender",
+          "signature_transfers": 0,
+          "spender_first_seen_block": null,
+          "threshold": 5,
+          "tokens": [
+            {
+              "address": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+              "owners": 5
+            }
+          ],
+          "unlimited_owners": 0,
+          "window_blocks": 300,
+          "window_owners": 5
         }
       }
     ],
-    "nextCursor": "AVsyNjQ0MzAyMiwiMHgwMzFlNDBmMTRhOGNlNTkxMDI4NTZmYjBiODY3ZDFkZDFkNDIwNjIwM2ZlNmFlYzM2ZGZiMDdmYzcxMmQxN2Y2Il1MuzspocYz6D2d9Bh1Fl1n"
+    "nextCursor": "AVsyNjQ0ODA0OSwiMHg4YWFiNDUwZWQ0NTZhOWU5MjQzMjhkZmFkMmFkOWQwZTZlZWQ2M2I1YzM2Y2FmMzQzODc3ZTAzYWQ3ZDA3ODJkIl3EpQNgnAiqc4qBwe97mfui"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26443026,
+    "asOfBlock": 26448057,
     "docs": "https://docs.tracefast.xyz/api/signals"
   }
 }

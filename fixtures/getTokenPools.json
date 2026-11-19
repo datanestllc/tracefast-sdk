@@ -5,15 +5,15 @@
     "rankedPools": 10000,
     "pools": [
       {
-        "poolId": "0x9fb4892705ee773792b7634fc9ed7e0a3b3abb78a95a57a34f0957f79102fdb5",
+        "poolId": "0xa9b196ee30ef8c2548015b110e8d67ce55b2049fe883c257b2315636ccfec5de",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26438779,
+        "creationBlockApprox": 26446392,
         "tokens": [
           {
-            "address": "0x14862c03a0caccc1ab328b062e64e31b2a1afcd7",
-            "symbol": "SEDA",
-            "name": "SEDA",
+            "address": "0x2b628499cdbf0c5210dfba191b8b6e4213abfade",
+            "symbol": "FADE",
+            "name": "Fade Protocol",
             "decimals": 18,
             "role": "asset"
           },
@@ -28,31 +28,30 @@
         "compositionStatus": "complete"
       },
       {
-        "poolId": "0x2923510e1cab880790935a96ac6002d7cbb106de9560744dab596f3fcfbf466a",
+        "poolId": "0x21d187345bab89d24666fca1621a4bf8ac0d0ee650fe901f8c3d2153fdc82153",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26438728,
+        "creationBlockApprox": 26446331,
         "tokens": [
-          {
-            "address": "0x160a8a73059d54f68d77ac1626c08425ec2ec0e0",
-            "symbol": "WSTAR",
-            "name": "Wanted Star",
-            "decimals": 18,
-            "role": "asset"
-          },
           {
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
             "symbol": "USDC",
             "name": "USD Coin",
             "decimals": 6,
             "role": "asset"
+          },
+          {
+            "address": "0xe7ca8fefff49823ee734877afdec2582dc80bbd4",
+            "symbol": "GTA",
+            "name": "Grand Theft Apes",
+            "decimals": 18,
+            "role": "asset"
           }
         ],
-        "compositionStatus": "complete",
-        "volumeUsd7d": 0.6498010000000001
+        "compositionStatus": "complete"
       }
     ],
-    "nextCursor": "AVsyNjQzODcyOCwiZjYxMjY5OTQ0M2Y3MDJhNDQ4NjhmMTExODQ0MGRlZDMyNTI5ZWUzNTM5NjRkMTRiMjdhZjk0OTAwMDY2YzVmZCJdduDH4Szwjk3a6ZqpWf8nZg"
+    "nextCursor": "AVsyNjQ0NjMzMSwiYzFiM2UxMmUxZDUwNGFhMzZjN2YzOTJkY2FhZmQ3MDY3ODFjM2E5NjgxN2QxOTY1MDNiODE3MThhZjJkMzU4YSJdX-lajXv0js0NwkMSUS311A"
   },
   "meta": {
     "chain": "ethereum",

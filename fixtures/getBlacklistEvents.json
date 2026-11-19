@@ -32,7 +32,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26443025,
+    "asOfBlock": 26448056,
     "docs": "https://docs.tracefast.xyz/api/risk-blacklist-events"
   }
 }

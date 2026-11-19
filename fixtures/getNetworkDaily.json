@@ -1,30 +1,9 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-20",
-    "to": "2026-11-18",
+    "from": "2026-10-21",
+    "to": "2026-11-19",
     "days": [
-      {
-        "day": "2026-10-20",
-        "blocks": 7175,
-        "firstBlock": 26230067,
-        "lastBlock": 26237241,
-        "transactions": 1837571,
-        "successful": 1812177,
-        "failed": 25394,
-        "contractCreations": 1882,
-        "valueTransferredWei": "1714208731386856660659838",
-        "gasUsed": "217874198953",
-        "avgGasUtilizationPct": 50.61365766699909,
-        "avgBlockTimeSeconds": 12.041817674937274,
-        "withdrawals": 114800,
-        "baseFeeAvgWei": "228995569",
-        "baseFeeMedianWei": "109062526",
-        "baseFeeP10Wei": "40810486",
-        "baseFeeP90Wei": "525644290",
-        "burntFeesWei": "49286063123899244542",
-        "blobGasUsed": "4899995648"
-      },
       {
         "day": "2026-10-21",
         "blocks": 7183,
@@ -45,6 +24,27 @@
         "baseFeeP90Wei": "339212670",
         "burntFeesWei": "30616393345316435054",
         "blobGasUsed": "5586419712"
+      },
+      {
+        "day": "2026-10-22",
+        "blocks": 7176,
+        "firstBlock": 26244425,
+        "lastBlock": 26251600,
+        "transactions": 1812374,
+        "successful": 1788627,
+        "failed": 23747,
+        "contractCreations": 1939,
+        "valueTransferredWei": "1743823991728594627471589",
+        "gasUsed": "217516359191",
+        "avgGasUtilizationPct": 50.52315398137806,
+        "avgBlockTimeSeconds": 12.0401393728223,
+        "withdrawals": 114816,
+        "baseFeeAvgWei": "284811942",
+        "baseFeeMedianWei": "134513627",
+        "baseFeeP10Wei": "42339632",
+        "baseFeeP90Wei": "574753167",
+        "burntFeesWei": "61309395417338699643",
+        "blobGasUsed": "5001445376"
       }
     ]
   },

@@ -4,6 +4,20 @@
     "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "changes": [
       {
+        "blockNumber": 26447720,
+        "timestamp": 1795074371,
+        "balanceChanged": true,
+        "nonceChanged": false,
+        "codeChanged": false,
+        "created": false,
+        "balanceBefore": "5798969845714110716",
+        "balanceAfter": "5798969845714210716",
+        "nonceBefore": 5970,
+        "nonceAfter": 5970,
+        "codeHashBefore": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d",
+        "codeHashAfter": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d"
+      },
+      {
         "blockNumber": 26399548,
         "timestamp": 1794494759,
         "balanceChanged": true,
@@ -16,29 +30,15 @@
         "nonceAfter": 5970,
         "codeHashBefore": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d",
         "codeHashAfter": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d"
-      },
-      {
-        "blockNumber": 26384365,
-        "timestamp": 1794311939,
-        "balanceChanged": true,
-        "nonceChanged": false,
-        "codeChanged": false,
-        "created": false,
-        "balanceBefore": "5794416376380413546",
-        "balanceAfter": "5794616987480413546",
-        "nonceBefore": 5970,
-        "nonceAfter": 5970,
-        "codeHashBefore": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d",
-        "codeHashAfter": "0xd8ef78646344da0ceb69cbcdb306939b3ba0514174fa28b6c6fa189953ff226d"
       }
     ],
-    "nextCursor": "AVsyNjM4NDM2NV0OXFGD0f5REmNbQYHdU65D"
+    "nextCursor": "AVsyNjM5OTU0OF3_9WOvnxksJxGYfrvML_Yh"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26442879,
+    "asOfBlock": 26447970,
     "docs": "https://docs.tracefast.xyz/api/entity-state-changes"
   }
 }

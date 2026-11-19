@@ -5,17 +5,9 @@
     "token0": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     "token1": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
     "days": 30,
-    "totalVolumeUsd": 47129313.908271,
-    "totalSwaps": 26289,
+    "totalVolumeUsd": 47108273.700756356,
+    "totalSwaps": 26161,
     "points": [
-      {
-        "day": "2026-10-20",
-        "volumeUsd": 581916.1421363868,
-        "swaps": 756,
-        "uniqueSenders": 0,
-        "volumeToken0": 336276.70284800004,
-        "volumeToken1": 101.70283918317323
-      },
       {
         "day": "2026-10-21",
         "volumeUsd": 450630.2287780093,
@@ -23,6 +15,14 @@
         "uniqueSenders": 0,
         "volumeToken0": 251774.23076200002,
         "volumeToken1": 80.48189706197539
+      },
+      {
+        "day": "2026-10-22",
+        "volumeUsd": 374589.52808332955,
+        "swaps": 659,
+        "uniqueSenders": 0,
+        "volumeToken0": 94302.57329300001,
+        "volumeToken1": 116.22020859211804
       }
     ]
   },

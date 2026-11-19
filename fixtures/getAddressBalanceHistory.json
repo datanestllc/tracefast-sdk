@@ -5,19 +5,6 @@
     "granularity": "day",
     "points": [
       {
-        "timestamp": 1794268800,
-        "blockNumber": 26384365,
-        "balanceWei": "5794616987480413546",
-        "changeWei": "797453712369634",
-        "txCount": 4,
-        "usd": {
-          "valueUsd": 11836.432335646741,
-          "priceUsd": 2042.66,
-          "priceHour": 1794351600,
-          "priceCarried": false
-        }
-      },
-      {
         "timestamp": 1794441600,
         "blockNumber": 26399548,
         "balanceWei": "5798969845714110716",
@@ -29,25 +16,32 @@
           "priceHour": 1794524400,
           "priceCarried": false
         }
+      },
+      {
+        "timestamp": 1795046400,
+        "blockNumber": 26447720,
+        "balanceWei": "5798969845714210716",
+        "changeWei": "100000",
+        "txCount": 1
       }
     ],
     "summary": {
-      "startBalanceWei": "5793819533768043912",
-      "endBalanceWei": "5798969845714110716",
-      "minBalanceWei": "5793819533768043912",
-      "maxBalanceWei": "5798969845714110716",
-      "totalInflowWei": "5150311946066804",
+      "startBalanceWei": "5794616987480413546",
+      "endBalanceWei": "5798969845714210716",
+      "minBalanceWei": "5794616987480413546",
+      "maxBalanceWei": "5798969845714210716",
+      "totalInflowWei": "4352858233797170",
       "totalOutflowWei": "0",
-      "totalTxCount": 5,
+      "totalTxCount": 2,
       "firstActivityTimestamp": 1443428683,
-      "lastActivityTimestamp": 1794494759
+      "lastActivityTimestamp": 1795074371
     }
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26442879,
+    "asOfBlock": 26447970,
     "docs": "https://docs.tracefast.xyz/api/address-balance-history"
   }
 }

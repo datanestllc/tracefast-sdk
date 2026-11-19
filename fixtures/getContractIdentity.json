@@ -24,7 +24,7 @@
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/contract-identity"
   }
 }

@@ -859,7 +859,7 @@
             "description": "The most recent enforcement — present only when it is also the issuer's most recent\nevent about the address of any kind. Every enforcement is listed by the events\nmethod."
           },
           "tokenSymbol": {
-            "description": "The issuer's token symbol when it is a token contract with one; absent otherwise.",
+            "description": "The issuer's token symbol when it is a token contract with one; absent otherwise.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           }
         },
@@ -1143,7 +1143,7 @@
             "type": "string"
           },
           "tokenSymbol": {
-            "description": "The issuer's token symbol when it is a token contract with one; absent otherwise.",
+            "description": "The issuer's token symbol when it is a token contract with one; absent otherwise.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           }
         },
@@ -1170,11 +1170,15 @@
             "type": "integer"
           },
           "issuers": {
-            "description": "The top `limit` issuers by `currentlyListed`, ties by contract address ascending.",
+            "description": "The top `limit` issuers by `currentlyListed`, ties by contract address ascending. Fewer\nthan `limit` only when `issuersTruncated` is true.",
             "items": {
               "$ref": "#/components/schemas/BlacklistIssuer"
             },
             "type": "array"
+          },
+          "issuersTruncated": {
+            "description": "`true` when issuers within `limit` were left out because the list is bounded in bytes\ntoo (about 448 KiB as written; issuers whose declared symbols are long take more): the\nlist then ends at a whole issuer in rank order. `false` when `issuers` is the whole top\n`limit`.",
+            "type": "boolean"
           },
           "listedAddresses": {
             "description": "Distinct addresses some issuer lists now.",
@@ -1194,7 +1198,8 @@
           "issuerCount",
           "listedPairs",
           "listedAddresses",
-          "issuers"
+          "issuers",
+          "issuersTruncated"
         ],
         "type": "object"
       },
@@ -1270,7 +1275,7 @@
             "type": "boolean"
           },
           "tokenSymbol": {
-            "description": "The issuer's token symbol (`USDT`, `USDC`, …) when the issuer is a token contract\nwith one; absent otherwise.",
+            "description": "The issuer's token symbol (`USDT`, `USDC`, …) when the issuer is a token contract\nwith one; absent otherwise.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "unlistCount": {
@@ -2308,19 +2313,25 @@
             "format": "int64",
             "type": "integer"
           },
+          "matchCount": {
+            "description": "How many of the block's transactions the filters keep. Present only when a filter\n(`status`, `methodId`, `minValueWei`, `maxValueWei`, `txType`) is given.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
           "nextCursor": {
             "description": "Opaque cursor for the next page. Absent on the last page. Pass it back unchanged\nas `?cursor=`; a cursor is only valid for the request it was issued for.",
             "type": "string"
           },
           "transactions": {
-            "description": "This page, in transaction-index order.",
+            "description": "This page: in transaction-index order, or — with `sort=value` — largest `valueWei`\nfirst, equal values in transaction-index order. It can hold fewer than `limit`\ntransactions when they carry long revert texts: a page is bounded in bytes too (about\n320 KiB of rows, one transaction always served), and `nextCursor` then continues from the\nlast one served. No value is ever cut.",
             "items": {
               "$ref": "#/components/schemas/Transaction"
             },
             "type": "array"
           },
           "txCount": {
-            "description": "How many transactions the block holds in total.",
+            "description": "How many transactions the block holds in total, whatever the filters.",
             "format": "int64",
             "minimum": 0,
             "type": "integer"
@@ -2455,7 +2466,7 @@
         ]
       },
       "CallArgumentValueState": {
-        "description": "What is known of one argument's value.",
+        "description": "What is known of one argument's value. `decoded`: `value` is present.\n`beyond_stored_bytes`: the argument's bytes are not in the stored head of the calldata — a\ndynamic argument (`bytes`, `string`, an array, a tuple holding one), or one past the head;\nno value is given, and none is guessed. `withheld_for_size`: no value is given for size —\nthe value is too large to include, or it lies past the first 128 KiB of a calldata too\nlarge to decode in full (those bytes exist; they are just not decoded).",
         "enum": [
           "decoded",
           "beyond_stored_bytes",
@@ -2464,7 +2475,7 @@
         "type": "string"
       },
       "CallByteCoverage": {
-        "description": "How much of the calldata the decode saw.",
+        "description": "How much of the calldata the decode saw. `full`: every byte of the calldata — the decode\nwas checked end to end. `head`: only the first bytes of a longer calldata were decoded — a\nnested frame's `inputHead` (an argument past it is `beyond_stored_bytes`), or the first\n128 KiB of a calldata larger than that (an argument past them is `withheld_for_size`); the\ndecode could not be checked end to end.",
         "enum": [
           "full",
           "head"
@@ -2472,7 +2483,7 @@
         "type": "string"
       },
       "CallDecodeStatus": {
-        "description": "How far a decoded call may be trusted — the same vocabulary as decoded events'\n`decodeStatus`.",
+        "description": "How far a decoded call may be trusted — the same vocabulary as decoded events'\n`decodeStatus`. `partial`: every known signature for the selector was tried and exactly one\nof the best-vouched ones fits the bytes; the arguments are its reading (signatures seen in\nverified contracts outrank those only submitted to public databases). `partial` because\nfunction signatures carry no parameter names — whether the whole calldata was seen is\n`byteCoverage`. `ambiguous`: more than one best-vouched signature fits (`fittingCount`), or\none fits but not every known signature could be tried, or the only fits are submitted\nsignatures while every verified one fails; no signature is chosen, and arguments are given\nonly when every fitting signature has the same types. `abi_missing`: no signature is known\nfor the selector — the argument types are unknown. `failed`: every known signature was\ntried and none fits these bytes.",
         "enum": [
           "partial",
           "ambiguous",
@@ -2482,7 +2493,7 @@
         "type": "string"
       },
       "CallInputStatus": {
-        "description": "What calldata there is to decode.",
+        "description": "What calldata there is to decode. `available`: there is calldata with a 4-byte selector,\nand `byteCoverage` and `decodeStatus` say what came of it. `none`: the input is empty — a\nplain value transfer. `no_selector`: not an ABI function call — shorter than 4 bytes, or a\ncall to a precompile. `contract_creation`: the input is the init code of a contract\ncreation, never decoded as arguments. `not_stored`: trace frames only — the frame has\ncalldata (`inputSize` > 0) but its head was not kept, below the first block the frame\nschema is computed from; a transaction's own calldata is never `not_stored`.\n`not_available`: the calldata cannot be read right now, or a stored head is inconsistent\nwith `inputSize`; this says nothing about the call — it is NOT \"no calldata\".",
         "enum": [
           "available",
           "none",
@@ -2514,14 +2525,14 @@
         "type": "object"
       },
       "CallTypeSource": {
-        "description": "Where a decoded call's types came from.",
+        "description": "Where a decoded call's types came from. `registry`: known function signatures, looked up\nby the 4-byte selector.",
         "enum": [
           "registry"
         ],
         "type": "string"
       },
       "CallValueEncoding": {
-        "description": "How a decoded argument's `string` values are written.",
+        "description": "How a decoded argument's `string` values are written. `hex`: a `string` inside the\nargument is not valid UTF-8 (the ABI does not require it), so every `string` in this\nargument is given as `0x` hex of its bytes.",
         "enum": [
           "hex"
         ],
@@ -5124,7 +5135,7 @@
             "type": "integer"
           },
           "functions": {
-            "description": "The table of contents — the default answer.",
+            "description": "The table of contents — the default answer; paged by bytes (`hasMore`, `nextCursor`).",
             "items": {
               "$ref": "#/components/schemas/DecompiledFunction"
             },
@@ -5142,6 +5153,10 @@
             "minimum": 0,
             "type": "integer"
           },
+          "hasMore": {
+            "description": "`true` when the answer is a page and more follows — of the table of contents (at most\nabout 512 KiB of entries as written, one always given) or of bodies.",
+            "type": "boolean"
+          },
           "language": {
             "description": "`solidity`, `vyper` or `unknown`.",
             "type": "string"
@@ -5151,7 +5166,7 @@
             "type": "boolean"
           },
           "nextCursor": {
-            "description": "Pass as `cursor` for the next page of bodies; absent on the last page.",
+            "description": "Pass as `cursor` for the next page — of the table of contents on a contents answer, of\nbodies on a bodies answer; absent on the last page.",
             "type": "string"
           },
           "outputLimited": {
@@ -5187,7 +5202,8 @@
           "lowConfidence",
           "functionsDone",
           "functionsTotal",
-          "functionCount"
+          "functionCount",
+          "hasMore"
         ],
         "type": "object"
       },
@@ -5713,6 +5729,14 @@
             "description": "Keccak-256 hash of the code the selectors were read from, `0x`-prefixed.",
             "type": "string"
           },
+          "hasMore": {
+            "description": "`true` when the list goes on past this page: a page holds at most 1 000 selectors and\nabout 224 KiB of them as written (one always given). Pass `nextCursor` back as\n`cursor` for the rest.",
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last one.",
+            "type": "string"
+          },
           "selectorCount": {
             "description": "Number of selectors in `selectors` — functions, called selectors and custom errors\ntogether, not the number of the contract's functions.",
             "format": "int32",
@@ -5731,7 +5755,8 @@
           "address",
           "codeHash",
           "selectorCount",
-          "selectors"
+          "selectors",
+          "hasMore"
         ],
         "type": "object"
       },
@@ -6229,6 +6254,29 @@
         ],
         "type": "object"
       },
+      "CounterpartyLookup": {
+        "description": "The answer about one counterparty of the ranked address.",
+        "properties": {
+          "counterparty": {
+            "description": "The counterparty asked about, lowercase and `0x`-prefixed.",
+            "type": "string"
+          },
+          "excludedFromRanking": {
+            "description": "`true` when the counterparty is the zero address or the address itself. The ranking\nleaves both out before it ranks (mints and burns, and an address's own loop, are not a\nrelationship with another party), so such a pair can be `found` and never appear in the\nranking.",
+            "type": "boolean"
+          },
+          "found": {
+            "description": "`true`: the two interacted in the window asked, and `counterparties` holds the pair's\nfigures. `false`: no interaction between them is recorded there, as of\n`window.asOfBlock` (a `false` is never served without that block).",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "counterparty",
+          "found",
+          "excludedFromRanking"
+        ],
+        "type": "object"
+      },
       "CounterpartyRanking": {
         "description": "The addresses one address interacts with most, ranked.",
         "properties": {
@@ -6253,11 +6301,29 @@
             "description": "How `corpus` was obtained. See `CorpusBasis`."
           },
           "counterparties": {
-            "description": "In ranking order: most successful transactions first, then most recent, then by\naddress. At most `limit` rows; no rank number (see `boundaryTieCount`).",
+            "description": "In ranking order: most successful transactions first, then most recent, then by\naddress. At most `limit` rows; no rank number (see `boundaryTieCount`). The zero address\nand the address itself are never ranked. With `counterparty`, the one pair asked about\n(the zero address and the address itself included), or empty when the two have not\ninteracted in the window asked.",
             "items": {
               "$ref": "#/components/schemas/Counterparty"
             },
             "type": "array"
+          },
+          "lookup": {
+            "$ref": "#/components/schemas/CounterpartyLookup",
+            "description": "The answer about one counterparty (`counterparty` passed): whether the two interacted\nin the window asked. Absent on a ranking. The pair's figures are read from the\nrelationship graph itself — for the largest addresses that is NOT where their ranking\ncomes from (a top list built once a day), so a pair's figures can be newer than the same\ncounterparty's row in the ranking; each answer's `window.asOfBlock` says which block it is\ntrue at."
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page of the ranking. Valid\nwhile the ranking it was cut from is unchanged: a window's ranking can be recomputed\nafter about 2 minutes (the window moves with the clock), after which the cursor answers\n`invalid_cursor` (restart from the first page); all-time and past-block cursors last\nlonger.",
+            "type": "string"
+          },
+          "rankingDepth": {
+            "description": "How many counterparties the pageable ranking holds: following `nextCursor` serves\nexactly these, in order. At most 1 000 for the current ranking and the windows; at most\n100 at a past block (`block`) and for the largest addresses, whose current ranking is\nkept as a top 100. Absent on the answer about one counterparty.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "rankingTruncated": {
+            "description": "`true` when counterparties rank below the last of the `rankingDepth` that no page\nserves — the walk ends at the depth, not at the end of `corpus`; `false` when the\nranking holds every counterparty of `corpus`. Absent on the answer about one\ncounterparty.",
+            "type": "boolean"
           },
           "window": {
             "$ref": "#/components/schemas/CounterpartyWindow",
@@ -6293,13 +6359,19 @@
         "description": "What a counterparty ranking covers.",
         "properties": {
           "asOfBlock": {
-            "description": "The block the ranking is true as of. For `all`, the block the relationship graph\nwas last built to; for `block`, the requested block.",
+            "description": "The block the ranking is true as of. For `all`, the block the relationship graph\nwas last built to; for `block`, the requested block; for `24h` / `7d`, the newest\nblock the window's interactions are counted to.",
             "format": "int64",
+            "type": "integer"
+          },
+          "fromTimestamp": {
+            "description": "`24h` / `7d` only: the start of the window, Unix seconds — the start of the first\nhour counted. The window runs from it to `asOfBlock`.",
+            "format": "int32",
+            "minimum": 0,
             "type": "integer"
           },
           "kind": {
             "$ref": "#/components/schemas/CounterpartyWindowKind",
-            "description": "`all` — the whole history up to `asOfBlock`; `block` — everything up to and\nincluding the requested block."
+            "description": "`all` — the whole history up to `asOfBlock`; `block` — everything up to and\nincluding the requested block; `24h` / `7d` — the rolling last 24 hours / 7 days up to\n`asOfBlock`, from the start of the hour `fromTimestamp`."
           }
         },
         "required": [
@@ -6310,7 +6382,9 @@
       "CounterpartyWindowKind": {
         "enum": [
           "all",
-          "block"
+          "block",
+          "24h",
+          "7d"
         ],
         "type": "string"
       },
@@ -6463,13 +6537,16 @@
           },
           "value": {
             "$ref": "#/components/schemas/DecodedArgValue",
-            "description": "The value: addresses as `0x` strings, integers as decimal strings, bytes as `0x`\nhex, booleans as booleans, arrays and tuples as ordered lists. An indexed dynamic\nargument (string, bytes, array) is only its hash on chain and is returned as\n`{ \"hash\": \"0x…\", \"dynamic\": true }`."
+            "description": "The value: addresses as `0x` strings, integers as decimal strings, bytes as `0x`\nhex, booleans as booleans, arrays and tuples as ordered lists. An indexed dynamic\nargument (string, bytes, array) is only its hash on chain and is returned as\n`{ \"hash\": \"0x…\", \"dynamic\": true }`.\nAbsent exactly when `valueState` is `withheld_for_size`."
+          },
+          "valueState": {
+            "$ref": "#/components/schemas/EventArgumentValueState",
+            "description": "`withheld_for_size` when `value` is not given because it is too large to include.\nAbsent when `value` is given."
           }
         },
         "required": [
           "name",
           "type",
-          "value",
           "indexed"
         ],
         "type": "object"
@@ -6600,13 +6677,13 @@
             "type": "array"
           },
           "candidateCount": {
-            "description": "How many known signatures fit this log: share its hash and decode its topics and\ndata. `1` is unambiguous.",
+            "description": "How many known signatures fit this log: share its hash and decode its topics and\ndata. `1` is unambiguous — unless `decodeSearch` is `incomplete`: then it counts the\nfits among the signatures tried, and the log is `ambiguous` whatever the count.",
             "format": "int32",
             "minimum": 0,
             "type": "integer"
           },
           "candidates": {
-            "description": "The readings of the log, one per fitting signature, best first — so the first one is\nthe reading given in `name` and `args`. Present only when `candidateCount` is greater\nthan `1`, and then holds the first `candidateCount` readings, at most 8: a log several\nhundred signatures fit is not worth several hundred readings. `candidateCount` is the\ntrue count either way. Absent when the decoding is unambiguous.",
+            "description": "The readings of the log, one per fitting signature, best first — so the first one is\nthe reading given in `name` and `args`. Present only when `candidateCount` is greater\nthan `1`, and then holds the first `candidateCount` readings, at most 8: a log several\nhundred signatures fit is not worth several hundred readings. `candidateCount` is the\ntrue count either way. The readings of one event are bounded in size: a value that does\nnot fit is `withheld_for_size`, and a reading whose names and types alone do not fit is\nnot listed. Absent when the decoding is unambiguous.",
             "items": {
               "$ref": "#/components/schemas/DecodedEventCandidate"
             },
@@ -6690,13 +6767,22 @@
             "type": "string"
           },
           "text": {
-            "description": "The function as Solidity-like pseudocode, with known names filled in.",
+            "description": "The function as Solidity-like pseudocode, with known names filled in. Absent exactly\nwhen `textState` is `withheld_for_size`.",
             "type": "string"
+          },
+          "textLength": {
+            "description": "The withheld body's length in bytes (UTF-8). Present only with `textState`.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "textState": {
+            "$ref": "#/components/schemas/DecompiledTextState",
+            "description": "`withheld_for_size` when the body is too large to include (more than 524 288 bytes as\nwritten in the answer, every invisible character counted as its `<U+XXXX>` marker):\n`text` is absent and `textLength` gives its length. Absent when `text` is given."
           }
         },
         "required": [
-          "kind",
-          "text"
+          "kind"
         ],
         "type": "object"
       },
@@ -6744,6 +6830,10 @@
             "description": "The function name, when a known signature has this selector.",
             "type": "string"
           },
+          "nameState": {
+            "$ref": "#/components/schemas/RegistryNameState",
+            "description": "`withheld` when a known signature has the selector but its text is not served: see\n`RegistryNameState`. Absent otherwise."
+          },
           "selector": {
             "description": "The 4-byte selector, `0x`-prefixed; absent for `fallback` and `receive`.",
             "type": "string"
@@ -6765,6 +6855,13 @@
           "hasBody"
         ],
         "type": "object"
+      },
+      "DecompiledTextState": {
+        "description": "Why a decompiled body carries no `text`. `withheld_for_size`: the body is too large to\ninclude (more than 524 288 bytes as written, invisible characters as their markers);\n`textLength` gives its length in bytes. Absent when `text` is given.",
+        "enum": [
+          "withheld_for_size"
+        ],
+        "type": "string"
       },
       "DelegatedCodeStatus": {
         "description": "Whether the response states the code EIP-7702 delegated accounts ran.",
@@ -6933,7 +7030,7 @@
             "type": "integer"
           },
           "tokenInSymbol": {
-            "description": "Symbol the sold token's contract declares — its claim about itself, not a\nverification. Absent when it declares none.",
+            "description": "Symbol the sold token's contract declares — its claim about itself, not a\nverification. Absent when it declares none.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "tokenOut": {
@@ -6947,7 +7044,7 @@
             "type": "integer"
           },
           "tokenOutSymbol": {
-            "description": "Symbol the bought token's contract declares — its claim about itself, not a\nverification. Absent when it declares none.",
+            "description": "Symbol the bought token's contract declares — its claim about itself, not a\nverification. Absent when it declares none.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "txHash": {
@@ -7611,7 +7708,7 @@
             "type": "integer"
           },
           "hasMore": {
-            "description": "`true` when more addresses matched than were returned: ask with a larger `limit`, or\na more specific query. There is no cursor.",
+            "description": "`true` when more addresses matched than were returned: ask with a larger `limit`, or\na more specific query. There is no cursor. The list is also bounded in bytes (about\n24 KiB of matches, one always given), so a list of matches carrying long texts can end\nbefore `limit` with `hasMore` true.",
             "type": "boolean"
           },
           "matches": {
@@ -7870,6 +7967,36 @@
         ],
         "type": "object"
       },
+      "EventArgumentValueState": {
+        "description": "Why a decoded event argument carries no `value`. `withheld_for_size`: the value is too\nlarge to include — the readings of one event are bounded in size, and a value that does\nnot fit is not given (the log's own `data` carries its bytes). Absent when `value` is given.",
+        "enum": [
+          "withheld_for_size"
+        ],
+        "type": "string"
+      },
+      "EventDataState": {
+        "description": "Why an event log carries no `data`. `withheld_for_size`: the data is longer than one\npage can carry (more than 49 151 bytes); `dataLength` gives its length in bytes, and the\ntopics and the decoding are still given. Absent when `data` is given.",
+        "enum": [
+          "withheld_for_size"
+        ],
+        "type": "string"
+      },
+      "EventDecodeErrorKind": {
+        "description": "Why the decoding of a log could not run — a fault of the service, not of the log; ask\nagain. `seed_not_loaded`: the signature registry is not loaded yet (the service is\nstarting). `decoder_disabled`: decoding is switched off. `decoder_fault`: the decoder\nfailed on this request.",
+        "enum": [
+          "seed_not_loaded",
+          "decoder_disabled",
+          "decoder_fault"
+        ],
+        "type": "string"
+      },
+      "EventDecodeSearch": {
+        "description": "How far an event's decoding went. `incomplete`: the decoding stopped before every\nsignature known for the log's hash was tried, because the work to try them on this log's\ndata exceeded the decoding's fixed budget — a reading given is then `ambiguous` (an\nuntried signature could fit too), and with no reading there is no `decodeStatus` at all.",
+        "enum": [
+          "incomplete"
+        ],
+        "type": "string"
+      },
       "EventLog": {
         "description": "One event log emitted by a transaction, with its decoding when the signature is known.",
         "properties": {
@@ -7893,16 +8020,34 @@
             "type": "string"
           },
           "data": {
-            "description": "The log's data, `0x`-prefixed.",
+            "description": "The log's data, `0x`-prefixed. Absent when it is longer than 98 304 characters (more\nthan 49 151 bytes of data): then `dataState` is `withheld_for_size` and `dataLength`\ngives its length in bytes. Never cut: a log's data is given whole or not at all. The\ntopics, and the decoding (which reads the whole data), are given either way.",
             "type": "string"
           },
+          "dataLength": {
+            "description": "The data's length in bytes. Present exactly when `dataState` is.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "dataState": {
+            "$ref": "#/components/schemas/EventDataState",
+            "description": "`withheld_for_size` when `data` is not given because it is too large to include in one\npage. Absent when `data` is given."
+          },
+          "decodeSearch": {
+            "$ref": "#/components/schemas/EventDecodeSearch",
+            "description": "`incomplete` when the decoding stopped before every signature known for this log's\nhash was tried, because the work to try them on this log's data exceeded the decoding's\nfixed budget. `candidateCount` then counts the fits among the signatures tried. Absent\nwhen every known signature was tried."
+          },
           "decodeStatus": {
-            "description": "How confident the decoding is: `verified` (one known signature, decoded), `partial`,\n`ambiguous` (several known signatures fit this log; `decoded` is the best candidate),\n`inferred`, `abi_missing` (signature unknown), `failed` (the signature is known but\nnone of its known layouts fits this log's topics and data — the log is served raw,\nwithout `decoded`).",
+            "description": "How confident the decoding is: `verified` (one known signature, decoded), `partial`,\n`ambiguous` (several known signatures fit this log, or one does but not every known\nsignature could be tried — `decodeSearch` is `incomplete` then; `decoded` is the best\ncandidate), `inferred`, `abi_missing` (signature unknown), `failed` (every known\nsignature was tried and none of its known layouts fits this log's topics and data —\nthe log is served raw, without `decoded`; or, with `errorKind`, the decoding could not\nrun — a fault of the service, not of the log: ask again). Absent only when\n`decodeSearch` is `incomplete` and none of the signatures tried fits: nothing is\nestablished then, and the log is not `failed`.",
             "type": "string"
           },
           "decoded": {
             "$ref": "#/components/schemas/DecodedEvent",
             "description": "The decoded event, when the signature is known and the data decodes."
+          },
+          "errorKind": {
+            "$ref": "#/components/schemas/EventDecodeErrorKind",
+            "description": "Why the decoding could not run, when it could not: a fault of the SERVICE, not of the\nlog (`decodeStatus` is `failed` then; ask again). Absent otherwise — a log whose known\nsignatures do not fit carries none."
           },
           "logIndex": {
             "description": "The log's index within its block.",
@@ -7948,9 +8093,7 @@
           "logIndexInTx",
           "txHash",
           "timestamp",
-          "topics",
-          "data",
-          "decodeStatus"
+          "topics"
         ],
         "type": "object"
       },
@@ -8014,7 +8157,7 @@
             "type": "string"
           },
           "errorName": {
-            "description": "Human-readable error name when the selector is known, for example `Error`. Absent\notherwise — render `revertSelector` then.",
+            "description": "Human-readable error name when the selector is known, for example `Error`. Absent\notherwise — render `revertSelector` then — and absent when the registry's name is not\nan identifier (`[A-Za-z_$][A-Za-z0-9_$]*`) of at most 128 characters; `errorSignature`\nis then absent too, and is absent alone when it is not in identifier characters,\ncommas, parentheses and brackets of at most 512.",
             "type": "string"
           },
           "errorSignature": {
@@ -8092,7 +8235,7 @@
             "type": "string"
           },
           "callType": {
-            "description": "`call`, `delegatecall`, `create`, `create2`, `selfdestruct`, …",
+            "description": "`call`, `callcode`, `create`, `create2` or `selfdestruct` — the kinds of call that\ncan move value; `unknown` for a kind this feed does not name.",
             "type": "string"
           },
           "counterparty": {
@@ -8275,7 +8418,7 @@
             "type": "string"
           },
           "methodName": {
-            "description": "The function's name where the selector is known. Absent when it is not — never a\nguess, and never the selector standing in for a name.",
+            "description": "The function's name where the selector is known. Absent when it is not — never a\nguess, and never the selector standing in for a name — and absent when the registry's\nname is not an identifier (`[A-Za-z_$][A-Za-z0-9_$]*`) of at most 128 characters.",
             "type": "string"
           },
           "nonce": {
@@ -8489,6 +8632,10 @@
           "name": {
             "description": "The function name, when a known signature has this selector. Absent otherwise.",
             "type": "string"
+          },
+          "nameState": {
+            "$ref": "#/components/schemas/RegistryNameState",
+            "description": "`withheld` when a known signature has the selector but its text is not served: see\n`RegistryNameState`. Absent otherwise."
           },
           "selector": {
             "description": "The 4-byte selector, `0x`-prefixed; absent for `no_selector`.",
@@ -9013,14 +9160,13 @@
             "type": "number"
           },
           "symbol": {
-            "description": "The symbol the token contract declares (verbatim, not verified).",
+            "description": "The symbol the token contract declares (verbatim, not verified). Absent when it is\nlonger than 64 characters.",
             "type": "string"
           }
         },
         "required": [
           "protocol",
           "pool",
-          "symbol",
           "decimals",
           "roles",
           "lastEventBlock"
@@ -9553,7 +9699,7 @@
             "type": "integer"
           },
           "symbol": {
-            "description": "The symbol the token contract declares (verbatim, not verified), only beside `decimals`.",
+            "description": "The symbol the token contract declares (verbatim, not verified), only beside `decimals`.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "token": {
@@ -9809,7 +9955,7 @@
             "type": "integer"
           },
           "name": {
-            "description": "The name the token contract declares — verbatim, not verified. Absent when it\ndeclares none.",
+            "description": "The name the token contract declares — verbatim, not verified. Absent when it\ndeclares none.\nAbsent when longer than 128 characters — left out whole, never shortened.",
             "type": "string"
           },
           "role": {
@@ -9817,7 +9963,7 @@
             "type": "string"
           },
           "symbol": {
-            "description": "The symbol the token contract declares — verbatim, not verified. Absent when it\ndeclares none.",
+            "description": "The symbol the token contract declares — verbatim, not verified. Absent when it\ndeclares none.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "weightBps": {
@@ -10261,7 +10407,7 @@
             "type": "integer"
           },
           "tokenInSymbol": {
-            "description": "Symbol the sold token's contract declares — verbatim, not verified. Absent when\nunknown.",
+            "description": "Symbol the sold token's contract declares — verbatim, not verified. Absent when\nunknown.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "tokenOut": {
@@ -10275,7 +10421,7 @@
             "type": "integer"
           },
           "tokenOutSymbol": {
-            "description": "Symbol the bought token's contract declares — verbatim, not verified. Absent when\nunknown.",
+            "description": "Symbol the bought token's contract declares — verbatim, not verified. Absent when\nunknown.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "txHash": {
@@ -10670,7 +10816,7 @@
             "type": "number"
           },
           "symbol": {
-            "description": "Ticker as declared by the token contract; `ETH` for the native asset. Absent when\nthe contract declares none. Not a proof of identity: any contract can declare any\nsymbol.",
+            "description": "Ticker as declared by the token contract; `ETH` for the native asset. Absent when\nthe contract declares none. Not a proof of identity: any contract can declare any\nsymbol.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "token": {
@@ -11169,7 +11315,7 @@
             "type": "string"
           },
           "symbol": {
-            "description": "The symbol the token contract declares — verbatim, not verified.",
+            "description": "The symbol the token contract declares — verbatim, not verified.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           }
         },
@@ -11248,6 +11394,13 @@
           "carriedValue"
         ],
         "type": "object"
+      },
+      "RegistryNameState": {
+        "description": "Why a known selector carries no `name` and no `signature`. `withheld`: a known signature\nhas this selector, but its text is not served — its name is not an identifier\n(`[A-Za-z_$][A-Za-z0-9_$]*`) of at most 128 characters, or its signature is not made of\nidentifier characters, commas, parentheses and brackets of at most 512. It is still\ncounted in `candidateCount` and `decodeStatus`; it is NOT `abi_missing` (no known\nsignature). Absent otherwise.",
+        "enum": [
+          "withheld"
+        ],
+        "type": "string"
       },
       "Relation": {
         "description": "One relation that holds now.",
@@ -11571,7 +11724,7 @@
             "type": "number"
           },
           "symbol": {
-            "description": "The symbol the token contract declares — verbatim, not verified. Absent when\nunknown.",
+            "description": "The symbol the token contract declares — verbatim, not verified. Absent when\nunknown.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "token": {
@@ -11613,6 +11766,13 @@
           "token_symbol",
           "token_name",
           "name"
+        ],
+        "type": "string"
+      },
+      "ResolveNameState": {
+        "description": "Why a match carries no `name` although TraceFast shows one. `withheld_for_size`: the name\nis longer than 256 characters and is not given (never cut). Absent otherwise — then a\nmissing `name` means the address is shown under no name.",
+        "enum": [
+          "withheld_for_size"
         ],
         "type": "string"
       },
@@ -11659,12 +11819,16 @@
             "description": "Where the query matched: `address` (the query is this address), `token_symbol`,\n`token_name` (what the token contract declares) or `name` (the name TraceFast\nshows)."
           },
           "name": {
-            "description": "The name TraceFast shows for the address — a project, exchange or protocol name, an\nENS name, or the name a contract declares where it is shown. Absent when TraceFast\nshows the address under no name.",
+            "description": "The name TraceFast shows for the address — a project, exchange or protocol name, an\nENS name, or the name a contract declares where it is shown. Absent when TraceFast\nshows the address under no name, or when `nameState` is `withheld_for_size`.",
             "type": "string"
           },
           "nameStanding": {
             "description": "How TraceFast presents the address: `verified` (confirmed by an official source),\n`normal`, `qualified` (shown with a qualifier, e.g. a name the contract declares\nabout itself), `warning`, `danger` (flagged — for example an impersonation or a\nscam), or `unknown`. Other values may be added. Absent when TraceFast holds no\npresentation for the address.",
             "type": "string"
+          },
+          "nameState": {
+            "$ref": "#/components/schemas/ResolveNameState",
+            "description": "`withheld_for_size` when TraceFast shows a name for the address but it is longer than\n256 characters: `name` is absent — it is not \"no name\". Absent otherwise."
           },
           "token": {
             "$ref": "#/components/schemas/ResolvedToken",
@@ -11688,7 +11852,7 @@
         "description": "The token contract's identity as it declares it.",
         "properties": {
           "name": {
-            "description": "The name the contract declares — verbatim, not verified.",
+            "description": "The name the contract declares — verbatim, not verified.\nAbsent when longer than 128 characters — left out whole, never shortened.",
             "type": "string"
           },
           "state": {
@@ -11696,7 +11860,7 @@
             "description": "`found`: TraceFast indexes the address as a token contract, with the name and symbol\nbelow. `absent`: no token metadata is recorded — not a statement that it is no\ntoken. `unavailable`: could not be read for this answer."
           },
           "symbol": {
-            "description": "The symbol the contract declares — verbatim, not verified.",
+            "description": "The symbol the contract declares — verbatim, not verified.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           }
         },
@@ -11789,8 +11953,12 @@
             "type": "string"
           },
           "name": {
-            "description": "The function name alone. Present whenever the selector is named; it can be present\nWITHOUT `signature` when the only known signature for it is malformed — the name is\nserved, the malformed text is not.",
+            "description": "The function name alone. Present whenever the selector is named; it can be present\nWITHOUT `signature` when the only known signature for it is malformed — the name is\nserved, the malformed text is not. A known name is served only as an identifier\n(`[A-Za-z_$][A-Za-z0-9_$]*`) of at most 128 characters, and a signature only in\nidentifier characters, commas, parentheses and brackets, of at most 512: anything else\nin the registry is treated as unknown.",
             "type": "string"
+          },
+          "nameState": {
+            "$ref": "#/components/schemas/RegistryNameState",
+            "description": "`withheld` when a known signature has the selector but its text is not served: see\n`RegistryNameState`. Absent otherwise."
           },
           "selector": {
             "description": "The 4-byte selector, `0x`-prefixed.",
@@ -12663,7 +12831,7 @@
             "type": "integer"
           },
           "name": {
-            "description": "`name()` as the contract declares it — verbatim, not verified: a contract may\ndeclare any text. Absent when the contract declares none.",
+            "description": "`name()` as the contract declares it — verbatim, not verified: a contract may\ndeclare any text. Absent when the contract declares none.\nAbsent when longer than 128 characters — left out whole, never shortened.",
             "type": "string"
           },
           "standard": {
@@ -12671,7 +12839,7 @@
             "type": "string"
           },
           "symbol": {
-            "description": "`symbol()` as the contract declares it — verbatim, not verified: a contract may\ndeclare any text. Absent when the contract declares none.",
+            "description": "`symbol()` as the contract declares it — verbatim, not verified: a contract may\ndeclare any text. Absent when the contract declares none.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "transferCount": {
@@ -12706,7 +12874,7 @@
             "type": "integer"
           },
           "symbol": {
-            "description": "Ticker as declared by the token contract; absent when it declares none. Not a proof\nof identity.",
+            "description": "Ticker as declared by the token contract; absent when it declares none. Not a proof\nof identity.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "token": {
@@ -12874,6 +13042,11 @@
       "TokenHolders": {
         "description": "The largest current holders of a token.",
         "properties": {
+          "asOfBlock": {
+            "description": "The block the ranking is valid at: balances are counted up to it. Absent when it cannot\nbe stated — the ranking was being recomputed during the read — never \"latest\".",
+            "format": "int64",
+            "type": "integer"
+          },
           "holderCount": {
             "description": "Number of addresses holding a positive balance now — the size of the set this list\nis the top of. Holders who once held and now hold nothing are not counted.",
             "format": "int64",
@@ -12881,11 +13054,25 @@
             "type": "integer"
           },
           "holders": {
-            "description": "Holders in descending balance order, at most `limit` rows. No rank number: balances\ncan tie, and the order is all the data supports.",
+            "description": "Holders in descending balance order (ties by address), at most `limit` rows. No rank\nnumber: balances can tie, and the order is all the data supports.",
             "items": {
               "$ref": "#/components/schemas/TokenHolder"
             },
             "type": "array"
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page of the ranking.",
+            "type": "string"
+          },
+          "rankingDepth": {
+            "description": "How many holders the pageable ranking holds: following `nextCursor` serves exactly\nthese, in order. At most 1 000.",
+            "format": "int64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "rankingTruncated": {
+            "description": "`true` when holders rank below the last of the `rankingDepth` that no page serves — the\nwalk ends at the depth, not at `holderCount`; `false` when the ranking holds every\nholder. A ranking shorter than 1 000 is every holder; a ranking of exactly 1 000 is\ncompared with `holderCount`, which is counted separately and can differ from it by a few\nholders around a recomputation.",
+            "type": "boolean"
           },
           "token": {
             "description": "The token contract, lowercase and `0x`-prefixed.",
@@ -12895,7 +13082,9 @@
         "required": [
           "token",
           "holderCount",
-          "holders"
+          "holders",
+          "rankingDepth",
+          "rankingTruncated"
         ],
         "type": "object"
       },
@@ -13038,7 +13227,7 @@
             "type": "string"
           },
           "pools": {
-            "description": "The pools of this page.",
+            "description": "The pools of this page. It can hold fewer than `limit` when the tokens of its pools\ndeclare long names: a page is bounded in bytes too (about 112 KiB, one pool always\nserved), and `nextCursor` then continues it.",
             "items": {
               "$ref": "#/components/schemas/TokenPoolEntry"
             },
@@ -13570,6 +13759,15 @@
         ],
         "type": "object"
       },
+      "TokenTransfersStatus": {
+        "description": "Whether a transaction's token transfers are listed, and whole.",
+        "enum": [
+          "complete",
+          "truncated",
+          "not_available"
+        ],
+        "type": "string"
+      },
       "TopDexToken": {
         "description": "One token of the DEX volume ranking.",
         "properties": {
@@ -13592,7 +13790,7 @@
             "type": "integer"
           },
           "symbol": {
-            "description": "The symbol the token contract declares — verbatim, not verified.",
+            "description": "The symbol the token contract declares — verbatim, not verified.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "token": {
@@ -14008,7 +14206,7 @@
             "type": "string"
           },
           "methodName": {
-            "description": "The called function's name, when its selector is in TraceFast's signature registry\n(e.g. `transfer`). Absent when unknown.",
+            "description": "The called function's name, when its selector is in TraceFast's signature registry\n(e.g. `transfer`). Absent when unknown, and when the registry's name is not an\nidentifier (`[A-Za-z_$][A-Za-z0-9_$]*`) of at most 128 characters.",
             "type": "string"
           },
           "nonce": {
@@ -14151,6 +14349,36 @@
                 "type": [
                   "boolean",
                   "null"
+                ]
+              },
+              "tokenTransferCount": {
+                "description": "Only with `includeTokenTransfers=true` and a status other than `not_available`: how\nmany token transfers the transaction emitted in all, listed or not.",
+                "format": "int64",
+                "minimum": 0,
+                "type": [
+                  "integer",
+                  "null"
+                ]
+              },
+              "tokenTransfers": {
+                "description": "Only with `includeTokenTransfers=true` and a status other than `not_available`: the\ntoken transfers the transaction emitted, in log order — the first 140 at most. An empty\nlist is a statement: the transaction moved no token. Labels and names from any\nresolver are not part of it.",
+                "items": {
+                  "$ref": "#/components/schemas/TransactionTokenTransfer"
+                },
+                "type": [
+                  "array",
+                  "null"
+                ]
+              },
+              "tokenTransfersStatus": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TokenTransfersStatus",
+                    "description": "Only with `includeTokenTransfers=true`: whether `tokenTransfers` lists every token\ntransfer the transaction emitted (`complete`), only the first ones (`truncated`), or\nnone because they cannot be read right now (`not_available`). Absent otherwise."
+                  }
                 ]
               }
             },
@@ -14345,7 +14573,7 @@
             "type": "array"
           },
           "framesTruncated": {
-            "description": "`true` when the transaction has more failed frames than this method returns (a\ncap of 100); `frames` is then a prefix in tree order.",
+            "description": "`true` when the transaction has more failed frames than this method returns (a\ncap of 100, and about 320 KiB of frames as written — one frame always given); `frames`\nis then a prefix in tree order.",
             "type": "boolean"
           },
           "hash": {
@@ -14811,6 +15039,58 @@
         ],
         "type": "object"
       },
+      "TransactionTokenTransfer": {
+        "description": "One token transfer a transaction emitted. The transaction's own hash, block, time,\nsender and target are the transaction's fields and are not repeated here.",
+        "properties": {
+          "batchIndex": {
+            "description": "Position inside an ERC-1155 `TransferBatch`; `0` for every other event.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "eventType": {
+            "description": "`transfer`, `transfer_single`, `transfer_batch`, `sent`, `minted`, `burned`,\n`deposit`, `withdraw`, `wrap` or `unwrap`. `deposit` and `withdraw` are vault\n(ERC-4626) events; `wrap` and `unwrap` are ether wrapped into and unwrapped from WETH.",
+            "type": "string"
+          },
+          "from": {
+            "description": "Whose balance decreased. Absent on a mint and on a `wrap`.",
+            "type": "string"
+          },
+          "logIndex": {
+            "description": "The log's index within the block.",
+            "format": "int32",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "operator": {
+            "description": "The party that executed an approved transfer (ERC-1155 and ERC-777 `operator`), when\nthe log names one.",
+            "type": "string"
+          },
+          "to": {
+            "description": "Whose balance increased. Absent on a burn and on an `unwrap`.",
+            "type": "string"
+          },
+          "token": {
+            "$ref": "#/components/schemas/TransactionTransferToken",
+            "description": "The token that moved."
+          },
+          "tokenId": {
+            "description": "The NFT's token id, as a decimal string.",
+            "type": "string"
+          },
+          "value": {
+            "description": "Raw amount as a decimal string, unscaled by `decimals`. Absent where the standard\ncarries no amount (ERC-721).",
+            "type": "string"
+          }
+        },
+        "required": [
+          "logIndex",
+          "batchIndex",
+          "token",
+          "eventType"
+        ],
+        "type": "object"
+      },
       "TransactionTrace": {
         "description": "The call tree of one transaction, in pre-order.",
         "properties": {
@@ -14837,7 +15117,7 @@
             "type": "array"
           },
           "framesTruncated": {
-            "description": "`true` when the tree holds more frames than this response — past the `limit` asked\nfor, or past the 1 000-frame cap — and this is its first `frameCount` frames in the\norder they ran. A clipped tree never claims to be the whole one.",
+            "description": "`true` when the tree holds more frames than this response — past the `limit` asked\nfor, past the 1 000-frame cap, or past what the response holds of the frames' calldata,\nrevert texts and call paths — and this is its first `frameCount` frames in the order\nthey ran. A clipped tree never claims to be the whole one.",
             "type": "boolean"
           },
           "hash": {
@@ -14883,6 +15163,33 @@
         "required": [
           "data",
           "meta"
+        ],
+        "type": "object"
+      },
+      "TransactionTransferToken": {
+        "description": "The token a transaction's transfer moved, as the contract declares itself.",
+        "properties": {
+          "address": {
+            "description": "The token contract, lowercase and `0x`-prefixed. It is what identifies the token — the\nsymbol does not.",
+            "type": "string"
+          },
+          "decimals": {
+            "description": "Declared decimals. Absent when the contract declares none — never a default `18`.",
+            "format": "int32",
+            "type": "integer"
+          },
+          "standard": {
+            "description": "`erc20`, `erc721`, `erc1155`, `erc777`, `erc4626`, … Other values may be added.",
+            "type": "string"
+          },
+          "symbol": {
+            "description": "The symbol as the contract DECLARES it. Anyone can deploy a token that calls itself\n`ETH` or `USDT`: a symbol here is not a statement that the token is the well-known one.\nCheck the address. Absent when unknown or longer than 64 characters — a longer symbol is\nleft out whole, never shortened.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address",
+          "standard"
         ],
         "type": "object"
       },
@@ -14949,7 +15256,7 @@
             "type": "integer"
           },
           "name": {
-            "description": "The name as the contract declares it; self-declared, like `symbol`.",
+            "description": "The name as the contract declares it; self-declared, like `symbol`.\nAbsent when longer than 128 characters — left out whole, never shortened.",
             "type": "string"
           },
           "standard": {
@@ -14957,7 +15264,7 @@
             "type": "string"
           },
           "symbol": {
-            "description": "The symbol as the contract DECLARES it. Anyone can deploy a token that calls itself\n`ETH` or `USDT`: a symbol here is not a statement that the token is the well-known\none. Check the address.",
+            "description": "The symbol as the contract DECLARES it. Anyone can deploy a token that calls itself\n`ETH` or `USDT`: a symbol here is not a statement that the token is the well-known\none. Check the address.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           }
         },
@@ -15122,7 +15429,7 @@
             "type": "string"
           },
           "symbol": {
-            "description": "The symbol the token contract declares — verbatim, not verified. Absent when\nunknown.",
+            "description": "The symbol the token contract declares — verbatim, not verified. Absent when\nunknown.\nAbsent when longer than 64 characters — left out whole, never shortened.",
             "type": "string"
           },
           "token": {
@@ -15308,7 +15615,7 @@
       "name": ""
     },
     "title": "TraceFast API",
-    "version": "0.2.0+811c94f8"
+    "version": "0.2.0+ee436838"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -16376,7 +16683,7 @@
     },
     "/chains/{chain_id}/blocks/{number}/transactions": {
       "get": {
-        "description": "TraceFast live Ethereum data: the transactions of one block in their order within the block, each with sender, recipient, value, gas, fee fields and the receipt's outcome. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. `txCount` is the block's whole count. A block that is not known yet answers 404; a block this API cannot see right now answers 422 like `blocks/{number}` does.",
+        "description": "TraceFast live Ethereum data: the transactions of one block in their order within the block, each with sender, recipient, value, gas, fee fields and the receipt's outcome. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page of transactions with long revert texts can hold fewer than `limit` (a page is bounded in bytes too), and `nextCursor` then continues it. `txCount` is the block's whole count. Filters narrow the page to one outcome (`status`), one called function (`methodId`, its selector), a value range in wei (`minValueWei`, `maxValueWei`) or one transaction type (`txType`), and `matchCount` says how many of the block's transactions they keep; `sort=value` lists the largest value moved first. A block that is not known yet answers 404; a block this API cannot see right now answers 422 like `blocks/{number}` does.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/block-transactions"
         },
@@ -16417,9 +16724,65 @@
             }
           },
           {
-            "description": "`nextCursor` of the previous page. Opaque; valid only for this method and block.",
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method, block, filters and order.",
             "in": "query",
             "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only transactions with this receipt outcome: `1` (success) or `0` (failure). A transaction whose receipt is not available yet matches neither.",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only calls of this function: its selector, `0x` + 8 hex characters, as `methodId` carries it. A transaction whose input is shorter than four bytes has no selector and never matches.",
+            "in": "query",
+            "name": "methodId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only transactions moving at least this value, in wei: a non-negative integer of at most 38 digits.",
+            "in": "query",
+            "name": "minValueWei",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only transactions moving at most this value, in wei: a non-negative integer of at most 38 digits, not below `minValueWei`.",
+            "in": "query",
+            "name": "maxValueWei",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only transactions of this type: 0 legacy, 1 EIP-2930, 2 EIP-1559, 3 EIP-4844 (blobs), 4 EIP-7702; any integer up to 127 is accepted.",
+            "in": "query",
+            "name": "txType",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "`index` (the default): in transaction-index order. `value`: largest `valueWei` first, equal values in transaction-index order. The direction of each is fixed.",
+            "in": "query",
+            "name": "sort",
             "required": false,
             "schema": {
               "type": "string"
@@ -16445,7 +16808,7 @@
                 }
               }
             },
-            "description": "`bad_request`: `number` invalid, `limit` outside 1 to 100, an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
+            "description": "`bad_request`: `number` invalid, `limit` outside 1 to 100, an unknown query parameter, a `status` outside `1` / `0` (`reason: status_invalid`), a malformed `methodId` (`reason: method_id_invalid`), a wei bound that is not an integer of at most 38 digits (`reason: value_invalid`), `minValueWei` above `maxValueWei` (`reason: value_range_inverted`), a `txType` outside 0 to 127 (`reason: tx_type_invalid`), a `sort` outside `index` / `value` (`reason: sort_invalid`); `invalid_cursor`: the cursor is not valid for this request — including a cursor of other filters or another order; restart from the first page"
           },
           "401": {
             "content": {
@@ -18574,7 +18937,7 @@
     },
     "/chains/{chain_id}/contracts/{address}/decompilation": {
       "get": {
-        "description": "TraceFast live Ethereum data: a contract's code reconstructed as readable Solidity-like pseudocode, for contracts with or without published source. By default the code that runs at the address — through a proxy, a beacon, a minimal proxy or an EIP-7702 delegation — at the latest block, or at `block`. The answer is a table of contents of the functions with their names where known; `selector` returns one function's body, `bodies=true` the bodies in order, a page at a time. Every answer carries a disclaimer: the reconstruction is best-effort. A code not analysed yet is analysed on request: the answer is then 503 `decompilation_pending` with `Retry-After` — ask again after it, usually within a minute. Each account starts a limited number of analyses per day; reading an analysed code is not limited.",
+        "description": "TraceFast live Ethereum data: a contract's code reconstructed as readable Solidity-like pseudocode, for contracts with or without published source. By default the code that runs at the address — through a proxy, a beacon, a minimal proxy or an EIP-7702 delegation — at the latest block, or at `block`. The answer is a table of contents of the functions with their names where known; `selector` returns one function's body, `bodies=true` the bodies in order, a page at a time. The table of contents is paged too (about 512 KiB of entries a page; `hasMore` and `nextCursor`). A body larger than 512 KiB as written comes without `text`: `textState: withheld_for_size` and `textLength` stand in its place. Every answer carries a disclaimer: the reconstruction is best-effort. A code not analysed yet is analysed on request: the answer is then 503 `decompilation_pending` with `Retry-After` — ask again after it, usually within a minute. Each account starts a limited number of analyses per day; reading an analysed code is not limited.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/contract-decompilation"
         },
@@ -18642,7 +19005,7 @@
             }
           },
           {
-            "description": "`nextCursor` of the previous page of bodies. Opaque, and valid only for this method with the same address, target and block.",
+            "description": "`nextCursor` of the previous page — of bodies, or of the table of contents. Opaque, and valid only for this method with the same address, target and block.",
             "in": "query",
             "name": "cursor",
             "required": false,
@@ -18919,7 +19282,7 @@
     },
     "/chains/{chain_id}/contracts/{address}/events": {
       "get": {
-        "description": "TraceFast live Ethereum data: the event logs a contract emitted, newest first (or oldest first with `order=asc`), each with its topics and data and, where the signature is known, the decoded event and its arguments — with the readings listed (at most 8; `candidateCount` is the true count) when more than one known signature fits the log. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page holds at most `limit` events and may hold fewer when their `data` is large: the page is bounded by size, a log is never cut. `topic0` narrows to one event signature and `eventName` to one event name; on a very active contract either narrowing is answered only inside a block window, and the refusal names the window it needs.",
+        "description": "TraceFast live Ethereum data: the event logs a contract emitted, newest first (or oldest first with `order=asc`), each with its topics and data and, where the signature is known, the decoded event and its arguments — with the readings listed (at most 8; `candidateCount` is the true count) when more than one known signature fits the log. One event's readings are bounded in size: a value too large to include is `valueState: withheld_for_size`, without `value`; a decoding stopped by its work budget before every known signature was tried says `decodeSearch: incomplete`. A log whose data is longer than 49 151 bytes comes without `data` — `dataState: withheld_for_size` and `dataLength` (bytes) instead; the topics and the decoding are still given. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. A page holds at most `limit` events and may hold fewer when their `data` is large: the page is bounded by size, a log is never cut. `topic0` narrows to one event signature and `eventName` to one event name; on a very active contract either narrowing is answered only inside a block window, and the refusal names the window it needs.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/contract-events"
         },
@@ -19545,7 +19908,7 @@
     },
     "/chains/{chain_id}/contracts/{address}/selectors": {
       "get": {
-        "description": "TraceFast live Ethereum data: the 4-byte selectors found as constants in a contract's bytecode, each resolved to a known signature and name where one exists, with how many known signatures share the selector. `decodeStatus` says how confident each resolution is. The list holds the contract's own functions together with the selectors of functions it calls on other contracts and of its custom errors, not told apart: a selector here is not proof the contract implements that function, and `selectorCount` is not the number of its functions. An address with no indexed code answers 404.",
+        "description": "TraceFast live Ethereum data: the 4-byte selectors found as constants in a contract's bytecode, each resolved to a known signature and name where one exists, with how many known signatures share the selector. `decodeStatus` says how confident each resolution is. The list holds the contract's own functions together with the selectors of functions it calls on other contracts and of its custom errors, not told apart: a selector here is not proof the contract implements that function, and `selectorCount` is not the number of its functions. A known signature whose text is not served says `nameState: withheld`. Paged: a page holds at most 1 000 selectors and about 224 KiB of them; `hasMore` says the list goes on — pass `nextCursor` back as `cursor`. An address with no indexed code answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/contract-selectors"
         },
@@ -19566,6 +19929,15 @@
             "in": "path",
             "name": "address",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this address and the code it was cut from.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -19590,7 +19962,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address, or an unknown query parameter"
+            "description": "`bad_request`: malformed address, or an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request (another address or code) — restart from the first page"
           },
           "401": {
             "content": {
@@ -21411,7 +21783,7 @@
     },
     "/chains/{chain_id}/entities/{address}/counterparties": {
       "get": {
-        "description": "TraceFast knowledge graph: the addresses one address has INTERACTED with most, ranked by successful transactions. An interaction is any of three: a top-level transaction between the two, whether or not it carried ETH (so a contract the address called, such as a token contract it sent `transfer` to, is listed as a counterparty); an internal ETH transfer; or a token `Transfer` event naming both. Token events are counted as emitted: they are not checked against a balance change and zero amounts are included, so events planted by address-poisoning contracts appear as interactions. `sentTxCount` counts transactions in which the address is the sending side of such an interaction, not transactions it signed. A counterparty here is not proof that value moved between the two. Returns up to 100 counterparties in ranking order, each with its transaction counts, first and last block of interaction, the surfaces the relation was seen on and the token classes involved, plus `corpus` — how many counterparties the ranking covered. With `block`, the ranking as it stood at the end of that block, reconstructed from the full history up to it; very large addresses are refused for that question with the bound stated, never answered with a narrowed set.",
+        "description": "TraceFast knowledge graph: the addresses one address has INTERACTED with most, ranked by successful transactions. An interaction is any of three: a top-level transaction between the two, whether or not it carried ETH (so a contract the address called, such as a token contract it sent `transfer` to, is listed as a counterparty); an internal ETH transfer; or a token `Transfer` event naming both. Token events are counted as emitted: they are not checked against a balance change and zero amounts are included, so events planted by address-poisoning contracts appear as interactions. `sentTxCount` counts transactions in which the address is the sending side of such an interaction, not transactions it signed. A counterparty here is not proof that value moved between the two. Returns up to `limit` counterparties in ranking order, each with its transaction counts, first and last block of interaction, the surfaces the relation was seen on and the token classes involved, plus `corpus` — how many counterparties the ranking covered. Pass `nextCursor` back as `cursor` to continue past the first page: the ranking holds `rankingDepth` counterparties (at most 1 000; 100 for the largest addresses), and `rankingTruncated` says whether more rank below them. Pages are cut from one ranking; when it is recomputed between two pages a cursor from before is refused with `invalid_cursor` (restart from the first page) — for a window that can happen after about 2 minutes, all-time and past-block cursors last longer. The zero address and the address itself are never ranked. `window=24h` or `7d` ranks the rolling last 24 hours or 7 days instead of the whole history. With `block`, the ranking as it stood at the end of that block, reconstructed from the full history up to it. Very large addresses are refused for a past block or a window with the bound stated, never answered with a narrowed set. With `counterparty`, the figures of that one pair in the same form (all-time, window or block), or `lookup.found: false`: read from the relationship graph, which for the largest addresses is not the daily top list their ranking comes from, so a pair can be newer than its ranking row; `lookup.excludedFromRanking` marks the zero address and the address itself. At a past block the pair is admitted by the same bounds as the ranking.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/address-counterparties"
         },
@@ -21437,13 +21809,31 @@
             }
           },
           {
-            "description": "State at the end of this block (everything up to and including it). Absent: the current all-time ranking.",
+            "description": "`all` (default: the whole history), `24h` or `7d` — the rolling last 24 hours or 7 days, ending at the newest block counted. Not with `block`.",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "State at the end of this block (everything up to and including it). Absent: the current ranking. Not with `window`.",
             "in": "query",
             "name": "block",
             "required": false,
             "schema": {
               "format": "int64",
               "type": "integer"
+            }
+          },
+          {
+            "description": "One counterparty, `0x` + 40 hex characters: answers that pair's figures (or `lookup.found: false`) instead of a ranking. Not with `limit` or `cursor`.",
+            "in": "query",
+            "name": "counterparty",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -21458,6 +21848,15 @@
               "minimum": 1,
               "type": "integer"
             }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method, this address and the same `window` and `block`.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -21469,7 +21868,7 @@
                 }
               }
             },
-            "description": "The ranking in the `data` / `meta` envelope"
+            "description": "The ranking (or the pair) in the `data` / `meta` envelope"
           },
           "400": {
             "content": {
@@ -21479,7 +21878,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address, `block` not positive, `limit` outside 1 to 100, an unknown query parameter — or, with `block`, an address too large to rank at a past block (`details.reason`: `peer_count_over_limit` with `peerCount`/`maxPeerCount`, or `row_count_over_limit` with `rowCount`/`maxRowCount`)"
+            "description": "`bad_request`: malformed address or `counterparty`, `block` not positive (`block_not_positive`), `window` outside `all` / `24h` / `7d` (`window_invalid`, with `details.valid`), `limit` outside 1 to 100 (`limit_out_of_range`), `window` with `block` or `counterparty` with `limit` / `cursor` (`conflicting_parameters`), an unknown query parameter — or an address too large for the question asked (`details.reason`: `peer_count_over_limit` with `peerCount`/`maxPeerCount` or `row_count_over_limit` with `rowCount`/`maxRowCount` for a past block; `window_record_count_over_limit` with `recordCount`/`maxRecordCount` for a window); `invalid_cursor`: restart from the first page"
           },
           "401": {
             "content": {
@@ -21519,7 +21918,7 @@
                 }
               }
             },
-            "description": "`block_not_available`: `block` is past the history currently covered; `details.maxAvailableBlock` is the highest block that can be answered"
+            "description": "`block_not_available`: `block` is past the history currently covered (`details.maxAvailableBlock` is the highest block that can be answered), or the window cannot be ranked whole right now (`details.reason`: `window_not_covered`, with `minAvailableBlock` and `windowFromBlock`)"
           },
           "429": {
             "content": {
@@ -21535,14 +21934,21 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccessErrorEnvelope"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorEnvelope"
+                    },
+                    {
+                      "$ref": "#/components/schemas/AccessErrorEnvelope"
+                    }
+                  ]
                 }
               }
             },
-            "description": "`service_degraded`: who is calling could not be established right now; retry after `Retry-After`."
+            "description": "`service_unavailable`: retry later — the rolling windows are temporarily unavailable (`window_not_live`), the source's reach cannot be read (`source_reach_unknown`), or too many rankings are being computed (`ranking_build_busy`, `retryAfterSeconds`); or `service_degraded`: who is calling could not be established right now; retry after `Retry-After`."
           }
         },
-        "summary": "Top counterparties of an address",
+        "summary": "Counterparties of an address, ranked",
         "tags": [
           "addresses"
         ],
@@ -21930,7 +22336,7 @@
     },
     "/chains/{chain_id}/entities/{address}/internal-transfers": {
       "get": {
-        "description": "TraceFast live Ethereum data: the value-carrying call frames an address sent or received inside transactions, newest first — each with its position in the call tree, its depth, the kind of call, the value it moved and its own outcome. The transaction's own top-level call is NOT one of these; it is the transaction, and it rides the transactions feed. Paged by an opaque cursor.",
+        "description": "TraceFast live Ethereum data: the value-carrying call frames an address sent or received inside transactions, newest first — each with its position in the call tree, its depth, the kind of call, the value it moved and its own outcome. The transaction's own top-level call is NOT one of these; it is the transaction, and it rides the transactions feed. Paged by an opaque cursor; `order=asc` reads oldest first. Filters (`direction`, `counterparty`, `callType`) narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs. A time window (`fromTimestamp` / `toTimestamp`) is turned into blocks and counts as one.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/entity-internal-transfers"
         },
@@ -22020,6 +22426,59 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "`desc` (default, newest first) or `asc` (oldest first). A cursor continues only in the order it was issued in.",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive lower time bound, Unix seconds: rows from the first block at or after this time. Turned into a block bound before the read, so it narrows the walk exactly as `fromBlock` does; with both, the narrower applies.",
+            "in": "query",
+            "name": "fromTimestamp",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Inclusive upper time bound, Unix seconds: rows up to the last block at or before this time. Turned into a block bound like `fromTimestamp`; a time after the newest block leaves the top open.",
+            "in": "query",
+            "name": "toTimestamp",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "One kind of call, as served in `callType`: `call`, `callcode`, `create`, `create2` or `selfdestruct`.",
+            "in": "query",
+            "name": "callType",
+            "required": false,
+            "schema": {
+              "enum": [
+                "call",
+                "callcode",
+                "create",
+                "create2",
+                "selfdestruct"
+              ],
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -22041,7 +22500,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address, `limit` outside 1 to 100, an unknown parameter or value, or a filter that needs a block window on an address this active (`reason: filter_needs_block_window`, with the bound); `invalid_cursor`"
+            "description": "`bad_request`: malformed address, `limit` outside 1 to 100, an unknown parameter or value, or a filter that needs a block window on an address this active (`reason: filter_needs_block_window`, with the bound); an invalid `order` (`order_invalid`), time (`timestamp_invalid`, `time_window_inverted`) or `callType` (`call_type_invalid`); `invalid_cursor`"
           },
           "401": {
             "content": {
@@ -22072,6 +22531,16 @@
               }
             },
             "description": "`chain_not_supported`, or an unknown path"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "`block_not_available` (`reason: coverage_gap`): blocks around a `fromTimestamp` / `toTimestamp` are temporarily unavailable, so the time cannot be turned into a block; retry later"
           },
           "429": {
             "content": {
@@ -22957,7 +23426,7 @@
     },
     "/chains/{chain_id}/entities/{address}/token-transfers": {
       "get": {
-        "description": "TraceFast live Ethereum data: the token transfers an address sent or received, newest first — the token as its contract declares itself, the raw amount (unscaled), the parties, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor. A transfer the address made to itself is shown once.",
+        "description": "TraceFast live Ethereum data: the token transfers an address sent or received, newest first — the token as its contract declares itself, the raw amount (unscaled), the parties, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor; `order=asc` reads oldest first. A transfer the address made to itself is shown once. Filters (`direction`, `token`, `counterparty`, `tokenStandard`, `eventType`, `minValue` / `maxValue`) narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs. A time window (`fromTimestamp` / `toTimestamp`) is turned into blocks and counts as one.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/entity-token-transfers"
         },
@@ -23056,6 +23525,98 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "`desc` (default, newest first) or `asc` (oldest first). A cursor continues only in the order it was issued in.",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive lower time bound, Unix seconds: rows from the first block at or after this time. Turned into a block bound before the read, so it narrows the walk exactly as `fromBlock` does; with both, the narrower applies.",
+            "in": "query",
+            "name": "fromTimestamp",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Inclusive upper time bound, Unix seconds: rows up to the last block at or before this time. Turned into a block bound like `fromTimestamp`; a time after the newest block leaves the top open.",
+            "in": "query",
+            "name": "toTimestamp",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "One token standard: `erc20`, `erc721`, `erc1155`, `erc777` or `erc4626`.",
+            "in": "query",
+            "name": "tokenStandard",
+            "required": false,
+            "schema": {
+              "enum": [
+                "erc20",
+                "erc721",
+                "erc1155",
+                "erc777",
+                "erc4626"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "One kind of transfer, as served in `eventType`: `transfer`, `transfer_single`, `transfer_batch`, `sent`, `minted`, `burned`, `deposit`, `withdraw`, `wrap` or `unwrap`.",
+            "in": "query",
+            "name": "eventType",
+            "required": false,
+            "schema": {
+              "enum": [
+                "transfer",
+                "transfer_single",
+                "transfer_batch",
+                "sent",
+                "minted",
+                "burned",
+                "deposit",
+                "withdraw",
+                "wrap",
+                "unwrap"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive lower bound on the raw amount `value` (not scaled by decimals): decimal digits, up to 2^256 - 1. A transfer without an amount never matches a value bound.",
+            "in": "query",
+            "name": "minValue",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive upper bound on the raw amount `value`: decimal digits, up to 2^256 - 1.",
+            "in": "query",
+            "name": "maxValue",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -23077,7 +23638,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address or token, `limit` outside 1 to 100, an unknown parameter or value, or a filter that needs a block window on an address this active (`reason: filter_needs_block_window`, with the bound); `invalid_cursor`"
+            "description": "`bad_request`: malformed address or token, `limit` outside 1 to 100, an unknown parameter or value, or a filter that needs a block window on an address this active (`reason: filter_needs_block_window`, with the bound); an invalid `order` (`order_invalid`), time (`timestamp_invalid`, `time_window_inverted`), `tokenStandard` (`token_standard_invalid`), `eventType` (`event_type_invalid`) or value bound (`value_invalid`, `value_range_inverted`); `invalid_cursor`"
           },
           "401": {
             "content": {
@@ -23108,6 +23669,16 @@
               }
             },
             "description": "`chain_not_supported`, or an unknown path"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "`block_not_available` (`reason: coverage_gap`): blocks around a `fromTimestamp` / `toTimestamp` are temporarily unavailable, so the time cannot be turned into a block; retry later"
           },
           "429": {
             "content": {
@@ -23276,7 +23847,7 @@
     },
     "/chains/{chain_id}/entities/{address}/transactions": {
       "get": {
-        "description": "TraceFast live Ethereum data: the transactions an address sent or received, newest first — each with sender, recipient, value, fee, the called function where its selector is known, the receipt's outcome, and which side of it this address is on (`sender`, `receiver`, or `self` when it is both). Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent. Filters narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs.",
+        "description": "TraceFast live Ethereum data: the transactions an address sent or received, newest first — each with sender, recipient, value, fee, the called function where its selector is known, the receipt's outcome, and which side of it this address is on (`sender`, `receiver`, or `self` when it is both). Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; `order=asc` reads oldest first. Filters (`direction`, `status`, `counterparty`, `methodName`, `minValueWei` / `maxValueWei`) narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs. A time window (`fromTimestamp` / `toTimestamp`) is turned into blocks and counts as one.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/entity-transactions"
         },
@@ -23379,6 +23950,70 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "`desc` (default, newest first) or `asc` (oldest first). A cursor continues only in the order it was issued in.",
+            "in": "query",
+            "name": "order",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive lower time bound, Unix seconds: rows from the first block at or after this time. Turned into a block bound before the read, so it narrows the walk exactly as `fromBlock` does; with both, the narrower applies.",
+            "in": "query",
+            "name": "fromTimestamp",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Inclusive upper time bound, Unix seconds: rows up to the last block at or before this time. Turned into a block bound like `fromTimestamp`; a time after the newest block leaves the top open.",
+            "in": "query",
+            "name": "toTimestamp",
+            "required": false,
+            "schema": {
+              "format": "int32",
+              "maximum": 4294967295,
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Only transactions calling the function of this name, exact match (an identifier of at most 128 characters: letters, digits, `_`, `$`), as served in `methodName`. A name, not a 4-byte selector; a transaction whose selector has no known name never matches.",
+            "in": "query",
+            "name": "methodName",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive lower bound on `valueWei`: wei, decimal digits, at most 38 digits.",
+            "in": "query",
+            "name": "minValueWei",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Inclusive upper bound on `valueWei`: wei, decimal digits, at most 38 digits.",
+            "in": "query",
+            "name": "maxValueWei",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -23400,7 +24035,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address, `limit` outside 1 to 100, an unknown parameter or value, or a filter that needs a block window on an address this active (`reason: filter_needs_block_window`, with the bound); `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
+            "description": "`bad_request`: malformed address, `limit` outside 1 to 100, an unknown parameter or value, or a filter that needs a block window on an address this active (`reason: filter_needs_block_window`, with the bound); an invalid `order` (`order_invalid`), time (`timestamp_invalid`, `time_window_inverted`), `methodName` (`method_name_invalid`) or value bound (`value_invalid`, `value_range_inverted`); `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
           },
           "401": {
             "content": {
@@ -23431,6 +24066,16 @@
               }
             },
             "description": "`chain_not_supported`, or an unknown path"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "`block_not_available` (`reason: coverage_gap`): blocks around a `fromTimestamp` / `toTimestamp` are temporarily unavailable, so the time cannot be turned into a block; retry later"
           },
           "429": {
             "content": {
@@ -25674,7 +26319,7 @@
     },
     "/chains/{chain_id}/resolve": {
       "get": {
-        "description": "TraceFast live Ethereum data: what a reference means. An address (`0x` + 40 hex) is described — the name TraceFast shows for it, how it presents it, what kind of address it is, its token identity. Any other text is looked up in two collections — token contracts by the symbol and name they declare, and the names TraceFast shows for projects, exchanges, protocols and ENS names — and answered with the matching addresses, best first: verified addresses, then the projects and ENS names TraceFast knows by name (flagged ones included), then the rest, and impersonations last — never hidden; inside each group exact, then prefix, then substring matches, then tokens with more holders. The starting point when you have a name and need an address. No cursor: `hasMore` says when a more specific query or a larger `limit` would show more. A 32-byte hash (`queryKind: hash`) is looked up as a TRANSACTION and answered in `transaction` (a block hash is not resolved — look a block up by its number); a whole number is also stated as `block` when that block exists, beside the text matches.",
+        "description": "TraceFast live Ethereum data: what a reference means. An address (`0x` + 40 hex) is described — the name TraceFast shows for it, how it presents it, what kind of address it is, its token identity. Any other text is looked up in two collections — token contracts by the symbol and name they declare, and the names TraceFast shows for projects, exchanges, protocols and ENS names — and answered with the matching addresses, best first: verified addresses, then the projects and ENS names TraceFast knows by name (flagged ones included), then the rest, and impersonations last — never hidden; inside each group exact, then prefix, then substring matches, then tokens with more holders. The starting point when you have a name and need an address. No cursor: `hasMore` says when a more specific query or a larger `limit` would show more (also when the matches carry long texts: the list is bounded in bytes); a shown name longer than 256 characters is withheld (`nameState: withheld_for_size`), not absent. A 32-byte hash (`queryKind: hash`) is looked up as a TRANSACTION and answered in `transaction` (a block hash is not resolved — look a block up by its number); a whole number is also stated as `block` when that block exists, beside the text matches.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/entity-resolve"
         },
@@ -25954,7 +26599,7 @@
     },
     "/chains/{chain_id}/risk/blacklist-issuers": {
       "get": {
-        "description": "TraceFast live Ethereum data: every contract that ever recorded a blacklist event, with its weight and token symbol where it has one, and how many addresses it lists now, has a recorded listing of and enforced against — the top `limit` by addresses listed now, ties by contract address. Also the totals: issuers, listed (address, issuer) pairs and distinct listed addresses. The counts are refreshed a few minutes behind the newest events; `meta.asOfBlock` states the block they reach. Facts recorded on-chain by the issuer contracts themselves; no names.",
+        "description": "TraceFast live Ethereum data: every contract that ever recorded a blacklist event, with its weight and token symbol where it has one, and how many addresses it lists now, has a recorded listing of and enforced against — the top `limit` by addresses listed now, ties by contract address (fewer when their declared symbols are long: the list is bounded in bytes, and `issuersTruncated` says so). Also the totals: issuers, listed (address, issuer) pairs and distinct listed addresses. The counts are refreshed a few minutes behind the newest events; `meta.asOfBlock` states the block they reach. Facts recorded on-chain by the issuer contracts themselves; no names.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/risk-blacklist-issuers"
         },
@@ -27161,7 +27806,7 @@
     },
     "/chains/{chain_id}/tokens/{token}/holders": {
       "get": {
-        "description": "TraceFast live Ethereum data: the largest current holders of a token contract. Returns up to 100 holders in descending balance order with the balance in the token's smallest unit, plus `holderCount` — how many addresses hold a positive balance now — the same balances the balance method answers. Only the current ranking is served — a past block is refused.",
+        "description": "TraceFast live Ethereum data: the largest current holders of a token contract, in descending balance order (ties by address) with the balance in the token's smallest unit, up to `limit` per page; pass `nextCursor` back as `cursor` to continue. Plus `holderCount` — how many addresses hold a positive balance now — and `asOfBlock`, the block the ranking is valid at (absent when the ranking was being recomputed while it was read); the same balances the balance method answers. The ranking holds `rankingDepth` holders (at most 1 000), and `rankingTruncated` says whether more rank below them. Pages are cut from one ranking; when it is recomputed between two pages (about hourly, at the earliest after 5 minutes) a cursor from before is refused with `invalid_cursor` (restart from the first page). Only the current ranking is served — a past block is refused.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/token-holders"
         },
@@ -27198,6 +27843,15 @@
               "minimum": 1,
               "type": "integer"
             }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method and this token.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -27219,7 +27873,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed token address, `limit` outside 1 to 100, an unknown query parameter, or `block` (`details.reason: block_not_supported` — only the current ranking exists)"
+            "description": "`bad_request`: malformed token address, `limit` outside 1 to 100, an unknown query parameter, or `block` (`details.reason: block_not_supported` — only the current ranking exists); `invalid_cursor`: restart from the first page"
           },
           "401": {
             "content": {
@@ -27405,7 +28059,7 @@
     },
     "/chains/{chain_id}/tokens/{token}/pools": {
       "get": {
-        "description": "TraceFast live Ethereum data: the DEX pools that hold the token, newest created first — each with its protocol and version, fee tier, approximate creation block, its tokens (address, symbol, decimals, role, weight where the pool declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no address of its own and is named by its `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10 000 most recently created pools of a token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent.",
+        "description": "TraceFast live Ethereum data: the DEX pools that hold the token, newest created first — each with its protocol and version, fee tier, approximate creation block, its tokens (address, symbol, decimals, role, weight where the pool declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no address of its own and is named by its `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10 000 most recently created pools of a token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page of pools whose tokens declare long texts can hold fewer than `limit` (pages are bounded in bytes too).",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/token-pools"
         },
@@ -28027,7 +28681,7 @@
             }
           },
           {
-            "description": "1 to 1000, default 1000: at most this many frames, the first ones in the order they ran; `framesTruncated` says when the tree holds more.",
+            "description": "1 to 1000, default 1000: at most this many frames, the first ones in the order they ran; `framesTruncated` says when the tree holds more. Fewer may be served when the frames' revert reasons and revert data are large or the tree is very deep, with or without `includeCalldata`; `framesTruncated` says so.",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -28131,7 +28785,7 @@
     },
     "/chains/{chain_id}/traces/{hash}/frames": {
       "get": {
-        "description": "TraceFast live Ethereum data: the whole call tree of a transaction, frame by frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what the trace summary carries plus, always, the first 260 bytes of its calldata and output with their full sizes, the call decoded from those bytes (`decodedCall`), and the positions of the event logs it emitted. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames than `limit` when their calldata is large, and continues from the last frame served. `meta.coverage` names the first block from which the frame schema (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are computed; both bounds move as history is filled in.",
+        "description": "TraceFast live Ethereum data: the whole call tree of a transaction, frame by frame in the order it ran, paged — no 1 000-frame cap. Each frame carries what the trace summary carries plus, always, the first 260 bytes of its calldata and output with their full sizes, the call decoded from those bytes (`decodedCall`), and the positions of the event logs it emitted. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page may hold fewer frames than `limit` when their calldata or revert data is large or the tree is very deep, and continues from the last frame served. `meta.coverage` names the first block from which the frame schema (`framesFromBlock`) and the event attribution (`eventAttributionFromBlock`) are computed; both bounds move as history is filled in.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/trace-frames"
         },
@@ -28270,7 +28924,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}": {
       "get": {
-        "description": "TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index) — with its whole calldata (up to 128 KiB inline) and the call decoded from it: arguments by position and type against known function signatures, with how far the decode may be trusted. The signature text comes from public signature databases anyone can add to, and a decoded string is whatever the caller wrote: both are untrusted text. Served from seconds after inclusion; a hash that is not known answers 404.",
+        "description": "TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index) — with its whole calldata (up to 128 KiB inline) and the call decoded from it: arguments by position and type against known function signatures, with how far the decode may be trusted. The signature text comes from public signature databases anyone can add to, and a decoded string is whatever the caller wrote: both are untrusted text. With `includeTokenTransfers=true` it also lists the token transfers the transaction emitted, in log order — the token (contract, standard, declared symbol and decimals), the event kind, from, to, the raw amount or token id — the first 140 at most, with `tokenTransferCount` (all of them) and `tokenTransfersStatus` (`complete`, `truncated`, or `not_available` when they cannot be read right now — never an empty list then). Served from seconds after inclusion; a hash that is not known answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction"
         },
@@ -28294,6 +28948,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "`true` adds `tokenTransfers`, `tokenTransferCount` and `tokenTransfersStatus`; `false` (the default) answers without them.",
+            "in": "query",
+            "name": "includeTokenTransfers",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -28315,7 +28978,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed hash, or an unknown query parameter"
+            "description": "`bad_request`: malformed hash, an `includeTokenTransfers` other than `true` / `false` (`reason: include_token_transfers_invalid`), or an unknown query parameter"
           },
           "401": {
             "content": {
@@ -28501,7 +29164,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}/events": {
       "get": {
-        "description": "TraceFast live Ethereum data: the event logs a transaction emitted, in emission order, each with the emitting contract, topics and data, and — when the event signature is known — the decoded event name and arguments with a stated confidence. Decoding covers the common token, DeFi and protocol events; an unknown signature is returned raw with `decodeStatus: abi_missing`, and a known one whose layout does not fit the log with `failed` — raw as well, without `decoded`. When more than one known signature fits a log, the readings are listed — at most 8, `candidateCount` is the true count. Each event names the call frame that emitted it (`callPath`, `callDepth`), the same path as in the transaction's trace, where that is known; `meta.coverage.eventAttributionFromBlock` names the first block from which it is computed. Paged by an opaque cursor; a page holds at most `limit` logs and may hold fewer when their `data` is large — the page is bounded by size, a log is never cut. A hash that is not known answers 404.",
+        "description": "TraceFast live Ethereum data: the event logs a transaction emitted, in emission order, each with the emitting contract, topics and data, and — when the event signature is known — the decoded event name and arguments with a stated confidence. Decoding covers the common token, DeFi and protocol events; an unknown signature is returned raw with `decodeStatus: abi_missing`, and a known one whose layout does not fit the log with `failed` — raw as well, without `decoded`. When more than one known signature fits a log, the readings are listed — at most 8, `candidateCount` is the true count. One event's readings are bounded in size: a value too large to include is `valueState: withheld_for_size`, without `value`; a decoding stopped by its work budget before every known signature was tried says `decodeSearch: incomplete` — `ambiguous` with a reading, no `decodeStatus` without one, never `failed`. A log whose data is longer than 49 151 bytes comes without `data` — `dataState: withheld_for_size` and `dataLength` (bytes) instead; the topics and the decoding are still given. Each event names the call frame that emitted it (`callPath`, `callDepth`), the same path as in the transaction's trace, where that is known; `meta.coverage.eventAttributionFromBlock` names the first block from which it is computed. Paged by an opaque cursor; a page holds at most `limit` logs and may hold fewer when their `data` is large — the page is bounded by size, a log is never cut. A hash that is not known answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction-events"
         },
@@ -28772,7 +29435,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}/failures": {
       "get": {
-        "description": "TraceFast live Ethereum data: the failed call frames of a reverted transaction — for each, its position in the call tree, caller and target, the kind of failure (revert, panic, custom error, out of gas, …), the revert payload with its selector, and the error name when the selector is known. Root frame first, then nested frames in tree order, at most 100 (`framesTruncated` says when there are more). A successful transaction, and one that is not known, answer an empty list: absence of a recorded failure is not a statement of success. A transaction whose block the failure classification has not reached yet answers 422 — an empty list there would read as success.",
+        "description": "TraceFast live Ethereum data: the failed call frames of a reverted transaction — for each, its position in the call tree, caller and target, the kind of failure (revert, panic, custom error, out of gas, …), the revert payload with its selector, and the error name when the selector is known. Root frame first, then nested frames in tree order, at most 100 and about 320 KiB of frames (`framesTruncated` says when there are more). A successful transaction, and one that is not known, answer an empty list: absence of a recorded failure is not a statement of success. A transaction whose block the failure classification has not reached yet answers 422 — an empty list there would read as success.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction-failures"
         },

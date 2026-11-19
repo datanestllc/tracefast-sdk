@@ -1,21 +1,21 @@
 {
   "data": {
     "chainId": 1,
-    "tokenCount": 2284131,
-    "transferCount": 4648487059,
-    "holderCount": 588209641,
+    "tokenCount": 2284573,
+    "transferCount": 4651202626,
+    "holderCount": 588682202,
     "byStandard": [
       {
         "standard": "erc20",
-        "tokenCount": 1861968,
-        "transferCount": 4220328009,
-        "holderCount": 456388843
+        "tokenCount": 1862352,
+        "transferCount": 4225630838,
+        "holderCount": 456905974
       },
       {
         "standard": "erc721",
-        "tokenCount": 284264,
-        "transferCount": 299750276,
-        "holderCount": 46016276
+        "tokenCount": 284305,
+        "transferCount": 299749381,
+        "holderCount": 46017785
       }
     ]
   },

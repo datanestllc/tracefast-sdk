@@ -3,7 +3,7 @@
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
     "block": 20000000,
-    "coverageBlock": 26442583,
+    "coverageBlock": 26447717,
     "addressKnown": true,
     "intervals": [
       {
@@ -21,7 +21,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26442583,
+    "asOfBlock": 26447717,
     "docs": "https://docs.tracefast.xyz/api/address-relations-at-block"
   }
 }

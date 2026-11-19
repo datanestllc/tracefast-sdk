@@ -4,24 +4,24 @@
     "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "firstSeenBlock": 302086,
     "firstSeenTimestamp": 1443428683,
-    "lastStateChangeBlock": 26399548,
-    "lastStateChangeTimestamp": 1794494759,
-    "stateChangeCount": 15323,
-    "lastInteractionBlock": 26440576,
-    "lastInteractionTimestamp": 1794988463,
+    "lastStateChangeBlock": 26447720,
+    "lastStateChangeTimestamp": 1795074371,
+    "stateChangeCount": 15324,
+    "lastInteractionBlock": 26447720,
+    "lastInteractionTimestamp": 1795074371,
     "lastActivity": {
-      "block": 26442407,
-      "timestamp": 1795010459,
+      "block": 26447720,
+      "timestamp": 1795074371,
       "sources": [
         "events",
         "tokenTransfers"
       ],
       "bySource": {
         "events": null,
-        "tokenTransfers": 26442407,
+        "tokenTransfers": 26444951,
         "internalTransfers": 26399548,
-        "directTx": 26440576,
-        "calls": 26440576
+        "directTx": 26447720,
+        "calls": 26447720
       }
     }
   },
@@ -29,7 +29,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26442879,
+    "asOfBlock": 26447970,
     "docs": "https://docs.tracefast.xyz/api/address-activity"
   }
 }

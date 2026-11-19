@@ -2,7 +2,7 @@
   "data": {
     "chainId": 1,
     "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "readThroughBlock": 26443018,
+    "readThroughBlock": 26448055,
     "slots": [
       {
         "storageKey": "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -28,8 +28,8 @@
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
-    "asOfBlock": 26443018,
+    "cached": false,
+    "asOfBlock": 26448055,
     "docs": "https://docs.tracefast.xyz/api/contract-storage-parameters"
   }
 }

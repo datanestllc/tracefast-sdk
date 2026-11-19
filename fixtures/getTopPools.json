@@ -5,23 +5,6 @@
     "days": 7,
     "pools": [
       {
-        "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
-        "protocol": "uniswap",
-        "version": "v3",
-        "tokens": [
-          {
-            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-            "symbol": "USDC"
-          },
-          {
-            "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-            "symbol": "WETH"
-          }
-        ],
-        "volumeUsd": 1304444178.8503997,
-        "swaps": 45757
-      },
-      {
         "poolId": "0x3b1b1f2e775a6db1664f8e7d59ad568605ea2406312c11aef03146c0cf89d5b9",
         "protocol": "uniswap",
         "version": "v4",
@@ -35,8 +18,25 @@
             "symbol": "USDS"
           }
         ],
-        "volumeUsd": 1158271234.2496006,
-        "swaps": 12198
+        "volumeUsd": 1141267913.2876344,
+        "swaps": 12076
+      },
+      {
+        "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+        "protocol": "uniswap",
+        "version": "v3",
+        "tokens": [
+          {
+            "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+            "symbol": "USDC"
+          },
+          {
+            "address": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+            "symbol": "WETH"
+          }
+        ],
+        "volumeUsd": 1136272566.5832038,
+        "swaps": 44184
       }
     ]
   },

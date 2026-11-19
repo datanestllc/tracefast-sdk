@@ -4,11 +4,11 @@
     "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "calls": [
       {
-        "blockNumber": 26440576,
-        "txIndex": 299,
-        "txHash": "0xda98151f32d7fb8c8daad5849363590ca179c6511b3f7d7e6d613d50072b0533",
-        "timestamp": 1794988463,
-        "txSender": "0xfa5180956e87bff2d1fce8423d2e755846ac3b24",
+        "blockNumber": 26447720,
+        "txIndex": 131,
+        "txHash": "0xb8e7a84919ce3bbb317b46797526a7cad4dcc477507190aee747be2f41e0506c",
+        "timestamp": 1795074371,
+        "txSender": "0x79a6c7d31db63ecb618ca16a77d4dd25c100fad2",
         "transactionTarget": true,
         "txSucceeded": true,
         "frames": 1,
@@ -16,15 +16,15 @@
         "callTypes": [
           "call"
         ],
-        "carriedValue": false
+        "carriedValue": true
       },
       {
-        "blockNumber": 26435981,
-        "txIndex": 221,
-        "txHash": "0x766f83db9c611cbff14150daaea08a2b1570c7bfe8c875dc60c6aaaaf6b5be46",
-        "timestamp": 1794933155,
-        "txSender": "0xc2fc9e7bdf48cfa44a7c70960a33e538d6626780",
-        "transactionTarget": true,
+        "blockNumber": 26444264,
+        "txIndex": 287,
+        "txHash": "0xaea1bc7bda5f84e415bce8dff50c550c307254d24809668321e87d38e6b9a551",
+        "timestamp": 1795032743,
+        "txSender": "0xbaac6ee75083378d8a6ecb4e0e337c064aebb36e",
+        "transactionTarget": false,
         "txSucceeded": true,
         "frames": 1,
         "failedFrames": 0,
@@ -34,13 +34,13 @@
         "carriedValue": false
       }
     ],
-    "nextCursor": "AVsyNjQzNTk4MSwyMjFdXSbqrYYo8vk6xoc_H5mzzg"
+    "nextCursor": "AVsyNjQ0NDI2NCwyODddlTta4oE5qs2qsIWyBDPwwg"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26442901,
+    "asOfBlock": 26447971,
     "docs": "https://docs.tracefast.xyz/api/entity-calls-received"
   }
 }

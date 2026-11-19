@@ -1,22 +1,27 @@
 {
   "data": {
     "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-    "holderCount": 9205635,
+    "holderCount": 9210671,
     "holders": [
       {
         "address": "0x37305b1cd40574e4c5ce33f8e8306be057fd7341",
-        "balance": "2563538881341725"
+        "balance": "2559806026212745"
       },
       {
         "address": "0xffa69c0080582098af595156240214b742735a5e",
         "balance": "1482999999860100"
       }
-    ]
+    ],
+    "asOfBlock": 26447583,
+    "rankingDepth": 1000,
+    "rankingTruncated": true,
+    "nextCursor": "AVsiMTQ4Mjk5OTk5OTg2MDEwMCIsImZmYTY5YzAwODA1ODIwOThhZjU5NTE1NjI0MDIxNGI3NDI3MzVhNWUiLC02MjQ4NTM1NTczNDUzMTI0NzA0XZaNgkZtBpsb9EFOQ8aZJO4"
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
+    "asOfBlock": 26447583,
     "docs": "https://docs.tracefast.xyz/api/token-holders"
   }
 }

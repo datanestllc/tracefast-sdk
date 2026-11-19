@@ -11,8 +11,8 @@
         "signature": "transfer(address,uint256)",
         "decodeStatus": "ambiguous",
         "candidateCount": 4,
-        "topLevelCalls": 113510547,
-        "lastTopLevelCallBlock": 26442901
+        "topLevelCalls": 113605447,
+        "lastTopLevelCallBlock": 26447971
       },
       {
         "kind": "function",
@@ -21,21 +21,21 @@
         "signature": "approve(address,uint256)",
         "decodeStatus": "ambiguous",
         "candidateCount": 3,
-        "topLevelCalls": 14733389,
-        "lastTopLevelCallBlock": 26442900
+        "topLevelCalls": 14741877,
+        "lastTopLevelCallBlock": 26447971
       }
     ],
     "entryCount": 231,
     "callSpan": {
       "firstBlock": 6082473,
-      "lastBlock": 26442901
+      "lastBlock": 26447971
     },
-    "callSpanAsOfBlock": 26442901
+    "callSpanAsOfBlock": 26447971
   },
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
+    "cached": false,
     "docs": "https://docs.tracefast.xyz/api/contract-function-calls"
   }
 }

@@ -4,21 +4,21 @@
     "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "days": 90,
     "activeDays": 44,
-    "totalBlocksActive": 102,
+    "totalBlocksActive": 101,
     "points": [
-      {
-        "date": "2026-08-20",
-        "blocksActive": 2,
-        "balanceChangeBlocks": 2,
-        "nonceChangeBlocks": 0,
-        "codeChangeBlocks": 0,
-        "createdBlocks": 0
-      },
       {
         "date": "2026-08-21",
         "blocksActive": 5,
         "balanceChangeBlocks": 5,
         "nonceChangeBlocks": 3,
+        "codeChangeBlocks": 0,
+        "createdBlocks": 0
+      },
+      {
+        "date": "2026-08-23",
+        "blocksActive": 1,
+        "balanceChangeBlocks": 1,
+        "nonceChangeBlocks": 0,
         "codeChangeBlocks": 0,
         "createdBlocks": 0
       }

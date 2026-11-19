@@ -2,79 +2,79 @@
   "data": {
     "chainId": 1,
     "head": {
-      "slot": 15682818,
-      "observedAt": 1795017840
+      "slot": 15687862,
+      "observedAt": 1795078368
     },
     "finalized": {
-      "slot": 15682752,
-      "observedAt": 1795017814
+      "slot": 15687776,
+      "observedAt": 1795078102
     },
-    "finalizationLagSlots": 66,
+    "finalizationLagSlots": 86,
     "publishedSlot": {
-      "slot": 15682752,
-      "epoch": 490086,
-      "executionBlockNumber": 26442956,
-      "slotTime": 1795017047
+      "slot": 15687776,
+      "epoch": 490243,
+      "executionBlockNumber": 26447966,
+      "slotTime": 1795077335
     },
     "missedSlots24h": {
-      "slots": 7133,
-      "missed": 17,
-      "missedRatio": 0.0023832889387354547
+      "slots": 7110,
+      "missed": 15,
+      "missedRatio": 0.002109704641350211
     },
     "reorgs24h": {
       "count": 4,
-      "lastObservedAt": 1795004005,
+      "lastObservedAt": 1795070714,
       "reorgs": [
         {
-          "slot": 15681665,
-          "epoch": 490052,
+          "slot": 15687224,
+          "epoch": 490225,
           "depth": 1,
-          "observedAt": 1795004005,
-          "slotTime": 1795004003,
-          "newHeadRoot": "0x09bf736e25fefd36fc1d6126a9f01b3c6e08f743ddeec12bfdef16ed4a51b449",
-          "oldHeadRoot": "0xab3c40d6b55a73525fa2d286e155b38090d97803279f708318cfbc782ff58559",
-          "executionBlockNumber": 26441869
+          "observedAt": 1795070714,
+          "slotTime": 1795070711,
+          "newHeadRoot": "0x2e9daa29423c697b50e10f00baa14c9b164f1365b55f0c11640d603093b83dcf",
+          "oldHeadRoot": "0x7add75f61400740095614c94dda0f3d91a01854ace3b02be07939888e46a5516",
+          "executionBlockNumber": 26447418
         },
         {
-          "slot": 15680565,
-          "epoch": 490017,
+          "slot": 15686177,
+          "epoch": 490193,
           "depth": 1,
-          "observedAt": 1794990805,
-          "slotTime": 1794990803,
-          "newHeadRoot": "0x42254839809068e8586458f80792c51be4bafe9412d22ffd93b33a53de5ddfee",
-          "oldHeadRoot": "0xfd2619370cb55ab46bf72a48cbd83934f41c8abe76eab6aa3338db65bb5e8007",
-          "executionBlockNumber": 26440770
+          "observedAt": 1795058149,
+          "slotTime": 1795058147,
+          "newHeadRoot": "0xaf3e13474f15526eb260007e0de918cb97cd4796fe6736ed798c6927ec0fe301",
+          "oldHeadRoot": "0xbd6eb71a58fe69d4a13a732e0da2b1cc4a3e19921c8de105bc98a329eb5eede5",
+          "executionBlockNumber": 26446375
         }
       ]
     },
     "observation24h": {
       "windowSlots": 7200,
-      "fromSlot": 15675618,
-      "headEvents": 7187,
-      "firstObservedAt": 1794931452,
-      "lastObservedAt": 1795017840,
+      "fromSlot": 15680662,
+      "headEvents": 7189,
+      "firstObservedAt": 1794991980,
+      "lastObservedAt": 1795078368,
       "largestGapSeconds": 26
     },
     "missedSlots": [
       {
-        "slot": 15681664,
-        "epoch": 490052,
-        "slotTime": 1795003991,
+        "slot": 15687693,
+        "epoch": 490240,
+        "slotTime": 1795076339,
         "dutyStatus": "recorded",
-        "validatorIndex": 2320947
+        "validatorIndex": 274281
       },
       {
-        "slot": 15680564,
-        "epoch": 490017,
-        "slotTime": 1794990791,
+        "slot": 15687293,
+        "epoch": 490227,
+        "slotTime": 1795071539,
         "dutyStatus": "recorded",
-        "validatorIndex": 1235076
+        "validatorIndex": 36711
       }
     ],
     "ages": {
-      "headSeconds": 22,
-      "finalitySeconds": 48,
-      "publishedSlotSeconds": 815
+      "headSeconds": 51,
+      "finalitySeconds": 317,
+      "publishedSlotSeconds": 1084
     }
   },
   "meta": {

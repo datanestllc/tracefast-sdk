@@ -2,107 +2,109 @@
   "data": {
     "chainId": 1,
     "windowBlocks": 7200,
-    "fromBlock": 26435827,
-    "toBlock": 26443026,
+    "fromBlock": 26440858,
+    "toBlock": 26448057,
     "counts": {
-      "delegate_executed": 194640,
-      "delegated_outflow": 72653,
-      "delegation_set": 67237,
-      "delegation_then_sweep": 1536,
-      "flash_loan_tx": 4159,
-      "frozen_holder_activity": 42,
-      "governance_proposal_executed": 8,
-      "governance_proposal_queued": 6,
-      "sweep_collector": 51,
+      "delegate_executed": 193517,
+      "delegated_outflow": 75175,
+      "delegation_set": 70591,
+      "delegation_then_sweep": 1821,
+      "flash_loan_tx": 4501,
+      "frozen_holder_activity": 45,
+      "governance_proposal_executed": 11,
+      "governance_proposal_queued": 5,
+      "pre_freeze_outflows": 1,
+      "sweep_collector": 75,
       "timelock_call_cancelled": 1,
-      "timelock_call_executed": 207,
-      "timelock_call_scheduled": 194,
-      "timelock_min_delay_changed": 3
+      "timelock_call_executed": 288,
+      "timelock_call_scheduled": 184,
+      "timelock_control_bypassed": 2,
+      "timelock_min_delay_changed": 4
     },
     "flashLoans": {
-      "arbitrage": 2008,
-      "liquidation": 4,
-      "other": 1877,
-      "position_change": 270
+      "arbitrage": 2387,
+      "liquidation": 9,
+      "other": 1757,
+      "position_change": 348
     },
     "coverage": {
       "approvals": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "control": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "dex_launch": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26407692,
         "coveredBlocks": 7199
       },
       "dex_liquidity": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "dex_sells": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "drains": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26429725,
         "coveredBlocks": 7199
       },
       "eip7702": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "flash_loans": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "followon": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406319,
         "coveredBlocks": 7199
       },
       "governance": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "initialize": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "lending": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26408399,
         "coveredBlocks": 7199
       },
       "poisoning": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26412452,
         "coveredBlocks": 7199
       },
       "proxy_upgrade": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "pulls": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       },
       "safe": {
-        "processedThroughBlock": 26443025,
+        "processedThroughBlock": 26448056,
         "coveredFromBlock": 26406099,
         "coveredBlocks": 7199
       }
@@ -119,12 +121,12 @@
         "tokensTruncated": false
       },
       {
-        "signalId": "0x91e7128c90e802290c594afa7d0b97311f16896dfff93a849387566650df29de",
+        "signalId": "0x34f111a1a5f3cfcf66b27ddf28d405b3a9cccd0657747138c7cb47f44ec4b844",
         "subject": "0x8bad1c043e20e4c24d935b67bc2075a2c4677d37",
-        "txHash": "0x60a49b9890842ff2f5f229e85b2055236d1b05747e598f1c039a54db6ea56f3d",
-        "blockNumber": 26438043,
-        "blockTimestamp": 1794957959,
-        "ethNetOutWei": "599999850000000000000",
+        "txHash": "0xf7d3f75307fcdf5bfe3d970afbd40ddaf2e28f53057ff129eaa2c2d0b84a9ce0",
+        "blockNumber": 26444840,
+        "blockTimestamp": 1795039691,
+        "ethNetOutWei": "199999850000000000000",
         "tokensOut": [],
         "tokensTruncated": false
       }
@@ -134,7 +136,7 @@
     "chain": "ethereum",
     "timestamp": 1790000000000,
     "cached": false,
-    "asOfBlock": 26443026,
+    "asOfBlock": 26448057,
     "docs": "https://docs.tracefast.xyz/api/signal-rates"
   }
 }

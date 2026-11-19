@@ -1,24 +1,9 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-20",
-    "to": "2026-11-18",
+    "from": "2026-10-21",
+    "to": "2026-11-19",
     "days": [
-      {
-        "day": "2026-10-20",
-        "gasPriceAvgWei": "1206156642",
-        "gasPriceMedianWei": "263919072",
-        "gasPriceP10Wei": "46700226",
-        "gasPriceP90Wei": "2136694775",
-        "priorityFeeAvgWei": "955961269",
-        "priorityFeeMedianWei": "60000000",
-        "legacy": 219874,
-        "accessList": 736,
-        "eip1559": 1577262,
-        "blob": 14546,
-        "setCode": 25153,
-        "total": 1837571
-      },
       {
         "day": "2026-10-21",
         "gasPriceAvgWei": "727018696",
@@ -33,6 +18,21 @@
         "blob": 15901,
         "setCode": 29090,
         "total": 1883714
+      },
+      {
+        "day": "2026-10-22",
+        "gasPriceAvgWei": "973986006",
+        "gasPriceMedianWei": "325951437",
+        "gasPriceP10Wei": "58911283",
+        "gasPriceP90Wei": "2208821992",
+        "priorityFeeAvgWei": "678599284",
+        "priorityFeeMedianWei": "100000000",
+        "legacy": 234349,
+        "accessList": 930,
+        "eip1559": 1536346,
+        "blob": 14790,
+        "setCode": 25959,
+        "total": 1812374
       }
     ]
   },

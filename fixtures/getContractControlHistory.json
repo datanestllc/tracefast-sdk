@@ -31,8 +31,8 @@
   "meta": {
     "chain": "ethereum",
     "timestamp": 1790000000000,
-    "cached": true,
-    "asOfBlock": 26442508,
+    "cached": false,
+    "asOfBlock": 26447581,
     "docs": "https://docs.tracefast.xyz/api/contract-control-history"
   }
 }

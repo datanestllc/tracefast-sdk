@@ -1,19 +1,19 @@
 {
   "data": {
     "chainId": 1,
-    "from": "2026-10-20",
-    "to": "2026-11-18",
+    "from": "2026-10-21",
+    "to": "2026-11-19",
     "days": [
-      {
-        "day": "2026-10-20",
-        "blobs": 37384,
-        "blobTransactions": 14546,
-        "uniqueSenders": 172
-      },
       {
         "day": "2026-10-21",
         "blobs": 42621,
         "blobTransactions": 15901,
+        "uniqueSenders": 173
+      },
+      {
+        "day": "2026-10-22",
+        "blobs": 38158,
+        "blobTransactions": 14790,
         "uniqueSenders": 173
       }
     ]

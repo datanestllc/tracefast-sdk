@@ -6,17 +6,17 @@
       {
         "token": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
         "symbol": "USDC",
-        "volumeUsd": 2178416450.51097,
-        "swapsAsToken0": 367596,
-        "swapsAsToken1": 254168,
+        "volumeUsd": 1954330182.1073983,
+        "swapsAsToken0": 356758,
+        "swapsAsToken1": 244780,
         "pools": 1485
       },
       {
         "token": "0xdac17f958d2ee523a2206206994597c13d831ec7",
         "symbol": "USDT",
-        "volumeUsd": 1673985667.449933,
-        "swapsAsToken0": 27627,
-        "swapsAsToken1": 405610,
+        "volumeUsd": 1560882152.587805,
+        "swapsAsToken0": 25595,
+        "swapsAsToken1": 393175,
         "pools": 1239
       }
     ]

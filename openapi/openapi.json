@@ -5377,19 +5377,27 @@
             "type": "string"
           },
           "entryCount": {
-            "description": "Entries in this answer, the `no_selector` entry included.",
+            "description": "Entries in the whole list (every page states the same number), the `no_selector` entry\nincluded — at most 1 000.",
             "minimum": 0,
             "type": "integer"
           },
           "functions": {
-            "description": "By `topLevelCalls`, most called first.",
+            "description": "By `topLevelCalls`, most called first (ties by selector); this page's.",
             "items": {
               "$ref": "#/components/schemas/FunctionCalls"
             },
             "type": "array"
           },
+          "hasMore": {
+            "description": "More entries of the list follow on a next page: the page is bounded in bytes (about\n448 KiB, a whole entry at a time, at least one). Every page is cut from one counted\nlist; the counts keep growing, so once the list has changed (it is recounted at most\nevery five minutes) its cursor is refused (`invalid_cursor`) — restart from the first\npage.",
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page.",
+            "type": "string"
+          },
           "truncated": {
-            "description": "Present (`true`) only when the address received more selectors than one answer\nlists (1 000); the least called are left out.",
+            "description": "Present (`true`) only when the address received more selectors than the list goes to\n(the 1 000 most called): the least called are not listed on any page. Not the same as\n`hasMore`.",
             "type": "boolean"
           }
         },
@@ -5398,7 +5406,8 @@
           "address",
           "coverage",
           "functions",
-          "entryCount"
+          "entryCount",
+          "hasMore"
         ],
         "type": "object"
       },
@@ -6909,15 +6918,20 @@
             "description": "The delegated account the funds left.",
             "type": "string"
           },
+          "tokenCount": {
+            "description": "How many tokens the detector lists for the outflow — present only when `tokensOut`\nholds fewer (its first 5). With `tokensTruncated` beside a count of 50, the detector's\nown list was cut too.",
+            "minimum": 0,
+            "type": "integer"
+          },
           "tokensOut": {
-            "description": "Net outflow per token; at most 50.",
+            "description": "Net outflow per token, in the detector's order; at most 5.",
             "items": {
               "$ref": "#/components/schemas/OutflowToken"
             },
             "type": "array"
           },
           "tokensTruncated": {
-            "description": "More than 50 tokens left: the list is not all of them.",
+            "description": "`tokensOut` is not every token that left: more than 5 did (or more than the 50 the\ndetector itself lists).",
             "type": "boolean"
           },
           "txHash": {
@@ -9706,8 +9720,13 @@
             "description": "The token contract, lowercase and `0x`-prefixed.",
             "type": "string"
           },
+          "tokenIdCount": {
+            "description": "How many NFT ids of this token left — present only when `tokenIds` lists fewer (its\nfirst 5). Absent when `tokenIds` is all of them.",
+            "minimum": 0,
+            "type": "integer"
+          },
           "tokenIds": {
-            "description": "The NFT ids that left, for an ERC-721 token.",
+            "description": "The NFT ids that left, for an ERC-721 token: at most 5, in the detector's order\n(`tokenIdCount` says how many left when there were more).",
             "items": {
               "type": "string"
             },
@@ -10644,8 +10663,16 @@
             "format": "int64",
             "type": "integer"
           },
+          "hasMore": {
+            "description": "More pools of the list follow on a next page: the page is bounded in bytes (about\n224 KiB, a whole pool at a time, at least one).",
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page.",
+            "type": "string"
+          },
           "pools": {
-            "description": "The pools, newest created first.",
+            "description": "The pools of this page, newest created first.",
             "items": {
               "$ref": "#/components/schemas/TokenPoolEntry"
             },
@@ -10660,7 +10687,7 @@
             "type": "string"
           },
           "truncated": {
-            "description": "`true` when more pools hold both tokens than this list carries (200).",
+            "description": "`true` when more pools hold both tokens than the list goes to (the 200 newest): the\noldest are not listed on any page. Not the same as `hasMore`.",
             "type": "boolean"
           }
         },
@@ -10669,7 +10696,8 @@
           "tokenA",
           "tokenB",
           "pools",
-          "truncated"
+          "truncated",
+          "hasMore"
         ],
         "type": "object"
       },
@@ -13189,8 +13217,13 @@
             "description": "The protocol (`uniswap`, `curve`, …).",
             "type": "string"
           },
+          "tokenCount": {
+            "description": "How many tokens the pool holds — present only when `tokens` lists fewer (its first 8).",
+            "minimum": 0,
+            "type": "integer"
+          },
           "tokens": {
-            "description": "The pool's tokens. Empty when its composition is not known.",
+            "description": "The pool's tokens, in the pool's own order: at most 8 (`tokenCount` says how many the\npool holds when there are more — the token asked about may then be past the eighth).\nEmpty when its composition is not known.",
             "items": {
               "$ref": "#/components/schemas/PoolLeg"
             },
@@ -13768,6 +13801,14 @@
         ],
         "type": "string"
       },
+      "TokenTransfersUnavailableReason": {
+        "description": "Why a transaction's token transfers are not listed (`tokenTransfersStatus: not_available`).",
+        "enum": [
+          "coverage_gap",
+          "source_unreadable"
+        ],
+        "type": "string"
+      },
       "TopDexToken": {
         "description": "One token of the DEX volume ranking.",
         "properties": {
@@ -13889,8 +13930,17 @@
             "minimum": 0,
             "type": "integer"
           },
+          "tokenCount": {
+            "description": "How many tokens the pool holds — present only when it holds more than `tokens` lists.\nAbsent with no `tokenCountState`: `tokens` is all of them.",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "tokenCountState": {
+            "description": "`unknown` when how many tokens the pool holds could not be read (no complete\ncomposition is recorded for it): `tokens` may then not be all of them. Absent otherwise.",
+            "type": "string"
+          },
           "tokens": {
-            "description": "The pool's tokens.",
+            "description": "The pool's tokens: with `by=tvl` the pool's own, in its order; with `by=volume` the pair\nits swaps traded (a pool of three or more tokens holds more). At most 8.",
             "items": {
               "$ref": "#/components/schemas/RankedPoolToken"
             },
@@ -13941,8 +13991,16 @@
             "minimum": 0,
             "type": "integer"
           },
+          "hasMore": {
+            "description": "More of the ranking (the top 100) follows on a next page.",
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page. Every page is cut\nfrom one snapshot of the ranking: once it has been recomputed differently, the cursor\nis refused (`invalid_cursor`) — restart from the first page.",
+            "type": "string"
+          },
           "pools": {
-            "description": "The pools, largest first.",
+            "description": "The pools of this page, largest first.",
             "items": {
               "$ref": "#/components/schemas/TopPool"
             },
@@ -13952,7 +14010,8 @@
         "required": [
           "chainId",
           "by",
-          "pools"
+          "pools",
+          "hasMore"
         ],
         "type": "object"
       },
@@ -14183,7 +14242,7 @@
             "type": "integer"
           },
           "internalTransfersCount": {
-            "description": "Value transfers made by inner calls, from the call trace. Absent until the trace is\ncomputed (usually within minutes); `0` is a fact.",
+            "description": "Value transfers made by inner calls, from the call trace: every call frame below the\ntop-level call that carried value — calls, contract creations and self-destructs, whether\nthe frame succeeded or failed. The same frames the transaction's internal transfers list.\nAbsent until the trace is available (usually within minutes); `0` is a fact.",
             "format": "int32",
             "type": "integer"
           },
@@ -14378,6 +14437,17 @@
                   {
                     "$ref": "#/components/schemas/TokenTransfersStatus",
                     "description": "Only with `includeTokenTransfers=true`: whether `tokenTransfers` lists every token\ntransfer the transaction emitted (`complete`), only the first ones (`truncated`), or\nnone because they cannot be read right now (`not_available`). Absent otherwise."
+                  }
+                ]
+              },
+              "tokenTransfersUnavailableReason": {
+                "oneOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/TokenTransfersUnavailableReason",
+                    "description": "Only beside `tokenTransfersStatus: not_available`: why the token transfers are not\nlisted — `coverage_gap` (this block is not covered for token transfers right now) or\n`source_unreadable` (they could not be read right now). Both mean \"retry later\", neither\nmeans \"no transfers\". Absent otherwise."
                   }
                 ]
               }
@@ -14728,21 +14798,30 @@
             "type": "integer"
           },
           "events": {
-            "description": "The transaction's liquidity events, in log order.",
+            "description": "The transaction's liquidity events of this page, in log order.",
             "items": {
               "$ref": "#/components/schemas/TxLiquidityEvent"
             },
             "type": "array"
           },
+          "hasMore": {
+            "description": "More events follow on a next page: the page is bounded in bytes (about 112 KiB, a\nwhole event at a time, at least one).",
+            "type": "boolean"
+          },
           "hash": {
             "description": "The transaction hash, lowercase and `0x`-prefixed.",
+            "type": "string"
+          },
+          "nextCursor": {
+            "description": "Pass back as `cursor` for the next page; absent on the last page.",
             "type": "string"
           }
         },
         "required": [
           "chainId",
           "hash",
-          "events"
+          "events",
+          "hasMore"
         ],
         "type": "object"
       },
@@ -15340,8 +15419,13 @@
             "description": "The event as the pool names it, for example `mint`, `burn`, `add_liquidity`.",
             "type": "string"
           },
+          "legCount": {
+            "description": "How many token legs the event has — present only when `legs` lists fewer (its first 8).",
+            "minimum": 0,
+            "type": "integer"
+          },
           "legs": {
-            "description": "The event's token legs.",
+            "description": "The event's token legs, in the event's order: at most 8 (`legCount` says how many it\nhas when there are more).",
             "items": {
               "$ref": "#/components/schemas/TxLiquidityLeg"
             },
@@ -15615,7 +15699,7 @@
       "name": ""
     },
     "title": "TraceFast API",
-    "version": "0.2.0+ee436838"
+    "version": "0.2.0+e851d8c1"
   },
   "openapi": "3.1.0",
   "paths": {
@@ -19460,7 +19544,7 @@
     },
     "/chains/{chain_id}/contracts/{address}/function-calls": {
       "get": {
-        "description": "TraceFast live Ethereum data: how often each function of an address was called — the transactions sent to it per 4-byte selector, most called first, with the block of the last one and the function's name where known — plus the first and the last block in which it received any call. The counts are top-level calls only: a call made from inside another contract is not counted. A proxy's calls are counted at the proxy. An address nobody called answers an empty list.",
+        "description": "TraceFast live Ethereum data: how often each function of an address was called — the transactions sent to it per 4-byte selector, most called first, with the block of the last one and the function's name where known — plus the first and the last block in which it received any call. The counts are top-level calls only: a call made from inside another contract is not counted. A proxy's calls are counted at the proxy. An address nobody called answers an empty list. At most the 1 000 most called selectors (`truncated` says when more exist; `entryCount` is the whole list's, on every page), paged by bytes: about 448 KiB a page, a whole entry at a time; `hasMore` says the list goes on — pass `nextCursor` back as `cursor` until it is absent. The counts keep growing: a cursor from a list recounted since is refused (`invalid_cursor`: restart).",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/contract-function-calls"
         },
@@ -19481,6 +19565,15 @@
             "in": "path",
             "name": "address",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method and address.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -19505,7 +19598,7 @@
                 }
               }
             },
-            "description": "`bad_request`: malformed address, or an unknown query parameter"
+            "description": "`bad_request`: malformed address, or an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
           },
           "401": {
             "content": {
@@ -23426,7 +23519,7 @@
     },
     "/chains/{chain_id}/entities/{address}/token-transfers": {
       "get": {
-        "description": "TraceFast live Ethereum data: the token transfers an address sent or received, newest first — the token as its contract declares itself, the raw amount (unscaled), the parties, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor; `order=asc` reads oldest first. A transfer the address made to itself is shown once. Filters (`direction`, `token`, `counterparty`, `tokenStandard`, `eventType`, `minValue` / `maxValue`) narrow the walk and are answered only inside a block window on a very active address; the refusal names the window it needs. A time window (`fromTimestamp` / `toTimestamp`) is turned into blocks and counts as one.",
+        "description": "TraceFast live Ethereum data: the token transfers an address sent or received, newest first — the token as its contract declares itself, the raw amount (unscaled), the parties, the transaction that emitted it and who sent that transaction, which on a router or a batch disburser is another party entirely. Covers ERC-20, ERC-721 and ERC-1155. Paged by an opaque cursor; `order=asc` reads oldest first. A transfer the address made to itself is shown once. Filters (`direction`, `token`, `counterparty`, `tokenStandard`, `eventType`, `minValue` / `maxValue`) narrow the walk. On a very active address, `tokenStandard` and `eventType` alone are answered without a block window when a page of matches lies near where the walk starts (the newest transfers, the oldest under `order=asc`, or the cursor); any other filter, and those two otherwise, is answered only inside a block window, and the refusal names the window it needs. A time window (`fromTimestamp` / `toTimestamp`) is turned into blocks and counts as one.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/entity-token-transfers"
         },
@@ -23518,7 +23611,7 @@
             }
           },
           {
-            "description": "Only rows whose other side is this address (`0x` + 40 hex). A filter like the others: on a very active address it is answered only inside a block window, and the refusal names the window it needs (`filter_needs_block_window`).",
+            "description": "Only rows whose other side is this address (`0x` + 40 hex). On a very active address it is answered only inside a block window, alone or beside any other filter, and the refusal names the window it needs (`filter_needs_block_window`).",
             "in": "query",
             "name": "counterparty",
             "required": false,
@@ -25059,7 +25152,7 @@
     },
     "/chains/{chain_id}/network/top-pools": {
       "get": {
-        "description": "TraceFast live Ethereum data: DEX pools ranked by USD volume over the last `days` UTC days (`by=volume`, the default; today included, still being counted) or by the USD value they hold now (`by=tvl`: only pools whose total TraceFast rates as trustworthy rank, with that rating's accuracy band). Each with the pool (its address, or for a Uniswap v4 pool its PoolId), protocol and tokens with their declared symbols. A volume adds what could be priced: `unpricedDays` counts the days with no price at all, and a day priced only in part counts as priced, so the ranking may order partial sums. The top 100 at most; `limit` takes the first ones.",
+        "description": "TraceFast live Ethereum data: DEX pools ranked by USD volume over the last `days` UTC days (`by=volume`, the default; today included, still being counted) or by the USD value they hold now (`by=tvl`: only pools whose total TraceFast rates as trustworthy rank, with that rating's accuracy band). Each with the pool (its address, or for a Uniswap v4 pool its PoolId), protocol and tokens with their declared symbols. A volume adds what could be priced: `unpricedDays` counts the days with no price at all, and a day priced only in part counts as priced, so the ranking may order partial sums. The ranking is the top 100, at most 20 a page: `hasMore` says it goes on — pass `nextCursor` back as `cursor`; a cursor from a ranking recomputed since is refused (`invalid_cursor`: restart). A pool lists at most 8 tokens: `tokenCount` says how many it holds when that is more (with `by=volume` the tokens are the pair its swaps traded), and `tokenCountState: unknown` that the count could not be read.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/network-top-pools"
         },
@@ -25100,16 +25193,25 @@
             }
           },
           {
-            "description": "1 to 100, default 25.",
+            "description": "1 to 20, default 10.",
             "in": "query",
             "name": "limit",
             "required": false,
             "schema": {
-              "default": 25,
+              "default": 10,
               "format": "int32",
-              "maximum": 100,
+              "maximum": 20,
               "minimum": 1,
               "type": "integer"
+            }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method, `by` and `days`.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -25132,7 +25234,7 @@
                 }
               }
             },
-            "description": "`bad_request`: `by` outside `volume` / `tvl` (`by_invalid`), `days` with `by=tvl` (`conflicting_parameters`), `days` outside 1 to 30 (`days_out_of_range`), `limit` outside 1 to 100, an unknown query parameter"
+            "description": "`bad_request`: `by` outside `volume` / `tvl` (`by_invalid`), `days` with `by=tvl` (`conflicting_parameters`), `days` outside 1 to 30 (`days_out_of_range`), `limit` outside 1 to 20 (`limit_out_of_range`, `details.maxLimit`), an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request or its ranking was recomputed — restart from the first page"
           },
           "401": {
             "content": {
@@ -25194,7 +25296,7 @@
     },
     "/chains/{chain_id}/pools/by-pair": {
       "get": {
-        "description": "TraceFast live Ethereum data: every DEX pool whose tokens include both `tokenA` and `tokenB` (in either order, and pools of three or more tokens that hold both), newest created first — each with its protocol and version, fee tier where the source records one, approximate creation block and its tokens. Uniswap v4 pools are included and named by their PoolId. At most 200 pools; `truncated` says when more exist.",
+        "description": "TraceFast live Ethereum data: every DEX pool whose tokens include both `tokenA` and `tokenB` (in either order, and pools of three or more tokens that hold both), newest created first — each with its protocol and version, fee tier where the source records one, approximate creation block and its tokens. Uniswap v4 pools are included and named by their PoolId. At most the 200 newest pools (`truncated` says when more exist), paged by bytes: about 224 KiB a page, a whole pool at a time; `hasMore` says the list goes on — pass `nextCursor` back as `cursor` until it is absent. A pool lists at most 8 of its tokens; `tokenCount` says how many it holds when there are more.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/pools-by-pair"
         },
@@ -25227,6 +25329,15 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method and pair (in either order).",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -25248,7 +25359,7 @@
                 }
               }
             },
-            "description": "`bad_request`: `tokenA` or `tokenB` missing or not an address (`address_invalid`, with `parameter`), an unknown query parameter"
+            "description": "`bad_request`: `tokenA` or `tokenB` missing or not an address (`address_invalid`, with `parameter`), an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
           },
           "401": {
             "content": {
@@ -27378,7 +27489,7 @@
     },
     "/chains/{chain_id}/signals/rates": {
       "get": {
-        "description": "TraceFast live Ethereum data: over the same 7 200 blocks as getSignals, how many signals were raised of each kind that getSignals does not list (every such kind is counted; the `countedKinds` of getSignalKinds always appear, zero included; flash-loan transactions are also counted by class), how far each detector has covered the window (`coverage`: an absent field is unknown, a counted kind whose detector has no entry has unknown coverage, and a count beside unknown or partial coverage is not 'nothing happened'), and the ten delegated outflows with the largest net ETH out (gas included), with the tokens that left (raw amounts; `decimals` absent when unknown, then print the amount raw). Recomputed at most once a minute. A signal is a detector's hypothesis, not a fact about an address.",
+        "description": "TraceFast live Ethereum data: over the same 7 200 blocks as getSignals, how many signals were raised of each kind that getSignals does not list (every such kind is counted; the `countedKinds` of getSignalKinds always appear, zero included; flash-loan transactions are also counted by class), how far each detector has covered the window (`coverage`: an absent field is unknown, a counted kind whose detector has no entry has unknown coverage, and a count beside unknown or partial coverage is not 'nothing happened'), and the ten delegated outflows with the largest net ETH out (gas included), with the tokens that left (raw amounts; `decimals` absent when unknown, then print the amount raw): at most 5 tokens an outflow (`tokensTruncated` when more left) and 5 NFT ids a token (`tokenIdCount` when more left). Recomputed at most once a minute. A signal is a detector's hypothesis, not a fact about an address.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/signal-rates"
         },
@@ -28059,7 +28170,7 @@
     },
     "/chains/{chain_id}/tokens/{token}/pools": {
       "get": {
-        "description": "TraceFast live Ethereum data: the DEX pools that hold the token, newest created first — each with its protocol and version, fee tier, approximate creation block, its tokens (address, symbol, decimals, role, weight where the pool declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no address of its own and is named by its `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10 000 most recently created pools of a token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page of pools whose tokens declare long texts can hold fewer than `limit` (pages are bounded in bytes too).",
+        "description": "TraceFast live Ethereum data: the DEX pools that hold the token, newest created first — each with its protocol and version, fee tier, approximate creation block, its tokens (address, symbol, decimals, role, weight where the pool declares one) and its USD volume over the last 7 days. A Uniswap v4 pool has no address of its own and is named by its `poolId`, the PoolId the protocol's events use. TraceFast ranks at most the 10 000 most recently created pools of a token; `rankedPools` says how many are ranked. Paged by an opaque cursor: pass `nextCursor` back as `cursor` until it is absent; a page of pools whose tokens declare long texts can hold fewer than `limit` (pages are bounded in bytes too). A pool lists at most 8 of its tokens; `tokenCount` says how many it holds when there are more.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/token-pools"
         },
@@ -28924,7 +29035,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}": {
       "get": {
-        "description": "TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index) — with its whole calldata (up to 128 KiB inline) and the call decoded from it: arguments by position and type against known function signatures, with how far the decode may be trusted. The signature text comes from public signature databases anyone can add to, and a decoded string is whatever the caller wrote: both are untrusted text. With `includeTokenTransfers=true` it also lists the token transfers the transaction emitted, in log order — the token (contract, standard, declared symbol and decimals), the event kind, from, to, the raw amount or token id — the first 140 at most, with `tokenTransferCount` (all of them) and `tokenTransfersStatus` (`complete`, `truncated`, or `not_available` when they cannot be read right now — never an empty list then). Served from seconds after inclusion; a hash that is not known answers 404.",
+        "description": "TraceFast live Ethereum data: one transaction by hash — sender, recipient, value, nonce, type, gas limit and gas used, the fee fields of its type and the price actually paid per gas, the receipt's outcome and log count, and its position (block and index) — with its whole calldata (up to 128 KiB inline) and the call decoded from it: arguments by position and type against known function signatures, with how far the decode may be trusted. The signature text comes from public signature databases anyone can add to, and a decoded string is whatever the caller wrote: both are untrusted text. With `includeTokenTransfers=true` it also lists the token transfers the transaction emitted, in log order — the token (contract, standard, declared symbol and decimals), the event kind, from, to, the raw amount or token id — the first 140 at most, with `tokenTransferCount` (all of them) and `tokenTransfersStatus` (`complete`, `truncated`, or `not_available` when they cannot be read right now — never an empty list then, and `tokenTransfersUnavailableReason` says why: `coverage_gap` or `source_unreadable`, both meaning \"retry later\"). Served from seconds after inclusion; a hash that is not known answers 404.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction"
         },
@@ -28950,7 +29061,7 @@
             }
           },
           {
-            "description": "`true` adds `tokenTransfers`, `tokenTransferCount` and `tokenTransfersStatus`; `false` (the default) answers without them.",
+            "description": "`true` adds `tokenTransfers`, `tokenTransferCount` and `tokenTransfersStatus` (with `tokenTransfersUnavailableReason` when not available); `false` (the default) answers without them.",
             "in": "query",
             "name": "includeTokenTransfers",
             "required": false,
@@ -29676,7 +29787,7 @@
     },
     "/chains/{chain_id}/transactions/{hash}/liquidity-events": {
       "get": {
-        "description": "TraceFast live Ethereum data: every liquidity event in the transaction, in log order — the pool, its protocol, the provider, whether liquidity was added or removed, and each token leg: the token with its declared symbol and decimals (verbatim, not verified), the raw amount and in token units, and its USD value with the price and how it was valued, as the source states them. An empty list means no liquidity event happened in the transaction. A transaction past the events' reach answers 422 rather than an empty list. Uniswap v4 liquidity events are not recorded.",
+        "description": "TraceFast live Ethereum data: every liquidity event in the transaction, in log order — the pool, its protocol, the provider, whether liquidity was added or removed, and each token leg: the token with its declared symbol and decimals (verbatim, not verified), the raw amount and in token units, and its USD value with the price and how it was valued, as the source states them. An empty list means no liquidity event happened in the transaction. A transaction past the events' reach answers 422 rather than an empty list. Uniswap v4 liquidity events are not recorded. Paged by bytes: about 112 KiB a page, a whole event at a time; `hasMore` says more events follow — pass `nextCursor` back as `cursor` until it is absent. An event lists at most 8 legs; `legCount` says how many it has when there are more.",
         "externalDocs": {
           "url": "https://docs.tracefast.xyz/api/transaction-liquidity-events"
         },
@@ -29697,6 +29808,15 @@
             "in": "path",
             "name": "hash",
             "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "`nextCursor` of the previous page. Opaque; valid only for this method and transaction.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
             "schema": {
               "type": "string"
             }
@@ -29721,7 +29841,7 @@
                 }
               }
             },
-            "description": "`bad_request`: a malformed hash (`tx_hash_invalid`), or a query parameter was given"
+            "description": "`bad_request`: a malformed hash (`tx_hash_invalid`), or an unknown query parameter; `invalid_cursor`: the cursor is not valid for this request — restart from the first page"
           },
           "401": {
             "content": {

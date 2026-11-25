@@ -18,8 +18,8 @@
             "symbol": "USDS"
           }
         ],
-        "volumeUsd": 1141267913.2876344,
-        "swaps": 12076
+        "volumeUsd": 696196548.069176,
+        "swaps": 11350
       },
       {
         "pool": "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
@@ -35,10 +35,12 @@
             "symbol": "WETH"
           }
         ],
-        "volumeUsd": 1136272566.5832038,
-        "swaps": 44184
+        "volumeUsd": 548989051.8621823,
+        "swaps": 46873
       }
-    ]
+    ],
+    "hasMore": true,
+    "nextCursor": "AVsyLC0zNzY1MjM0NjYxMTU2NDgzOTAxXZdvrxnDGxuDKx5Fuy7rC90"
   },
   "meta": {
     "chain": "ethereum",

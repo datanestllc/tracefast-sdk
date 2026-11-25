@@ -5,15 +5,15 @@
     "rankedPools": 10000,
     "pools": [
       {
-        "poolId": "0xa9b196ee30ef8c2548015b110e8d67ce55b2049fe883c257b2315636ccfec5de",
+        "poolId": "0x336bd931e9f0f106963835b251d4472ba643baa8c5a91748e410f3c900b74c39",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26446392,
+        "creationBlockApprox": 26489115,
         "tokens": [
           {
-            "address": "0x2b628499cdbf0c5210dfba191b8b6e4213abfade",
-            "symbol": "FADE",
-            "name": "Fade Protocol",
+            "address": "0x2193114b84a3616e4266f352cf77e6b2ff5a9dc4",
+            "symbol": "WIKI",
+            "name": "Wikipedia Coin",
             "decimals": 18,
             "role": "asset"
           },
@@ -28,10 +28,10 @@
         "compositionStatus": "complete"
       },
       {
-        "poolId": "0x21d187345bab89d24666fca1621a4bf8ac0d0ee650fe901f8c3d2153fdc82153",
+        "poolId": "0xa0a73d1874de5f2267f22757ffb6dfa5c5e5acd393835277408e16c44fd63ff9",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26446331,
+        "creationBlockApprox": 26489109,
         "tokens": [
           {
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -41,9 +41,9 @@
             "role": "asset"
           },
           {
-            "address": "0xe7ca8fefff49823ee734877afdec2582dc80bbd4",
-            "symbol": "GTA",
-            "name": "Grand Theft Apes",
+            "address": "0xd305785d98f72868d047ce8d4cbaec6dcb6acccc",
+            "symbol": "zc",
+            "name": "zipcoin",
             "decimals": 18,
             "role": "asset"
           }
@@ -51,7 +51,7 @@
         "compositionStatus": "complete"
       }
     ],
-    "nextCursor": "AVsyNjQ0NjMzMSwiYzFiM2UxMmUxZDUwNGFhMzZjN2YzOTJkY2FhZmQ3MDY3ODFjM2E5NjgxN2QxOTY1MDNiODE3MThhZjJkMzU4YSJdX-lajXv0js0NwkMSUS311A"
+    "nextCursor": "AVsyNjQ4OTEwOSwiMjRmNmVhNGZhZmIxN2NkNjE4YWZjODdmN2Q3MzA5MDYyM2UyZWRiYjU3NDdjYmRlMjllMGEyODllNTdhZTRiOSJdsVtE0Nj3xoXikVVECABwbg"
   },
   "meta": {
     "chain": "ethereum",

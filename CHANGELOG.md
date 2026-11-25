@@ -2,10 +2,10 @@
 
 All three packages share one version and one changelog. Dates are UTC.
 
-## 0.1.0 — 2026-11-19
+## 0.1.0 — 2026-11-25
 
 First version of the TypeScript, Python and Rust SDKs, generated from API
-catalogue `0.2.0+ee436838`.
+catalogue `0.2.0+e851d8c1`.
 
 - Every method of the catalogue — 110 — typed, grouped in 12 namespaces plus
   `resolve`. One is Beta: `transactions.storageSlots`, what each storage slot
@@ -15,8 +15,10 @@ catalogue `0.2.0+ee436838`.
   transaction its whole calldata (`input`).
 - Text that third parties wrote on chain is bounded where the API bounds it:
   a field past its bound is absent, and a state field says why
-  (`nameState`, `textState`, `dataState`, `valueState`). Contract selectors
-  and the decompiled table of contents are paged like every other list.
+  (`nameState`, `textState`, `dataState`, `valueState`). Contract selectors,
+  the decompiled table of contents, calls per function of a contract, the
+  top pools, the pools of a pair and the liquidity events of a transaction
+  are paged like every other list.
 - Values that can take more than one shape (a decoded argument, the checks of
   a proof and their values) are typed as unions: a TypeScript union, a Python
   `|` alias, a Rust untagged enum. No field of any response is untyped.

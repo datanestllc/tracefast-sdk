@@ -5,10 +5,10 @@
     "tokenB": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
     "pools": [
       {
-        "poolId": "0x8db8cf12e15c871479a720d2a555ceac838859f13fb2a7d4302bb698a7d6e162",
+        "poolId": "0x846aae799625f5ef5460e927bc72c685a04327434ad527e1c2f7eeb7859fd4c1",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26405456,
+        "creationBlockApprox": 26488003,
         "tokens": [
           {
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -28,10 +28,10 @@
         "compositionStatus": "complete"
       },
       {
-        "poolId": "0xee1755c714005390b696bf0ce09b20867495da2b93ef97a3008358321103e8a9",
+        "poolId": "0xd5d4d26f34723efbf84a38cdbc206121bf4429959c8d252b1e8e7a440f07b301",
         "protocol": "uniswap",
         "version": "v4",
-        "creationBlockApprox": 26395731,
+        "creationBlockApprox": 26485723,
         "tokens": [
           {
             "address": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
@@ -51,7 +51,8 @@
         "compositionStatus": "complete"
       }
     ],
-    "truncated": true
+    "truncated": true,
+    "hasMore": false
   },
   "meta": {
     "chain": "ethereum",
